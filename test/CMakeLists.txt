@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 2.8)
+
+add_definitions(-std=c++1z)
+add_definitions(-Werror)
+add_definitions(-Weverything)
+
+add_definitions(-Wno-c++98-compat)
+add_definitions(-Wno-c++98-compat-pedantic)
+add_definitions(-Wno-deprecated)
+add_definitions(-Wno-documentation-unknown-command)
+add_definitions(-Wno-global-constructors)
+add_definitions(-Wno-missing-noreturn)
+add_definitions(-Wno-old-style-cast)
+add_definitions(-Wno-padded)
+add_definitions(-Wno-shift-sign-overflow)
+add_definitions(-Wno-undef)
+add_definitions(-Wno-used-but-marked-unused)
+add_definitions(-Wno-weak-vtables)
+
+function(add_test_case name)
+  add_executable(${name}.test ${name}.test.cpp)
+  target_link_libraries(${name}.test gtest gtest_main pthread)
+  add_test(${name} ${name}.test)
+endfunction(add_test_case)
+
+add_test_case(apply)
+add_test_case(cnstr)
+add_test_case(typical)

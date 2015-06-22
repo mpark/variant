@@ -1,0 +1,6 @@
+[submodule "3rdparty/googletest"]
+	path = 3rdparty/googletest
+	url = https://git.chromium.org/git/external/googletest.git
+[submodule "3rdparty/meta"]
+	path = 3rdparty/meta
+	url = git@github.com:ericniebler/meta.git
