@@ -60,17 +60,13 @@ TEST(Direct, BetterMatch) {
 
 TEST(Direct, NoMatch) {
   struct x {};
-  // mpark::variant<int, std::string> v(x{});
-  // "error: no matching constructor for initialization of
-  //  'mpark::variant<int, std::string>'"
-  static_assert(!std::is_constructible<mpark::variant<int, std::string>, x>{});
+  static_assert(!std::is_constructible<mpark::variant<int, std::string>, x>{},
+                "mpark::variant<int, std::string> v(x{});");
 }
 
 TEST(Direct, Ambiguous) {
-  // mpark::variant<short, long> v(42);
-  // "error: no matching constructor for initialization of
-  //  'mpark::variant<short, long>'"
-  static_assert(!std::is_constructible<mpark::variant<short, long>, int>{});
+  static_assert(!std::is_constructible<mpark::variant<short, long>, int>{},
+                "mpark::variant<short, long> v(42);");
 }
 
 TEST(InPlace, Copy) {
@@ -111,20 +107,17 @@ TEST(InPlace, InitializerList) {
 }
 
 TEST(InPlace, NoMatch) {
-  // mpark::variant<int, std::string> v(mpark::in_place<double>, 4.2);
-  // "error: no matching constructor for initialization of
-  //  'mpark::variant<int, std::string>'"
-  static_assert(!std::is_constructible<mpark::variant<int, std::string>,
-                                       mpark::in_place_t<double>,
-                                       double>{});
+  static_assert(
+      !std::is_constructible<mpark::variant<int, std::string>,
+                             mpark::in_place_t<double>,
+                             double>{},
+      "mpark::variant<int, std::string> v(mpark::in_place<double>, 4.2);");
 }
 
 TEST(Variant, Default) {
-  // mpark::variant<int, std::string> v;
-  // "error: no matching constructor for initialization of
-  //  'mpark::variant<int, std::string>'"
   static_assert(
-      !std::is_default_constructible<mpark::variant<int, std::string>>{});
+      !std::is_default_constructible<mpark::variant<int, std::string>>{},
+      "mpark::variant<int, std::string> v;");
   // Nullable `v`.
   mpark::variant<mpark::null_t, int, std::string, mpark::null_t> v;
   EXPECT_EQ(typeid(mpark::null_t), v.type());
@@ -162,7 +155,7 @@ TEST(Variant, Diamond) {
   // Valid type.
   auto dummy = [](const mpark::variant<> &) {};
   (void)dummy;
-  // mpark::variant<> v;
-  // "error: no matching constructor for initialization of 'mpark::variant<>'"
-  static_assert(!std::is_default_constructible<mpark::variant<>>{});
+  // Not constructible.
+  static_assert(!std::is_default_constructible<mpark::variant<>>{},
+                "mpark::variant<> v;");
 }

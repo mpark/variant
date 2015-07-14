@@ -17,8 +17,6 @@ TEST(Variant, Intro) {
   // Check `w`.
   EXPECT_EQ(typeid(int), w.type());
   EXPECT_EQ(42, mpark::get<int>(w));
-
   // mpark::get<double>(v);  // ill-formed.
-
   EXPECT_THROW(mpark::get<float>(v), mpark::bad_variant_access);
 }
