@@ -61,24 +61,28 @@ The following table is a summary of the mapping.
 
 ## Comparison with [N4542]
 
-| Aspect                     | N4542                | MPark.Variant                          |
-|----------------------------|----------------------|----------------------------------------|
-| Default Construction       | First `T` in `Ts...` | `monostate`, if `monostate` in `Ts...` |
-| Conversions                | No                   | Yes                                    |
-| Heterogeneous Assignment   | No                   | Yes                                    |
-| Name of Type In-place Tag  | `emplaced_type_t`    | `in_place_t`                           |
-| Index In-place Tag         | Yes                  | No                                     |
-| `index()`                  | Yes                  | No                                     |
-| `get<Index>`               | Yes                  | No                                     |
+| Aspect                    | N4542                | MPark.Variant               |
+|---------------------------|----------------------|-----------------------------|
+| Name of the Empty State   | `monostate`          | `null_t`                    |
+| Default Construction      | First `T` in `Ts...` | Yes, if `null_t` in `Ts...` |
+| Conversions               | No                   | Yes                         |
+| Heterogeneous Assignment  | No                   | Yes                         |
+| Name of Type In-place Tag | `emplaced_type_t`    | `in_place_t`                |
+| Index In-place Tag        | Yes                  | No                          |
+| `index()`                 | Yes                  | No                          |
+| `get<Index>`              | Yes                  | No                          |
 
 ## The Empty State
 
-The name of the empty state is `monostate` which is the same as what seem to
-have reached consensus in [N4542]. However, the user of `variant` explicitly
-__opts in__ for an __empty__ `variant` by including the `monostate` type in
-the template parameter list of `variant`. This is the approach [Jason Lucas]
-and I took when we put together for the [Polymorphism with Unions] presentation
-for CppCon14.
+The empty state in `MPark.Variant` is called `null_t` and it has special
+behavior unlike `monostate` from [N4542]. The presence of `null_t` in the
+template parameter list enables default construction and contextual conversion
+to `bool`. This is the approach [Jason Lucas] and I took when we put together
+the [Polymorphism with Unions] presentation for CppCon14. It was mentioned in
+[N4450] but was claimed that it adds complexity to an otherwise simple type.
+I personally don't think that it adds much complexity and makes `variant` more
+general.
 
 [Jason Lucas]: https://github.com/JasonL9000
 [Polymorphism with Unions]: https://www.youtube.com/watch?v=uii2AfiMA0o
+[N4450]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4450.pdf
