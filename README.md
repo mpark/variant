@@ -58,3 +58,16 @@ The following table is a summary of the mapping.
 | `void *`                                  | `any`                  |
 | `T *`                                     | `optional<T>`          |
 | `B *` (each of `Ts...` inherits from `B`) | `variant<Ts...>`       |
+
+## Comparison with [N4542]
+
+| Aspect                     | N4542                | MPark.Variant                          |
+|----------------------------|----------------------|----------------------------------------|
+| Default Construction       | First `T` in `Ts...` | `monostate`, if `monostate` in `Ts...` |
+| Conversions                | No                   | Yes                                    |
+| Heterogeneous Assignment   | No                   | Yes                                    |
+| Duplicate Types            | Yes                  | No                                     |
+| Name of Type In-place Tag  | `emplaced_type_t`    | `in_place_t`                           |
+| Index In-place Tag         | Yes                  | No                                     |
+| `index()`                  | Yes                  | No                                     |
+| `get<Index>`               | Yes                  | No                                     |
