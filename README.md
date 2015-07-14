@@ -95,3 +95,11 @@ This library requires a standard conformant C++14 compiler.
 The following configurations were successfully tested:
 
 * Mac OS X Yosemite, Clang 3.5, 3.6 (with libc++)
+
+## Future Work
+
+* Specify correct `noexcept` specifications.
+* Implement `swap`.
+* Implement relational operators.
+* `std::hash` support.
+* Add tests for assignment, destruction, get, swap, relational operators.
