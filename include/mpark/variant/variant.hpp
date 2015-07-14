@@ -44,7 +44,9 @@ namespace mpark {
 
         variant(variant &&that) { apply(constructor{*this}, std::move(that)); }
 
-        template <typename T, typename... Args>
+        template <typename T,
+                  typename... Args,
+                  typename = std::enable_if_t<meta::in<types, T>{}>>
         explicit constexpr variant(in_place_t<T>, Args &&... args)
             : variant(find_index<T>{}, std::forward<Args>(args)...) {}
 
@@ -185,10 +187,12 @@ namespace mpark {
 
     using super = detail::variant::variant<Ts...>;
 
+    using types = meta::list<Ts...>;
+
     public:
 
     template <typename T = null_t,
-              typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
+              typename = std::enable_if_t<meta::in<types, T>{}>>
     constexpr variant()
         : super(null) {}
 
@@ -200,7 +204,10 @@ namespace mpark {
     constexpr variant(std::initializer_list<T> arg)
         : super(arg) {}
 
-    template <typename T, typename U, typename... Args>
+    template <typename T,
+              typename U,
+              typename... Args,
+              typename = std::enable_if_t<meta::in<types, T>{}>>
     explicit constexpr variant(in_place_t<T> tag,
                                std::initializer_list<U> arg,
                                Args &&... args)
