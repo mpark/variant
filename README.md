@@ -87,3 +87,11 @@ general.
 [Jason Lucas]: https://github.com/JasonL9000
 [Polymorphism with Unions]: https://www.youtube.com/watch?v=uii2AfiMA0o
 [N4450]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4450.pdf
+
+## Requirements
+
+This library requires a standard conformant C++14 compiler.
+
+The following configurations were successfully tested:
+
+* Mac OS X Yosemite, Clang 3.5, 3.6 (with libc++)
