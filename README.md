@@ -71,3 +71,15 @@ The following table is a summary of the mapping.
 | Index In-place Tag         | Yes                  | No                                     |
 | `index()`                  | Yes                  | No                                     |
 | `get<Index>`               | Yes                  | No                                     |
+
+## The Empty State
+
+The name of the empty state is `monostate` which is the same as what seem to
+have reached consensus in [N4542]. However, the user of `variant` explicitly
+__opts in__ for an __empty__ `variant` by including the `monostate` type in
+the template parameter list of `variant`. This is the approach [Jason Lucas]
+and I took when we put together for the [Polymorphism with Unions] presentation
+for CppCon14.
+
+[Jason Lucas]: https://github.com/JasonL9000
+[Polymorphism with Unions]: https://www.youtube.com/watch?v=uii2AfiMA0o
