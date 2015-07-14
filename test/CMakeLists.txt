@@ -25,4 +25,4 @@ endfunction(add_test_case)
 
 add_test_case(apply)
 add_test_case(cnstr)
-add_test_case(typical)
+add_test_case(intro)
