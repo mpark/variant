@@ -98,7 +98,7 @@ namespace mpark {
         const std::type_info &type() const noexcept {
           return apply([](auto &&elem) -> const std::type_info & {
             using Elem = decltype(elem);
-            using T = std::decay_t<decltype(elem)>;
+            using T = std::decay_t<Elem>;
             return typeid(T);
           }, *this);
         }
