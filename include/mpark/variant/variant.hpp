@@ -52,6 +52,12 @@ namespace mpark {
 
         ~variant() { destruct(); }
 
+        template <typename T = null_t,
+                  typename = std::enable_if_t<meta::in<types, T>{}>>
+        explicit constexpr operator bool() const noexcept {
+          return index_ != find_index<T>{};
+        }
+
         template <typename T>
         std::enable_if_t<has_best_match<T &&, types>{},
         variant &> operator=(T &&arg) {
