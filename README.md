@@ -39,6 +39,7 @@ ideas regarding this topic at the next ISO C++ meeting.
 ## The Conceptual Model
 
 The conceptual model for [N4542] is a discriminated union of types `Ts...`.
+
 From `Boost.Variant`'s [abstract]:
 
 [abstract]: http://www.boost.org/doc/libs/1_58_0/doc/html/variant.html#variant.abstract
@@ -72,7 +73,7 @@ The following table is a summary of the mapping.
 | `index()`                 | Yes                  | No                          |
 | `get<Index>`              | Yes                  | No                          |
 
-## The Empty State
+### The Empty State
 
 The empty state in `MPark.Variant` is called `null_t` and it has special
 behavior unlike `monostate` from [N4542]. The presence of `null_t` in the
