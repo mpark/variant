@@ -59,11 +59,11 @@ TEST(Direct, BetterMatch) {
 }
 
 TEST(Direct, NoMatch) {
-  struct X {};
-  // mpark::variant<int, std::string> v(X{});
+  struct x {};
+  // mpark::variant<int, std::string> v(x{});
   // "error: no matching constructor for initialization of
   //  'mpark::variant<int, std::string>'"
-  static_assert(!std::is_constructible<mpark::variant<int, std::string>, X>{});
+  static_assert(!std::is_constructible<mpark::variant<int, std::string>, x>{});
 }
 
 TEST(Direct, Ambiguous) {

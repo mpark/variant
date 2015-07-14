@@ -71,24 +71,20 @@ namespace mpark {
 
         template <typename T, typename Arg>
         void assign(Arg &&arg) {
+          static_assert(meta::in<types, T>{},
+                        "T must be one of the types in the variant.");
           if (index_ == find_index<T>{}) {
             get(meta::id<T>{}) = std::forward<Arg>(arg);
-          } else {
-            // TODO: Currently we just assume T is noexcept moveable.
-            //       In general this is not true. We should either:
-            //         (1) Enforce that all types are noexcept moveable.
-            //         (2) If any of them are not noexcept moveable, then we
-            //             require that one of the specified types is `void`.
-            //       If (1), we can use the below algorithm.
-            //       If (2), we need to bring ourself to the `void` state.
-            //               if/when the copy fails.
-            T temp(std::forward<Arg>(arg));
-            emplace<T>(std::move(temp));
+            return;
           }  // if
+          T temp(std::forward<Arg>(arg));
+          emplace<T>(std::move(temp));
         }
 
         template <typename T, typename... Args>
         void emplace(Args &&... args) {
+          static_assert(meta::in<types, T>{},
+                        "T must be one of the types in the variant.");
           destruct();
           construct<T>(std::forward<Args>(args)...);
         }
@@ -100,6 +96,8 @@ namespace mpark {
             return typeid(T);
           }, *this);
         }
+
+        bool valid() const noexcept { return index_ != meta::npos{}; }
 
         private:
 
@@ -134,16 +132,19 @@ namespace mpark {
 
         template <typename T, typename... Args>
         void construct(Args &&... args) {
+          index_ = meta::npos{};
           ::new (this->data()) T(std::forward<Args>(args)...);
           index_ = find_index<T>{};
         }
 
         void destruct() noexcept {
-          apply([](auto &elem) {
-            using Elem = decltype(elem);
-            using T = std::decay_t<Elem>;
-            elem.~T();
-          }, *this);
+          if (valid()) {
+            apply([](auto &elem) {
+              using Elem = decltype(elem);
+              using T = std::decay_t<Elem>;
+              elem.~T();
+            }, *this);
+          }
         }
 
         template <typename T>
