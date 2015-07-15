@@ -47,7 +47,7 @@ From `Boost.Variant`'s [abstract]:
 > Whereas standard containers such as `std::vector` may be thought of as
 > "__multi-value, single type__," `variant` is "__multi-type, single value__."
 
-The conceptual model for `MPark.Variant` is closer to a class inheritance
+The conceptual model for __MPark.Variant__ is closer to a class inheritance
 hierarchy collapsed into a value type. Libraries such as `any` and `optional`
 effectively provide value semantics for various language features which provide
 reference semantics due to its pointer nature.
@@ -75,7 +75,7 @@ The following table is a summary of the mapping.
 
 ### The Empty State
 
-The empty state in `MPark.Variant` is called `null_t` and it has special
+The empty state in __MPark.Variant__ is called `null_t` and it has special
 behavior unlike `monostate` from [N4542]. The presence of `null_t` in the
 template parameter list enables default construction and contextual conversion
 to `bool`. This is the approach [Jason Lucas] and I took when we put together
