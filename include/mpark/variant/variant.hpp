@@ -81,10 +81,9 @@ namespace mpark {
                         "T must be one of the types in the variant.");
           if (index_ == find_index<T>{}) {
             get(meta::id<T>{}) = std::forward<Arg>(arg);
-            return;
+          } else {
+            emplace<T>(T(std::forward<Arg>(arg)));
           }  // if
-          T temp(std::forward<Arg>(arg));
-          emplace<T>(std::move(temp));
         }
 
         template <typename T, typename... Args>
@@ -150,7 +149,7 @@ namespace mpark {
               using T = std::decay_t<Elem>;
               elem.~T();
             }, *this);
-          }
+          }  // if
         }
 
         template <typename T>
