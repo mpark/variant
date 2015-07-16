@@ -31,10 +31,9 @@ polymorphism rather than to actually represent inheritance relationships.
 Finally, the strongest motivation for this library in particular is to explore
 different ways we could introduce a `std::variant`. [N4542] is the latest state
 of the `std::variant` proposal which is shaping up, but I'd like to present my
-ideas and opinions regarding this topic at the next ISO C++ meeting.
+ideas and opinions regarding this topic at the next ISO C++ Standards meeting.
 
 [N2544]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2544.pdf
-[N4542]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4542.pdf
 
 ## Comparison with [N4542]
 
@@ -56,7 +55,7 @@ This modelling is apparent from some of its characteristics:
    difference being that with `union`, each alternative would simply have a
    name for them rather than an index.
 
-__Boost.Variant__ also uses the discriminated union as its conceptual model and
+__[Boost.Variant]__ also uses the discriminated union as its conceptual model and
 its [abstract] reads:
 
 [abstract]: http://www.boost.org/doc/libs/1_58_0/doc/html/variant.html#variant.abstract
@@ -187,6 +186,16 @@ This library requires a standard conformant C++14 compiler.
 The following configurations were successfully tested:
 
 * Mac OS X Yosemite, Clang 3.5, 3.6 (with libc++)
+
+## Related Work
+
+* __[N4542]__ by Axel Naumann
+* __[Boost.Variant]__ by Eric Friedman and Itay Maman
+* __[Eggs.Variant]__ by Agustín Bergé (a.k.a K-ballo)
+
+[N4542]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4542.pdf
+[Boost.Variant]: http://www.boost.org/doc/libs/1_58_0/doc/html/variant.html
+[Eggs.Variant]: http://eggs-cpp.github.io/variant/
 
 ## Future Work
 
