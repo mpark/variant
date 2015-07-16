@@ -15,7 +15,7 @@ namespace mpark {
       struct qualify;
 
       template <typename T, typename U>
-      using qualify_t = meta::eval<qualify<T, U>>;
+      using qualify_t = meta::_t<qualify<T, U>>;
 
       template <typename T, typename U>
       struct qualify<T, U &> : meta::id<T &> {};

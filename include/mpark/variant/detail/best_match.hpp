@@ -28,7 +28,7 @@ namespace mpark {
 
       template <typename T, typename Ts>
       using get_best_match =
-          meta::eval<decltype(best_match<Ts>()(std::declval<T>()))>;
+          meta::_t<decltype(best_match<Ts>()(std::declval<T>()))>;
 
       template <typename T, typename Ts, typename = meta::void_<>>
       struct has_best_match : std::false_type {};
