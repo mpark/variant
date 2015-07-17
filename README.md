@@ -181,11 +181,13 @@ to an otherwise simple type.
 
 ## Requirements
 
-This library requires a standard conformant C++14 compiler.
+This library requires a standard conformant __C++14__ compiler.
 
 The following configurations were successfully tested:
 
-* Mac OS X Yosemite, Clang 3.5, 3.6 (with libc++)
+* __Mac OS X Yosemite__: Clang 3.5, 3.6, _Apple_ (with libc++)
+* __Ubuntu 14.04.2__: Clang 3.5, 3.6 (with libstdc++-5),
+                      GCC is currently not supported.
 
 ## Related Work
 
