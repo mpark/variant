@@ -27,7 +27,9 @@ TEST(LRef, MutableVariantConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   EXPECT_EQ("42"s,
             mpark::apply([](const auto &elem) {
-              return (std::ostringstream() << elem).str();
+              std::ostringstream strm;
+              strm << elem;
+              return strm.str();
             }, v));
 }
 
@@ -37,7 +39,9 @@ TEST(LRef, ConstVariantMutableType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   EXPECT_EQ("42"s,
             mpark::apply([](const auto &elem) {
-              return (std::ostringstream() << elem).str();
+              std::ostringstream strm;
+              strm << elem;
+              return strm.str();
             }, v));
 }
 
@@ -65,7 +69,9 @@ TEST(RRef, MutableVariantConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   EXPECT_EQ("42"s,
             mpark::apply([](const auto &&elem) {
-              return (std::ostringstream() << elem).str();
+              std::ostringstream strm;
+              strm << elem;
+              return strm.str();
             }, std::move(v)));
 }
 
@@ -75,7 +81,9 @@ TEST(RRef, ConstVariantMutableType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   EXPECT_EQ("42"s,
             mpark::apply([](const auto &&elem) {
-              return (std::ostringstream() << elem).str();
+              std::ostringstream strm;
+              strm << elem;
+              return strm.str();
             }, std::move(v)));
 }
 
@@ -83,7 +91,9 @@ TEST(Homo, Double) {
   mpark::variant<int, std::string> v("hello"s), w("world!"s);
   EXPECT_EQ("hello world!"s,
             mpark::apply([](const auto &lhs, const auto &rhs) {
-              return (std::ostringstream() << lhs << ' ' << rhs).str();
+              std::ostringstream strm;
+              strm << lhs << ' ' << rhs;
+              return strm.str();
             }, v, w));
 }
 
@@ -102,7 +112,9 @@ TEST(Hetero, Double) {
   mpark::variant<double, const char *> w("world!");
   EXPECT_EQ("hello world!"s,
             mpark::apply([](const auto &lhs, const auto &rhs) {
-              return (std::ostringstream() << lhs << ' ' << rhs).str();
+              std::ostringstream strm;
+              strm << lhs << ' ' << rhs;
+              return strm.str();
             }, v, w));
 }
 
