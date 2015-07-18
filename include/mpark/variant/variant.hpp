@@ -80,7 +80,9 @@ namespace mpark {
           static_assert(meta::in<types, T>{},
                         "T must be one of the types in the variant.");
           if (index_ == find_index<T>{}) {
+            index_ = meta::npos{};
             get(meta::id<T>{}) = std::forward<Arg>(arg);
+            index_ = find_index<T>{};
           } else {
             emplace<T>(T(std::forward<Arg>(arg)));
           }  // if

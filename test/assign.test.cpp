@@ -23,7 +23,8 @@ TEST(Valid, ThrowOnTemporaryConstruction) {
     // construct the temporary object. This results in our variant staying in
     // its original state.
     v = thrower_t{};
-  } catch (...) {
+  } catch (const std::exception &ex) {
+    EXPECT_STREQ("copy", ex.what());
     EXPECT_TRUE(v.valid());
     EXPECT_EQ(typeid(int), v.type());
     EXPECT_EQ(42, mpark::get<int>(v));
@@ -44,7 +45,30 @@ TEST(Valid, ThrowOnVariantConstruction) {
     // the invalid state.
     thrower_t thrower;
     v = thrower;
-  } catch (...) {
+  } catch (const std::exception &ex) {
+    EXPECT_STREQ("copy", ex.what());
+    EXPECT_FALSE(v.valid());
+    // We can still assign into a variant in an invalid state.
+    v = 42;
+    // Check `v`.
+    EXPECT_TRUE(v.valid());
+    EXPECT_EQ(typeid(int), v.type());
+    EXPECT_EQ(42, mpark::get<int>(v));
+  }
+}
+
+TEST(Valid, ThrowOnVariantAssignment) {
+  mpark::variant<int, thrower_t> v(mpark::in_place<thrower_t>);
+  // Check `v`.
+  EXPECT_TRUE(v.valid());
+  EXPECT_EQ(typeid(thrower_t), v.type());
+  try {
+    // Since `variant` is already in `thrower_t`, assignment optimization kicks
+    // and we simply invoke `thrower_t &thrower_t::operator=(thrower_t &&);`,
+    // which throws.
+    v = thrower_t{};
+  } catch (const std::exception &ex) {
+    EXPECT_STREQ("assign", ex.what());
     EXPECT_FALSE(v.valid());
     // We can still assign into a variant in an invalid state.
     v = 42;
