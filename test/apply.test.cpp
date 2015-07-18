@@ -1,6 +1,5 @@
 #include <string>
 #include <sstream>
-#include <vector>
 
 #include <mpark/variant.hpp>
 
