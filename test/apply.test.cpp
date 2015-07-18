@@ -8,83 +8,62 @@
 
 using namespace std::string_literals;
 
+enum class Qualifier { None, LRef, ConstLRef, RRef, ConstRRef };
+
+struct get_qualifier {
+  Qualifier operator()(int &) const { return Qualifier::LRef; }
+  Qualifier operator()(const int &) const { return Qualifier::ConstLRef; }
+  Qualifier operator()(int &&) const { return Qualifier::RRef; }
+  Qualifier operator()(const int &&) const { return Qualifier::ConstRRef; }
+};  // get_qualifier
+
 TEST(LRef, MutableVariantMutableType) {
-  mpark::variant<int, std::string> v("hello"s);
-  EXPECT_EQ(typeid(std::string), v.type());
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
-  struct set {
-    void operator()(int &elem) const { elem = 24; }
-    void operator()(std::string &elem) const { elem = "world"; }
-  };
-  mpark::apply(set(), v);
-  EXPECT_EQ(typeid(std::string), v.type());
-  EXPECT_EQ("world"s, mpark::get<std::string>(v));
+  mpark::variant<int> v(42);
+  // Check `v`.
+  EXPECT_EQ(typeid(int), v.type());
+  EXPECT_EQ(42, mpark::get<int>(v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::LRef, mpark::apply(get_qualifier(), v));
 }
 
 TEST(LRef, MutableVariantConstType) {
-  mpark::variant<const int, const std::string> v(42);
+  mpark::variant<const int> v(42);
   EXPECT_EQ(typeid(const int), v.type());
   EXPECT_EQ(42, mpark::get<const int>(v));
-  EXPECT_EQ("42"s,
-            mpark::apply([](const auto &elem) {
-              std::ostringstream strm;
-              strm << elem;
-              return strm.str();
-            }, v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstLRef, mpark::apply(get_qualifier(), v));
 }
 
 TEST(LRef, ConstVariantMutableType) {
-  const mpark::variant<int, std::string> v(42);
+  const mpark::variant<int> v(42);
   EXPECT_EQ(typeid(int), v.type());
   EXPECT_EQ(42, mpark::get<int>(v));
-  EXPECT_EQ("42"s,
-            mpark::apply([](const auto &elem) {
-              std::ostringstream strm;
-              strm << elem;
-              return strm.str();
-            }, v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstLRef, mpark::apply(get_qualifier(), v));
 }
 
 TEST(RRef, MutableVariantMutableType) {
-  mpark::variant<int, std::string> v("hello"s);
-  EXPECT_EQ(typeid(std::string), v.type());
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
-  struct move {
-    void operator()(int &&) const { ASSERT_TRUE(false); }
-    void operator()(std::string &&elem) const { result = std::move(elem); }
-    std::string &result;
-  };
-  std::string result;
-  mpark::apply(move{result}, std::move(v));
-  // Check `v`.
-  EXPECT_EQ(typeid(std::string), v.type());
-  EXPECT_EQ(""s, mpark::get<std::string>(v));
-  // Check `result`.
-  EXPECT_EQ("hello"s, result);
+  mpark::variant<int> v(42);
+  EXPECT_EQ(typeid(int), v.type());
+  EXPECT_EQ(42, mpark::get<int>(v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::RRef, mpark::apply(get_qualifier(), std::move(v)));
 }
 
 TEST(RRef, MutableVariantConstType) {
-  mpark::variant<const int, const std::string> v(42);
-  EXPECT_EQ(typeid(const int), v.type());
+  mpark::variant<const int> v(42);
+  EXPECT_EQ(typeid(int), v.type());
   EXPECT_EQ(42, mpark::get<const int>(v));
-  EXPECT_EQ("42"s,
-            mpark::apply([](const auto &&elem) {
-              std::ostringstream strm;
-              strm << elem;
-              return strm.str();
-            }, std::move(v)));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstRRef, mpark::apply(get_qualifier(), std::move(v)));
 }
 
 TEST(RRef, ConstVariantMutableType) {
-  const mpark::variant<int, std::string> v(42);
+  const mpark::variant<int> v(42);
   EXPECT_EQ(typeid(int), v.type());
   EXPECT_EQ(42, mpark::get<int>(v));
-  EXPECT_EQ("42"s,
-            mpark::apply([](const auto &&elem) {
-              std::ostringstream strm;
-              strm << elem;
-              return strm.str();
-            }, std::move(v)));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstRRef, mpark::apply(get_qualifier(), std::move(v)));
 }
 
 TEST(Homo, Double) {
