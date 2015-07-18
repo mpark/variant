@@ -55,4 +55,8 @@ namespace mpark {
     return detail::variant::get<T>(std::move(v));
   }
 
+  template <typename T, typename... Ts>
+  const T &&get(const variant<Ts...> &&v) {
+    return detail::variant::get<T>(std::move(v));
+  }
 }  // namespace mpark
