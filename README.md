@@ -205,4 +205,3 @@ The following configurations were successfully tested:
 * Implement `swap`.
 * Implement relational operators.
 * `std::hash` support.
-* Add tests for assignment, destruction, get, swap, relational operators.
