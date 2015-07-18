@@ -6,7 +6,7 @@
 
 using namespace std::string_literals;
 
-TEST(Direct, Copy) {
+TEST(Direct, LRef) {
   std::string x("hello"s);
   mpark::variant<int, std::string> v(x);
   // Check `x`.
@@ -16,7 +16,7 @@ TEST(Direct, Copy) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(v));
 }
 
-TEST(Direct, Move) {
+TEST(Direct, RRef) {
   std::string x("hello"s);
   mpark::variant<int, std::string> v(std::move(x));
   // Check `x`.
@@ -27,7 +27,7 @@ TEST(Direct, Move) {
 }
 
 TEST(Direct, Conversion) {
-  // `const char * -> std::string` is the only valid conversion.
+  // `const char *` -> `std::string` is the only valid conversion.
   mpark::variant<int, std::string> v("hello");
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -35,7 +35,8 @@ TEST(Direct, Conversion) {
 }
 
 TEST(Direct, InitializerList) {
-  // `const char * -> std::string` is the only valid conversion.
+  // `std::initializer_list<char>` -> `std::string` is the only valid
+  // conversion.
   mpark::variant<int, std::string> v({'h', 'e', 'l', 'l', 'o'});
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -51,7 +52,7 @@ TEST(Direct, ExactMatch) {
 }
 
 TEST(Direct, BetterMatch) {
-  // `char -> int` is better than `char -> double`
+  // `char` -> `int` is better than `char` -> `double`
   mpark::variant<int, double> v('x');
   // Check `v`.
   EXPECT_EQ(typeid(int), v.type());
@@ -69,7 +70,15 @@ TEST(Direct, Ambiguous) {
                 "mpark::variant<short, long> v(42);");
 }
 
-TEST(InPlace, Copy) {
+TEST(InPlace, Emplace) {
+  mpark::variant<const char *, std::string> v(
+      mpark::in_place<std::string>, 3u, 'a');
+  // Check `v`.
+  EXPECT_EQ(typeid(std::string), v.type());
+  EXPECT_EQ("aaa"s, mpark::get<std::string>(v));
+}
+
+TEST(InPlace, LRef) {
   std::string x("hello"s);
   mpark::variant<const char *, std::string> v(mpark::in_place<std::string>, x);
   // Check `x`.
@@ -79,7 +88,7 @@ TEST(InPlace, Copy) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(v));
 }
 
-TEST(InPlace, Move) {
+TEST(InPlace, RRef) {
   std::string x("hello"s);
   mpark::variant<const char *, std::string> v(mpark::in_place<std::string>,
                                               std::move(x));
@@ -118,6 +127,9 @@ TEST(Variant, Default) {
   static_assert(
       !std::is_default_constructible<mpark::variant<int, std::string>>{},
       "mpark::variant<int, std::string> v;");
+}
+
+TEST(Nullable, Default) {
   // Nullable `v`.
   mpark::variant<mpark::null_t, int, std::string, mpark::null_t> v;
   EXPECT_EQ(typeid(mpark::null_t), v.type());
@@ -129,8 +141,12 @@ TEST(Variant, Default) {
   EXPECT_EQ(typeid(mpark::null_t), x.type());
 }
 
-TEST(Variant, Copy) {
+TEST(Variant, LRef) {
   mpark::variant<int, std::string> v("hello"s);
+  // Check `v`.
+  EXPECT_EQ(typeid(std::string), v.type());
+  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  // Copy from `v`.
   mpark::variant<int, std::string> w(v);
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -140,8 +156,12 @@ TEST(Variant, Copy) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(w));
 }
 
-TEST(Variant, Move) {
+TEST(Variant, RRef) {
   mpark::variant<int, std::string> v("hello"s);
+  // Check `v`.
+  EXPECT_EQ(typeid(std::string), v.type());
+  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  // Move from `v`.
   mpark::variant<int, std::string> w(std::move(v));
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
