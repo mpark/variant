@@ -96,6 +96,8 @@ namespace mpark {
           construct<T>(std::forward<Args>(args)...);
         }
 
+        void swap(variant &that) { apply(swapper{*this, that}, *this, that); }
+
         const std::type_info &type() const noexcept {
           return apply([](auto &&elem) -> const std::type_info & {
             using Elem = decltype(elem);
@@ -131,6 +133,25 @@ namespace mpark {
           variant &self;
 
         };  // constructor
+
+        struct swapper {
+
+          template <typename T>
+          void operator()(T &lhs, T &rhs) const {
+            using std::swap;
+            swap(lhs, rhs);
+          }
+
+          template <typename Lhs, typename Rhs>
+          void operator()(Lhs &, Rhs &) const {
+            std::swap(self, other);
+          }
+
+          variant &self;
+
+          variant &other;
+
+        };  // swapper
 
         template <std::size_t I, typename... Args>
         explicit constexpr variant(meta::size_t<I> idx, Args &&... args)
@@ -238,5 +259,10 @@ namespace mpark {
     }
 
   };  // variant
+
+  template <typename... Ts>
+  void swap(variant<Ts...> &lhs, variant<Ts...> &rhs) {
+    lhs.swap(rhs);
+  }
 
 }  // namespace mpark

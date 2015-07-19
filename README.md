@@ -202,6 +202,5 @@ The following configurations were successfully tested:
 ## Future Work
 
 * Specify correct `noexcept` specifications.
-* Implement `swap`.
 * Implement relational operators.
 * `std::hash` support.
