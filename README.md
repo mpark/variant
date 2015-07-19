@@ -203,4 +203,3 @@ The following configurations were successfully tested:
 
 * Specify correct `noexcept` specifications.
 * Implement relational operators.
-* `std::hash` support.

@@ -266,3 +266,35 @@ namespace mpark {
   }
 
 }  // namespace mpark
+
+namespace std {
+
+  template <>
+  struct hash<mpark::null_t> {
+
+    using argument_type = mpark::null_t;
+    using result_type = std::size_t;
+
+    result_type operator()(const argument_type &) const {
+      return 0u;
+    }
+
+  };  // hash<mpark::null_t>
+
+  template <typename... Ts>
+  struct hash<mpark::variant<Ts...>> {
+
+    using argument_type = mpark::variant<Ts...>;
+    using result_type = std::size_t;
+
+    result_type operator()(const argument_type &v) const {
+      return mpark::apply([](const auto &elem) {
+        using Elem = decltype(elem);
+        using T = std::decay_t<Elem>;
+        return std::hash<T>()(elem);
+      }, v);
+    }
+
+  };  // hash<mpark::variant<Ts...>>
+
+}  // namespace std
