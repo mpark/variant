@@ -201,5 +201,8 @@ The following configurations were successfully tested:
 
 ## Future Work
 
+* Support for `get<T>(&v);`.
 * Specify correct `noexcept` specifications.
+* Full `constexpr` support.
+* Support for references in types.
 * Implement relational operators.
