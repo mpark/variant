@@ -30,7 +30,7 @@ namespace mpark {
       };  // getter
 
       template <typename T, typename V>
-      decltype(auto) get(V &&v) {
+      auto &&get(V &&v) {
         static_assert(meta::in<meta::as_list<std::decay_t<V>>, T>{},
                       "T must be one of the types in the variant.");
         return apply(getter<qualify_t<T, V &&>>{}, std::forward<V>(v));

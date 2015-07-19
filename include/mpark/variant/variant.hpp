@@ -176,22 +176,22 @@ namespace mpark {
         }
 
         template <typename T>
-        decltype(auto) get(meta::id<T>) & noexcept {
+        auto &get(meta::id<T>) & noexcept {
           return (*this)[find_index<T>{}];
         }
 
         template <typename T>
-        decltype(auto) get(meta::id<T>) const & noexcept {
+        const auto &get(meta::id<T>) const & noexcept {
           return (*this)[find_index<T>{}];
         }
 
         template <typename T>
-        decltype(auto) get(meta::id<T>) && noexcept {
+        auto &&get(meta::id<T>) && noexcept {
           return std::move(*this)[find_index<T>{}];
         }
 
         template <typename T>
-        decltype(auto) get(meta::id<T>) const && noexcept {
+        const auto &&get(meta::id<T>) const && noexcept {
           return std::move(*this)[find_index<T>{}];
         }
 

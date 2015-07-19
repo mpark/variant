@@ -63,22 +63,22 @@ namespace mpark {
         }
 
         template <std::size_t I>
-        constexpr decltype(auto) operator[](meta::size_t<I>) & noexcept {
+        constexpr auto &operator[](meta::size_t<I>) & noexcept {
           return tail_[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
-        constexpr decltype(auto) operator[](meta::size_t<I>) const & noexcept {
+        constexpr const auto &operator[](meta::size_t<I>) const & noexcept {
           return tail_[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
-        constexpr decltype(auto) operator[](meta::size_t<I>) && noexcept {
+        constexpr auto &&operator[](meta::size_t<I>) && noexcept {
           return std::move(tail_)[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
-        constexpr decltype(auto) operator[](meta::size_t<I>) const && noexcept {
+        constexpr const auto &&operator[](meta::size_t<I>) const && noexcept {
           return std::move(tail_)[meta::size_t<I - 1>{}];
         }
 
