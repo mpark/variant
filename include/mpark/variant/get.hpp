@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <type_traits>
 #include <utility>
 
@@ -18,10 +19,10 @@ namespace mpark {
       template <typename T>
       struct getter {
 
-        const T &operator()(const T &arg) const { return arg; }
+        const T *operator()(const T &arg) const { return &arg; }
 
         template <typename U>
-        const T &operator()(U &&) const { throw bad_variant_access("get"); }
+        const T *operator()(U &&) const { return nullptr; }
 
       };  // getter
 
@@ -30,15 +31,27 @@ namespace mpark {
   }  // namespace detail
 
   template <typename T, typename... Ts>
+  T *get(variant<Ts...> *v) {
+    return const_cast<T *>(get<T>(static_cast<const variant<Ts...> *>(v)));
+  }
+
+  template <typename T, typename... Ts>
+  const T *get(const variant<Ts...> *v) {
+    static_assert(meta::in<meta::list<Ts...>, T>{},
+                  "T must be one of the types in the variant.");
+    assert(v);
+    return apply(detail::variant::getter<T>{}, *v);
+  }
+
+  template <typename T, typename... Ts>
   T &get(variant<Ts...> &v) {
     return const_cast<T &>(get<T>(static_cast<const variant<Ts...> &>(v)));
   }
 
   template <typename T, typename... Ts>
   const T &get(const variant<Ts...> &v) {
-    static_assert(meta::in<meta::list<Ts...>, T>{},
-                  "T must be one of the types in the variant.");
-    return apply(detail::variant::getter<T>{}, v);
+    const T *result = get<T>(&v);
+    return result ? *result : throw bad_variant_access("get");
   }
 
   template <typename T, typename... Ts>

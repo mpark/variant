@@ -7,7 +7,7 @@
 
 using namespace std::string_literals;
 
-enum class Qualifier { None, LRef, ConstLRef, RRef, ConstRRef };
+enum class Qualifier { LRef, ConstLRef, RRef, ConstRRef };
 
 struct get_qualifier {
   Qualifier operator()(int &) const { return Qualifier::LRef; }

@@ -2,12 +2,38 @@
 
 #include <gtest/gtest.h>
 
-enum class Qualifier { None, LRef, ConstLRef, RRef, ConstRRef };
+enum class Qualifier { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 
+Qualifier get_qualifier(int *) { return Qualifier::Ptr; }
+Qualifier get_qualifier(const int *) { return Qualifier::ConstPtr; }
 Qualifier get_qualifier(int &) { return Qualifier::LRef; }
 Qualifier get_qualifier(const int &) { return Qualifier::ConstLRef; }
 Qualifier get_qualifier(int &&) { return Qualifier::RRef; }
 Qualifier get_qualifier(const int &&) { return Qualifier::ConstRRef; }
+
+TEST(Ptr, MutableVariantMutableType) {
+  mpark::variant<int> v(42);
+  EXPECT_EQ(typeid(int), v.type());
+  EXPECT_EQ(42, *mpark::get<int>(&v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::Ptr, get_qualifier(mpark::get<int>(&v)));
+}
+
+TEST(Ptr, MutableVariantConstType) {
+  mpark::variant<const int> v(42);
+  EXPECT_EQ(typeid(const int), v.type());
+  EXPECT_EQ(42, *mpark::get<const int>(&v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(mpark::get<const int>(&v)));
+}
+
+TEST(Ptr, ConstVariantMutableType) {
+  const mpark::variant<int> v(42);
+  EXPECT_EQ(typeid(int), v.type());
+  EXPECT_EQ(42, *mpark::get<int>(&v));
+  // Check qualifier.
+  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(mpark::get<int>(&v)));
+}
 
 TEST(LRef, MutableVariantMutableType) {
   mpark::variant<int> v(42);
