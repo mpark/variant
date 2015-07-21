@@ -35,9 +35,10 @@ namespace mpark {
         public:
 
         template <typename T,
-                  typename = std::enable_if_t<has_best_match<T &&, types>{}>>
+                  typename = std::enable_if_t<
+                      has_best_match<meta::list<Ts...>, T &&>{}>>
         constexpr variant(T &&arg)
-            : variant(in_place<get_best_match<T &&, types>>,
+            : variant(in_place<get_best_match<meta::list<Ts...>, T &&>>,
                       std::forward<T>(arg)) {}
 
         variant(const variant &that) { apply(constructor{*this}, that); }
@@ -59,9 +60,9 @@ namespace mpark {
         }
 
         template <typename T>
-        std::enable_if_t<has_best_match<T &&, types>{},
+        std::enable_if_t<has_best_match<meta::list<Ts...>, T &&>{},
         variant &> operator=(T &&arg) {
-          assign<get_best_match<T &&, types>>(std::forward<T>(arg));
+          assign<get_best_match<meta::list<Ts...>, T &&>>(std::forward<T>(arg));
           return *this;
         }
 

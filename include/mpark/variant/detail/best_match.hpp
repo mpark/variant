@@ -26,15 +26,15 @@ namespace mpark {
         meta::id<T> operator()(T &&) const;
       };
 
-      template <typename T, typename Ts>
+      template <typename Ts, typename T>
       using get_best_match =
           meta::_t<decltype(best_match<Ts>()(std::declval<T>()))>;
 
-      template <typename T, typename Ts, typename = meta::void_<>>
+      template <typename Ts, typename T, typename = meta::void_<>>
       struct has_best_match : std::false_type {};
 
-      template <typename T, typename Ts>
-      struct has_best_match<T, Ts, meta::void_<get_best_match<T, Ts>>>
+      template <typename Ts, typename T>
+      struct has_best_match<Ts, T, meta::void_<get_best_match<Ts, T>>>
           : std::true_type {};
 
     }  // variant
