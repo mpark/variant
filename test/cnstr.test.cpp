@@ -115,14 +115,6 @@ TEST(InPlace, InitializerList) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(v));
 }
 
-TEST(InPlace, NoMatch) {
-  static_assert(
-      !std::is_constructible<mpark::variant<int, std::string>,
-                             mpark::in_place_t<double>,
-                             double>{},
-      "mpark::variant<int, std::string> v(mpark::in_place<double>, 4.2);");
-}
-
 TEST(Variant, Default) {
   static_assert(
       !std::is_default_constructible<mpark::variant<int, std::string>>{},

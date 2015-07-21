@@ -27,10 +27,8 @@ namespace mpark {
       class variant : private union_t<Ts...> {
         private:
 
-        using types = meta::list<Ts...>;
-
         template <typename T>
-        using find_index = meta::find_index<types, T>;
+        using find_index = meta::find_index<meta::list<Ts...>, T>;
 
         public:
 
@@ -45,16 +43,17 @@ namespace mpark {
 
         variant(variant &&that) { apply(constructor{*this}, std::move(that)); }
 
-        template <typename T,
-                  typename... Args,
-                  typename = std::enable_if_t<meta::in<types, T>{}>>
+        template <typename T, typename... Args>
         explicit constexpr variant(in_place_t<T>, Args &&... args)
-            : variant(find_index<T>{}, std::forward<Args>(args)...) {}
+            : variant(find_index<T>{}, std::forward<Args>(args)...) {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
+          static_assert(std::is_constructible<T, Args &&...>{}, "");
+        }
 
         ~variant() { destruct(); }
 
         template <typename T = null_t,
-                  typename = std::enable_if_t<meta::in<types, T>{}>>
+                  typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
         explicit constexpr operator bool() const noexcept {
           return index_ != find_index<T>{};
         }
@@ -78,8 +77,9 @@ namespace mpark {
 
         template <typename T, typename Arg>
         void assign(Arg &&arg) {
-          static_assert(meta::in<types, T>{},
-                        "T must be one of the types in the variant.");
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
+          static_assert(std::is_assignable<T &, Arg &&>{}, "");
+          static_assert(std::is_constructible<T, Arg &&>{}, "");
           if (index_ == find_index<T>{}) {
             index_ = meta::npos{};
             get(meta::id<T>{}) = std::forward<Arg>(arg);
@@ -91,8 +91,8 @@ namespace mpark {
 
         template <typename T, typename... Args>
         void emplace(Args &&... args) {
-          static_assert(meta::in<types, T>{},
-                        "T must be one of the types in the variant.");
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
+          static_assert(std::is_constructible<T, Args &&...>{}, "");
           destruct();
           construct<T>(std::forward<Args>(args)...);
         }
@@ -156,8 +156,8 @@ namespace mpark {
 
         template <std::size_t I, typename... Args>
         explicit constexpr variant(meta::size_t<I> idx, Args &&... args)
-            : detail::variant::union_t<Ts...>{idx, std::forward<Args>(args)...},
-              index_{idx} {}
+            : detail::variant::union_t<Ts...>(idx, std::forward<Args>(args)...),
+              index_(idx) {}
 
         template <typename T, typename... Args>
         void construct(Args &&... args) {
@@ -217,12 +217,10 @@ namespace mpark {
 
     using super = detail::variant::variant<Ts...>;
 
-    using types = meta::list<Ts...>;
-
     public:
 
     template <typename T = null_t,
-              typename = std::enable_if_t<meta::in<types, T>{}>>
+              typename = std::enable_if_t<std::is_constructible<super, T>{}>>
     constexpr variant()
         : super(null) {}
 
@@ -230,14 +228,16 @@ namespace mpark {
 
     template <typename T,
               typename = std::enable_if_t<
-                  std::is_constructible<super, std::initializer_list<T>>{}>>
+                  std::is_constructible<super, std::initializer_list<T> &>{}>>
     constexpr variant(std::initializer_list<T> arg)
         : super(arg) {}
 
-    template <typename T,
-              typename U,
-              typename... Args,
-              typename = std::enable_if_t<meta::in<types, T>{}>>
+    template <
+        typename T,
+        typename U,
+        typename... Args,
+        typename = std::enable_if_t<
+            std::is_constructible<T, std::initializer_list<U> &, Args &&...>{}>>
     explicit constexpr variant(in_place_t<T> tag,
                                std::initializer_list<U> arg,
                                Args &&... args)
@@ -246,7 +246,7 @@ namespace mpark {
     using super::operator=;
 
     template <typename T>
-    std::enable_if_t<std::is_assignable<super, std::initializer_list<T>>{},
+    std::enable_if_t<std::is_assignable<super &, std::initializer_list<T> &>{},
     variant &> operator=(std::initializer_list<T> arg) {
       super::operator=(arg);
       return *this;
@@ -255,7 +255,9 @@ namespace mpark {
     using super::emplace;
 
     template <typename T, typename U, typename... Args>
-    void emplace(std::initializer_list<U> arg, Args &&... args) {
+    std::enable_if_t<
+        std::is_constructible<T, std::initializer_list<U> &, Args &&...>{},
+    void> emplace(std::initializer_list<U> arg, Args &&... args) {
       super::emplace(arg, std::forward<Args>(args)...);
     }
 
