@@ -100,20 +100,6 @@ namespace mpark {
           return *this;
         }
 
-        template <typename T, typename Arg>
-        void assign(Arg &&arg) {
-          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
-          static_assert(std::is_assignable<T &, Arg &&>{}, "");
-          static_assert(std::is_constructible<T, Arg &&>{}, "");
-          if (index_ == find_index<T>{}) {
-            index_ = meta::npos{};
-            get(meta::id<T>{}) = std::forward<Arg>(arg);
-            index_ = find_index<T>{};
-          } else {
-            emplace<T>(T(std::forward<Arg>(arg)));
-          }  // if
-        }
-
         template <typename T, typename... Args>
         void emplace(Args &&... args) {
           static_assert(meta::in<meta::list<Ts...>, T>{}, "");
@@ -200,6 +186,20 @@ namespace mpark {
         template <std::size_t I, typename... Args>
         explicit constexpr variant(meta::size_t<I> idx, Args &&... args)
             : super(idx, std::forward<Args>(args)...), index_(idx) {}
+
+        template <typename T, typename Arg>
+        void assign(Arg &&arg) {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
+          static_assert(std::is_assignable<T &, Arg &&>{}, "");
+          static_assert(std::is_constructible<T, Arg &&>{}, "");
+          if (index_ == find_index<T>{}) {
+            index_ = meta::npos{};
+            get(meta::id<T>{}) = std::forward<Arg>(arg);
+            index_ = find_index<T>{};
+          } else {
+            emplace<T>(T(std::forward<Arg>(arg)));
+          }  // if
+        }
 
         template <typename T, typename... Args>
         void construct(Args &&... args) {
