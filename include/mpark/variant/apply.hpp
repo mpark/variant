@@ -13,9 +13,16 @@ namespace mpark {
       struct apply_impl {
 
         template <typename F, typename... Vs>
-        decltype(auto) operator()(F &&f, Vs &&... vs) const {
+        static decltype(auto) apply(F &&f, Vs &&... vs) {
           static constexpr auto vtable = make_vtable<F &&, Vs &&...>();
           return at(vtable, {vs.index_...})(std::forward<F>(f),
+                                            std::forward<Vs>(vs)...);
+        }
+
+        template <template <typename...> class F, typename Args, typename... Vs>
+        static decltype(auto) apply(Args &&args, Vs &&... vs) {
+          static constexpr auto vtable = make_vtable<F, Args &&, Vs &&...>();
+          return at(vtable, {vs.index_...})(std::forward<Args>(args),
                                             std::forward<Vs>(vs)...);
         }
 
@@ -39,8 +46,14 @@ namespace mpark {
    **/
   template <typename F, typename... Vs>
   decltype(auto) apply(F &&f, Vs &&... vs) {
-    return detail::variant::apply_impl()(std::forward<F>(f),
-                                         std::forward<Vs>(vs)...);
+    using namespace detail::variant;
+    return apply_impl::apply(std::forward<F>(f), std::forward<Vs>(vs)...);
+  }
+
+  template <template <typename...> class F, typename... Vs>
+  decltype(auto) apply(Vs &&... vs) {
+    using namespace detail::variant;
+    return apply_impl::apply<F>(std::forward<Vs>(vs)...);
   }
 
 }  // namespace mpark

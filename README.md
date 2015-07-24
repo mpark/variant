@@ -203,5 +203,4 @@ The following configurations were successfully tested:
 
 * Specify correct `noexcept` specifications.
 * Full `constexpr` support.
-* Support for references in types.
 * Implement relational operators.

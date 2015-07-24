@@ -22,8 +22,14 @@ namespace mpark {
       template <typename T, typename... Ts>
       struct best_match<meta::list<T, Ts...>> : best_match<meta::list<Ts...>> {
         using best_match<meta::list<Ts...>>::operator();
-        meta::id<T> operator()(const T &) const;
-        meta::id<T> operator()(T &&) const;
+        meta::id<T> operator()(T) const;
+      };
+
+      template <typename T, typename... Ts>
+      struct best_match<meta::list<T &, Ts...>> : best_match<meta::list<Ts...>> {
+        using best_match<meta::list<Ts...>>::operator();
+        meta::id<T &> operator()(T &) const;
+        meta::id<T &> operator()(T &&) const = delete;
       };
 
       template <typename Ts, typename T>

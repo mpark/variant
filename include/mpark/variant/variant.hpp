@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <new>
+#include <tuple>
 #include <typeinfo>
 #include <type_traits>
 #include <utility>
@@ -12,6 +13,7 @@
 #include <mpark/variant/detail/best_match.hpp>
 #include <mpark/variant/detail/union.hpp>
 #include <mpark/variant/detail/vtable.hpp>
+#include <mpark/variant/detail/ref_wrapper.hpp>
 
 #include <mpark/variant/apply.hpp>
 #include <mpark/variant/in_place.hpp>
@@ -23,9 +25,24 @@ namespace mpark {
 
     namespace variant {
 
-      template <typename... Ts>
-      class variant : private union_t<Ts...> {
+      template <typename T>
+      struct storage {
         private:
+
+        static meta::id<ref_wrapper<T>> impl(std::true_type);
+        static meta::id<T> impl(std::false_type);
+
+        public:
+
+        using type = meta::_t<decltype(impl(std::is_reference<T>{}))>;
+
+      };  // storage
+
+      template <typename... Ts>
+      class variant : private union_t<meta::_t<storage<Ts>>...> {
+        private:
+
+        using super = union_t<meta::_t<storage<Ts>>...>;
 
         template <typename T>
         using find_index = meta::find_index<meta::list<Ts...>, T>;
@@ -39,11 +56,19 @@ namespace mpark {
             : variant(in_place<get_best_match<meta::list<Ts...>, T &&>>,
                       std::forward<T>(arg)) {}
 
-        variant(const variant &that) { apply(constructor{*this}, that); }
+        variant(const variant &that) {
+          apply<constructor>(std::forward_as_tuple(*this), that);
+        }
 
-        variant(variant &&that) { apply(constructor{*this}, std::move(that)); }
+        variant(variant &&that) {
+          apply<constructor>(std::forward_as_tuple(*this), std::move(that));
+        }
 
-        template <typename T, typename... Args>
+        template <
+            typename T,
+            typename... Args,
+            typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{} &&
+                                        std::is_constructible<T, Args &&...>{}>>
         explicit constexpr variant(in_place_t<T>, Args &&... args)
             : variant(find_index<T>{}, std::forward<Args>(args)...) {
           static_assert(meta::in<meta::list<Ts...>, T>{}, "");
@@ -66,12 +91,12 @@ namespace mpark {
         }
 
         variant &operator=(const variant &that) {
-          apply(assigner{*this}, that);
+          apply<assigner>(std::forward_as_tuple(*this), that);
           return *this;
         }
 
         variant &operator=(variant &&that) {
-          apply(assigner{*this}, std::move(that));
+          apply<assigner>(std::forward_as_tuple(*this), std::move(that));
           return *this;
         }
 
@@ -100,40 +125,48 @@ namespace mpark {
         void swap(variant &that) { apply(swapper{*this, that}, *this, that); }
 
         const std::type_info &type() const noexcept {
-          return apply([](auto &&elem) -> const std::type_info & {
-            using Elem = decltype(elem);
-            using T = std::decay_t<Elem>;
-            return typeid(T);
-          }, *this);
+          return apply<typer>(std::forward_as_tuple(), *this);
         }
 
         bool valid() const noexcept { return index_ != meta::npos{}; }
 
         private:
 
+        template <typename T>
         struct assigner {
 
-          template <typename Elem>
-          void operator()(Elem &&elem) const {
-            using T = std::decay_t<Elem>;
-            self.assign<T>(std::forward<Elem>(elem));
+          template <typename U>
+          void operator()(U &&u) const {
+            self.assign<T>(std::forward<U>(u));
           }
 
           variant &self;
 
         };  // assigner
 
+        template <typename T>
         struct constructor {
 
-          template <typename Elem>
-          void operator()(Elem &&elem) const {
-            using T = std::decay_t<Elem>;
-            self.construct<T>(std::forward<Elem>(elem));
+          template <typename U>
+          void operator()(U &&u) const {
+            self.construct<T>(std::forward<U>(u));
           }
 
           variant &self;
 
         };  // constructor
+
+        template <typename T>
+        struct destructor {
+
+          template <typename U>
+          void operator()(U &) const {
+            self.destruct<T>();
+          }
+
+          variant &self;
+
+        };  // destructor
 
         struct swapper {
 
@@ -154,45 +187,61 @@ namespace mpark {
 
         };  // swapper
 
+        template <typename T>
+        struct typer {
+
+          template <typename U>
+          const std::type_info &operator()(U &&) const noexcept {
+            return typeid(T);
+          }
+
+        };  // typer
+
         template <std::size_t I, typename... Args>
         explicit constexpr variant(meta::size_t<I> idx, Args &&... args)
-            : detail::variant::union_t<Ts...>(idx, std::forward<Args>(args)...),
-              index_(idx) {}
+            : super(idx, std::forward<Args>(args)...), index_(idx) {}
 
         template <typename T, typename... Args>
         void construct(Args &&... args) {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           index_ = meta::npos{};
-          ::new (this->data()) T(std::forward<Args>(args)...);
+          super::construct(find_index<T>{}, std::forward<Args>(args)...);
           index_ = find_index<T>{};
         }
 
         void destruct() noexcept {
           if (valid()) {
-            apply([](auto &elem) {
-              using Elem = decltype(elem);
-              using T = std::decay_t<Elem>;
-              elem.~T();
-            }, *this);
+            apply<destructor>(std::forward_as_tuple(*this), *this);
           }  // if
         }
 
         template <typename T>
-        auto &get(meta::id<T>) & noexcept {
+        void destruct() noexcept {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
+          super::destruct(find_index<T>{});
+        }
+
+        template <typename T>
+        T &get(meta::id<T>) & noexcept {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           return (*this)[find_index<T>{}];
         }
 
         template <typename T>
-        const auto &get(meta::id<T>) const & noexcept {
+        const T &get(meta::id<T>) const & noexcept {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           return (*this)[find_index<T>{}];
         }
 
         template <typename T>
-        auto &&get(meta::id<T>) && noexcept {
+        T &&get(meta::id<T>) && noexcept {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           return std::move(*this)[find_index<T>{}];
         }
 
         template <typename T>
-        const auto &&get(meta::id<T>) const && noexcept {
+        const T &&get(meta::id<T>) const && noexcept {
+          static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           return std::move(*this)[find_index<T>{}];
         }
 
@@ -202,7 +251,7 @@ namespace mpark {
         friend struct apply_impl;
 
         // Allow access `get`.
-        template <typename F, typename... Vs>
+        template <typename... Vs>
         friend struct make_vtable_impl;
 
       };  // variant
@@ -291,12 +340,20 @@ namespace std {
     using result_type = std::size_t;
 
     result_type operator()(const argument_type &v) const {
-      return mpark::apply([](const auto &elem) {
-        using Elem = decltype(elem);
-        using T = std::decay_t<Elem>;
-        return std::hash<T>()(elem);
-      }, v);
+      return mpark::apply<hasher>(std::forward_as_tuple(), v);
     }
+
+    private:
+
+    template <typename T>
+    struct hasher {
+
+      template <typename U>
+      result_type operator()(U &&u) const {
+        return std::hash<T>()(std::forward<U>(u));
+      }
+
+    };  // hasher
 
   };  // hash<mpark::variant<Ts...>>
 

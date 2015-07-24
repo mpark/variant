@@ -8,39 +8,28 @@
 
 #include <mpark/variant/bad_variant_access.hpp>
 #include <mpark/variant/apply.hpp>
+#include <mpark/variant/overload.hpp>
 #include <mpark/variant/variant.hpp>
 
 namespace mpark {
 
-  namespace detail {
-
-    namespace variant {
-
-      template <typename T>
-      struct getter {
-
-        const T *operator()(const T &arg) const { return &arg; }
-
-        template <typename U>
-        const T *operator()(U &&) const { return nullptr; }
-
-      };  // getter
-
-    }  // namespace variant
-
-  }  // namespace detail
-
   template <typename T, typename... Ts>
-  T *get(variant<Ts...> *v) {
-    return const_cast<T *>(get<T>(static_cast<const variant<Ts...> *>(v)));
+  std::remove_reference_t<T> *get(variant<Ts...> *v) {
+    return const_cast<std::remove_reference_t<T> *>(
+        get<T>(static_cast<const variant<Ts...> *>(v)));
   }
 
   template <typename T, typename... Ts>
-  const T *get(const variant<Ts...> *v) {
+  std::remove_reference_t<const T> *get(const variant<Ts...> *v) {
     static_assert(meta::in<meta::list<Ts...>, T>{},
                   "T must be one of the types in the variant.");
     assert(v);
-    return apply(detail::variant::getter<T>{}, *v);
+    return apply(mpark::make_overload(
+                     [](const T &elem) { return &elem; },
+                     [](auto &&) -> std::remove_reference_t<const T> * {
+                       return nullptr;
+                     }),
+                 *v);
   }
 
   template <typename T, typename... Ts>
@@ -50,18 +39,18 @@ namespace mpark {
 
   template <typename T, typename... Ts>
   const T &get(const variant<Ts...> &v) {
-    const T *result = get<T>(&v);
+    std::remove_reference_t<const T> *result = get<T>(&v);
     return result ? *result : throw bad_variant_access("get");
   }
 
   template <typename T, typename... Ts>
   T &&get(variant<Ts...> &&v) {
-    return const_cast<T &&>(get<T>(static_cast<const variant<Ts...> &&>(v)));
+    return static_cast<T &&>(get<T>(v));
   }
 
   template <typename T, typename... Ts>
   const T &&get(const variant<Ts...> &&v) {
-    return std::move(get<T>(v));
+    return static_cast<const T &&>(get<T>(v));
   }
 
 }  // namespace mpark

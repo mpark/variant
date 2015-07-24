@@ -27,7 +27,7 @@ TEST(Direct, RRef) {
 }
 
 TEST(Direct, Conversion) {
-  // `const char *` -> `std::string` is the only valid conversion.
+  // `const char (&)[6]` -> `std::string` is the only valid conversion.
   mpark::variant<int, std::string> v("hello");
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -48,7 +48,7 @@ TEST(Direct, ExactMatch) {
   mpark::variant<const char *, std::string> v(x);
   // Check `v`.
   EXPECT_EQ(typeid(const char *), v.type());
-  EXPECT_EQ("hello", mpark::get<const char *>(v));
+  EXPECT_EQ(x, mpark::get<const char *>(v));
 }
 
 TEST(Direct, BetterMatch) {
@@ -121,19 +121,7 @@ TEST(Variant, Default) {
       "mpark::variant<int, std::string> v;");
 }
 
-TEST(Nullable, Default) {
-  // Nullable `v`.
-  mpark::variant<mpark::null_t, int, std::string, mpark::null_t> v;
-  EXPECT_EQ(typeid(mpark::null_t), v.type());
-  // Nullable `w`.
-  mpark::variant<int, mpark::null_t, std::string> w;
-  EXPECT_EQ(typeid(mpark::null_t), w.type());
-  // Nullable `x`.
-  mpark::variant<int, std::string, mpark::null_t> x;
-  EXPECT_EQ(typeid(mpark::null_t), x.type());
-}
-
-TEST(Variant, LRef) {
+TEST(Variant, Copy) {
   mpark::variant<int, std::string> v("hello"s);
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -148,7 +136,7 @@ TEST(Variant, LRef) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(w));
 }
 
-TEST(Variant, RRef) {
+TEST(Variant, Move) {
   mpark::variant<int, std::string> v("hello"s);
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
@@ -163,11 +151,14 @@ TEST(Variant, RRef) {
   EXPECT_EQ("hello"s, mpark::get<std::string>(w));
 }
 
-TEST(Variant, Diamond) {
-  // Valid type.
-  auto dummy = [](const mpark::variant<> &) {};
-  (void)dummy;
-  // Not constructible.
-  static_assert(!std::is_default_constructible<mpark::variant<>>{},
-                "mpark::variant<> v;");
+TEST(Nullable, Default) {
+  // Nullable `v`.
+  mpark::variant<mpark::null_t, int, std::string> v;
+  EXPECT_EQ(typeid(mpark::null_t), v.type());
+  // Nullable `w`.
+  mpark::variant<int, mpark::null_t, std::string> w;
+  EXPECT_EQ(typeid(mpark::null_t), w.type());
+  // Nullable `x`.
+  mpark::variant<int, std::string, mpark::null_t> x;
+  EXPECT_EQ(typeid(mpark::null_t), x.type());
 }

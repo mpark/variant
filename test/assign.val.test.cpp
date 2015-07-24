@@ -12,7 +12,7 @@ TEST(Assign, SameLRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
   EXPECT_EQ("hello world!"s, x);
-  // Save the "hello world"'s capacity.
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Use `std::string::operator=` to assign into `v`.
   std::string s("hello"s);
@@ -21,7 +21,7 @@ TEST(Assign, SameLRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
 }
@@ -32,7 +32,7 @@ TEST(Assign, SameRRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
   EXPECT_EQ("hello world!"s, x);
-  // Save the "hello world"'s capacity.
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Use `std::string::operator=` to assign into `v`.
   v = "hello"s;
@@ -40,7 +40,7 @@ TEST(Assign, SameRRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
 }
@@ -51,7 +51,7 @@ TEST(Assign, SameConversion) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
   EXPECT_EQ("hello world!"s, x);
-  // Save the "hello world"'s capacity.
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Use `std::string::operator=` to assign into `v`.
   v = "hello";
@@ -59,7 +59,7 @@ TEST(Assign, SameConversion) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
 }
@@ -70,7 +70,7 @@ TEST(Assign, SameInitializerList) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
   EXPECT_EQ("hello world!"s, x);
-  // Save the "hello world"'s capacity.
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Use `std::string::operator=` to assign into `v`.
   v = {'h', 'e', 'l', 'l', 'o'};
@@ -78,7 +78,7 @@ TEST(Assign, SameInitializerList) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
 }
@@ -134,10 +134,10 @@ TEST(Assign, DifferentInitializerList) {
 }
 
 TEST(Assign, ExactMatch) {
-  mpark::variant<const char *, std::string> v("hello world");
+  mpark::variant<const char *, std::string> v("hello world!");
   // Check `v`.
   EXPECT_EQ(typeid(const char *), v.type());
-  EXPECT_EQ("hello world", mpark::get<const char *>(v));
+  EXPECT_EQ("hello world!", mpark::get<const char *>(v));
   // Assign `v`.
   v = "hello";
   // Check `v`.
@@ -170,12 +170,12 @@ TEST(Assign, Ambiguous) {
 
 TEST(Variant, SameLRef) {
   // Construct `v`.
-  mpark::variant<int, std::string> v("hello world"s);
+  mpark::variant<int, std::string> v("hello world!"s);
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
-  EXPECT_EQ("hello world"s, x);
-  // Save the "hello world"'s capacity.
+  EXPECT_EQ("hello world!"s, x);
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Construct `w`.
   mpark::variant<int, std::string> w("hello"s);
@@ -188,7 +188,7 @@ TEST(Variant, SameLRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
   // Check `w`.
@@ -198,12 +198,12 @@ TEST(Variant, SameLRef) {
 
 TEST(Variant, SameRRef) {
   // Construct `v`.
-  mpark::variant<int, std::string> v("hello world"s);
+  mpark::variant<int, std::string> v("hello world!"s);
   // Check `v`.
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &x = mpark::get<std::string>(v);
-  EXPECT_EQ("hello world"s, x);
-  // Save the "hello world"'s capacity.
+  EXPECT_EQ("hello world!"s, x);
+  // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Construct `w`.
   mpark::variant<int, std::string> w("hello"s);
@@ -216,7 +216,7 @@ TEST(Variant, SameRRef) {
   EXPECT_EQ(typeid(std::string), v.type());
   const std::string &y = mpark::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
-  // Since "hello" is shorter than "hello world", we should have preserved the
+  // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
   // Check `w`.

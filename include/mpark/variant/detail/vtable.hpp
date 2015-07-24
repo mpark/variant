@@ -58,6 +58,20 @@ namespace mpark {
       struct rank<std::array<T, N>>
           : public std::integral_constant<std::size_t, rank<T>{} + 1> {};
 
+      /* construct */
+
+      template <typename T, typename Args, std::size_t... Is>
+      T construct_impl(Args &&args, std::index_sequence<Is...>) {
+        return T{std::get<Is>(std::forward<Args>(args))...};
+      }
+
+      template <typename T, typename Args>
+      T construct(Args &&args) {
+        using indices =
+            std::make_index_sequence<std::tuple_size<std::decay_t<Args>>{}>;
+        return construct_impl<T>(std::forward<Args>(args), indices{});
+      }
+
       /* `at` */
 
       template <typename T>
@@ -67,7 +81,7 @@ namespace mpark {
 
       template <typename T, std::size_t N>
       constexpr const auto &at_impl(const std::array<T, N> &array,
-                                     const std::size_t *index) {
+                                    const std::size_t *index) {
         return at_impl(array[*index], index + 1);
       }
 
@@ -80,43 +94,64 @@ namespace mpark {
 
       /* `make_vtable` */
 
-      template <typename F, typename... Vs>
+      template <typename... Vs>
       struct make_vtable_impl {
-        private:
 
-        template <typename... Ts>
-        static decltype(auto) visit(F f, Vs... vs) {
+        template <typename F, typename... Ts>
+        static constexpr decltype(auto) visit(meta::id_t<F> f, Vs... vs) {
           return invoke(static_cast<F>(f),
                         static_cast<Vs>(vs).get(meta::id<Ts>{})...);
         }
 
-        template <typename Ts, typename... Us>
-        struct impl;
+        template <typename F, typename... Ts>
+        static constexpr auto make_vtable(meta::list<Ts...>) {
+          return &visit<F, Ts...>;
+        }
 
-        template <typename... Ts>
-        struct impl<meta::list<Ts...>> {
-          constexpr auto operator()() const { return &visit<Ts...>; }
-        };
+        template <typename F, typename... Ts, typename... Us, typename... Ls>
+        static constexpr auto make_vtable(meta::list<Ts...>,
+                                          meta::list<Us...>,
+                                          Ls... ls) {
+          return make_array(make_vtable<F>(meta::list<Ts..., Us>{}, ls...)...);
+        }
 
-        template <typename... Ts, typename... U, typename... Us>
-        struct impl<meta::list<Ts...>, meta::list<U...>, Us...> {
-          constexpr auto operator()() const {
-            return make_array(impl<meta::list<Ts..., U>, Us...>()()...);
-          }
-        };
+        template <template <typename...> class F, typename Args, typename... Ts>
+        static constexpr decltype(auto) visit(meta::id_t<Args> args, Vs... vs) {
+          using T = F<Ts...>;
+          return visit<T &&, Ts...>(construct<T>(static_cast<Args>(args)),
+                                    static_cast<Vs>(vs)...);
+        }
 
-        public:
+        template <template <typename...> class F, typename Args, typename... Ts>
+        static constexpr auto make_vtable(meta::list<Ts...>) {
+          return &visit<F, Args, Ts...>;
+        }
 
-        constexpr auto operator()() const {
-          return impl<meta::list<>, meta::as_list<std::decay_t<Vs>>...>()();
+        template <template <typename...> class F,
+                  typename Args,
+                  typename... Ts,
+                  typename... Us,
+                  typename... Ls>
+        static constexpr auto make_vtable(meta::list<Ts...>,
+                                          meta::list<Us...>,
+                                          Ls... ls) {
+          return make_array(
+              make_vtable<F, Args>(meta::list<Ts..., Us>{}, ls...)...);
         }
 
       };  // make_vtable_impl
 
       template <typename F, typename... Vs>
       constexpr auto make_vtable() {
-        return make_vtable_impl<F, Vs...>()();
-      };
+        return make_vtable_impl<Vs...>::template make_vtable<F>(
+            meta::list<>{}, meta::as_list<std::decay_t<Vs>>{}...);
+      }
+
+      template <template <typename...> class F, typename Args, typename... Vs>
+      constexpr auto make_vtable() {
+        return make_vtable_impl<Vs...>::template make_vtable<F, Args>(
+            meta::list<>{}, meta::as_list<std::decay_t<Vs>>{}...);
+      }
 
     }  // namespace variant
 

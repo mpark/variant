@@ -28,8 +28,7 @@ namespace mpark {
       class union_t<T, Ts...> {
         public:
 
-        /* The default constructor effectively does nothing. */
-        constexpr union_t() : data_{} {}
+        constexpr union_t() {}
 
         template <typename... Args>
         explicit constexpr union_t(meta::size_t<0>, Args &&... args)
@@ -41,10 +40,6 @@ namespace mpark {
 
         /* Must be defined by the user of this class. */
         ~union_t() {}
-
-        void *data() { return &data_; }
-
-        const void *data() const { return &data_; }
 
         constexpr T &operator[](meta::size_t<0>) & noexcept {
           return head_;
@@ -82,10 +77,26 @@ namespace mpark {
           return std::move(tail_)[meta::size_t<I - 1>{}];
         }
 
+        template <typename... Args>
+        void construct(meta::size_t<0>, Args &&... args) {
+          ::new (&head_) T(std::forward<Args>(args)...);
+        }
+
+        template <std::size_t I, typename... Args>
+        void construct(meta::size_t<I>, Args &&... args) {
+          tail_.construct(meta::size_t<I - 1>{}, std::forward<Args>(args)...);
+        }
+
+        void destruct(meta::size_t<0>) { head_.~T(); }
+
+        template <std::size_t I>
+        void destruct(meta::size_t<I>) {
+          tail_.destruct(meta::size_t<I - 1>{});
+        }
+
         private:
 
         union {
-          char data_;
           T head_;
           union_t<Ts...> tail_;
         };
