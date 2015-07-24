@@ -14,13 +14,13 @@
 namespace mpark {
 
   template <typename T, typename... Ts>
-  std::remove_reference_t<T> *get(variant<Ts...> *v) {
+  std::remove_reference_t<T> *get(variant<Ts...> *v) noexcept {
     return const_cast<std::remove_reference_t<T> *>(
         get<T>(static_cast<const variant<Ts...> *>(v)));
   }
 
   template <typename T, typename... Ts>
-  std::remove_reference_t<const T> *get(const variant<Ts...> *v) {
+  std::remove_reference_t<const T> *get(const variant<Ts...> *v) noexcept {
     static_assert(meta::in<meta::list<Ts...>, T>{},
                   "T must be one of the types in the variant.");
     assert(v);
