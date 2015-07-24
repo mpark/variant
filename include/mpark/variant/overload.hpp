@@ -5,39 +5,47 @@
 
 namespace mpark {
 
-  /* A class that inherits from function objects and
-     results in an overloaded callable object. */
-  template <typename... Fns>
-  struct overload;
+  namespace detail {
 
-  /* Base case. */
-  template <typename Fn>
-  struct overload<Fn> : std::decay_t<Fn> {
+    namespace variant {
 
-    using std::decay_t<Fn>::operator();
+      /* A class that inherits from function objects and
+         results in an overloaded callable object. */
+      template <typename... Fns>
+      struct overload;
 
-    explicit overload(Fn fn) : std::decay_t<Fn>(static_cast<Fn>(fn)) {}
+      /* Base case. */
+      template <typename Fn>
+      struct overload<Fn> : std::decay_t<Fn> {
 
-  };  // overload<Fn>
+        using std::decay_t<Fn>::operator();
 
-  /* Recursive case. */
-  template <typename Fn, typename... Fns>
-  struct overload<Fn, Fns...> : std::decay_t<Fn>, overload<Fns...> {
+        explicit overload(Fn fn) : std::decay_t<Fn>(static_cast<Fn>(fn)) {}
 
-    using std::decay_t<Fn>::operator();
-    using overload<Fns...>::operator();
+      };  // overload<Fn>
 
-    /* Cache the function object. */
-    explicit overload(Fn fn, Fns... fns)
-        : std::decay_t<Fn>(static_cast<Fn>(fn)),
-          overload<Fns...>(static_cast<Fns>(fns)...) {}
+      /* Recursive case. */
+      template <typename Fn, typename... Fns>
+      struct overload<Fn, Fns...> : std::decay_t<Fn>, overload<Fns...> {
 
-  };  // overload<Fn, Fns...>
+        using std::decay_t<Fn>::operator();
+        using overload<Fns...>::operator();
+
+        /* Cache the function object. */
+        explicit overload(Fn fn, Fns... fns)
+            : std::decay_t<Fn>(static_cast<Fn>(fn)),
+              overload<Fns...>(static_cast<Fns>(fns)...) {}
+
+      };  // overload<Fn, Fns...>
+
+    }  // variant
+
+  }  // detail
 
   /* Factory function for overload. */
   template <typename... Fns>
   auto make_overload(Fns &&... fns) {
-    return overload<Fns &&...>(std::forward<Fns>(fns)...);
+    return detail::variant::overload<Fns &&...>(std::forward<Fns>(fns)...);
   }
 
 }  // namespace mpark
