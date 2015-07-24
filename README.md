@@ -202,5 +202,6 @@ The following configurations were successfully tested:
 ## Future Work
 
 * Specify correct `noexcept` specifications.
+* Allow `void` as a type.
 * Full `constexpr` support.
 * Implement relational operators.
