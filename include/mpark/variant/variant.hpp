@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstddef>
 #include <initializer_list>
 #include <new>
@@ -49,6 +50,21 @@ namespace mpark {
 
         public:
 
+        // Construction.
+
+        variant(const variant &that) {
+          static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
+          assert(that.valid());
+          apply<constructor>(std::forward_as_tuple(*this), that);
+        }
+
+        variant(variant &&that) noexcept(
+            meta::and_<std::is_nothrow_move_constructible<Ts>...>{}) {
+          static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
+          assert(that.valid());
+          apply<constructor>(std::forward_as_tuple(*this), std::move(that));
+        }
+
         template <typename T,
                   typename = std::enable_if_t<
                       has_best_match<meta::list<Ts...>, T &&>{}>>
@@ -56,47 +72,40 @@ namespace mpark {
             : variant(in_place<get_best_match<meta::list<Ts...>, T &&>>,
                       std::forward<T>(arg)) {}
 
-        variant(const variant &that) {
-          apply<constructor>(std::forward_as_tuple(*this), that);
-        }
-
-        variant(variant &&that) {
-          apply<constructor>(std::forward_as_tuple(*this), std::move(that));
-        }
-
-        template <
-            typename T,
-            typename... Args,
-            typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{} &&
-                                        std::is_constructible<T, Args &&...>{}>>
+        template <typename T, typename... Args>
         explicit constexpr variant(in_place_t<T>, Args &&... args)
             : variant(find_index<T>{}, std::forward<Args>(args)...) {
           static_assert(meta::in<meta::list<Ts...>, T>{}, "");
           static_assert(std::is_constructible<T, Args &&...>{}, "");
         }
 
+        // Destruction.
         ~variant() { destruct(); }
 
-        template <typename T = null_t,
-                  typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
-        explicit constexpr operator bool() const noexcept {
-          return index_ != find_index<T>{};
+        // Assignment.
+
+        variant &operator=(const variant &that) {
+          static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
+          static_assert(meta::and_<std::is_copy_assignable<Ts>...>{}, "");
+          assert(that.valid());
+          apply<assigner>(std::forward_as_tuple(*this), that);
+          return *this;
+        }
+
+        variant &operator=(variant &&that) noexcept(
+            meta::and_<std::is_move_constructible<Ts>...,
+                       std::is_move_assignable<Ts>...>{}) {
+          static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
+          static_assert(meta::and_<std::is_move_assignable<Ts>...>{}, "");
+          assert(that.valid());
+          apply<assigner>(std::forward_as_tuple(*this), std::move(that));
+          return *this;
         }
 
         template <typename T>
         std::enable_if_t<has_best_match<meta::list<Ts...>, T &&>{},
         variant &> operator=(T &&arg) {
           assign<get_best_match<meta::list<Ts...>, T &&>>(std::forward<T>(arg));
-          return *this;
-        }
-
-        variant &operator=(const variant &that) {
-          apply<assigner>(std::forward_as_tuple(*this), that);
-          return *this;
-        }
-
-        variant &operator=(variant &&that) {
-          apply<assigner>(std::forward_as_tuple(*this), std::move(that));
           return *this;
         }
 
@@ -108,7 +117,17 @@ namespace mpark {
           construct<T>(std::forward<Args>(args)...);
         }
 
+        // Swap.
+
         void swap(variant &that) { apply(swapper{*this, that}, *this, that); }
+
+        // Observation.
+
+        template <typename T = null_t,
+                  typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
+        explicit constexpr operator bool() const noexcept {
+          return index_ != find_index<T>{};
+        }
 
         const std::type_info &type() const noexcept {
           return apply<typer>(std::forward_as_tuple(), *this);
@@ -190,8 +209,8 @@ namespace mpark {
         template <typename T, typename Arg>
         void assign(Arg &&arg) {
           static_assert(meta::in<meta::list<Ts...>, T>{}, "");
-          static_assert(std::is_assignable<T &, Arg &&>{}, "");
           static_assert(std::is_constructible<T, Arg &&>{}, "");
+          static_assert(std::is_assignable<T &, Arg &&>{}, "");
           if (index_ == find_index<T>{}) {
             index_ = meta::npos{};
             get(meta::id<T>{}) = std::forward<Arg>(arg);
@@ -268,8 +287,10 @@ namespace mpark {
 
     public:
 
+    // Construction.
+
     template <typename T = null_t,
-              typename = std::enable_if_t<std::is_constructible<super, T>{}>>
+              typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
     constexpr variant()
         : super(null) {}
 
@@ -291,6 +312,8 @@ namespace mpark {
                                std::initializer_list<U> arg,
                                Args &&... args)
         : super(tag, arg, std::forward<Args>(args)...) {}
+
+    // Assignment.
 
     using super::operator=;
 
