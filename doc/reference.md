@@ -39,7 +39,7 @@ namespace mpark {
   template <template <typename...> class F, typename... Vs> decltype(auto) apply(Vs &&...);
 
   // specialized algorithms:
-  template <typename... Ts, typename... Us> void swap(variant<Ts...> &, variant<Us...> &);
+  template <typename... Ts> void swap(variant<Ts...> &, variant<Ts...> &) noexcept(see below);
   template <typename... Ts, typename... Us> variant<Ts...> variant_cast(const variant<Us...> &);
 
 }  // namespace mpark
@@ -105,9 +105,9 @@ namespace mpark {
     void emplace(std::initializer_list<U>, Args &&...);  // only if ... see below
 
     // `variant` swap:
-    template <typename... Us> void swap(variant<Us...> &that) noexcept(see below);
+    void swap(variant &) noexcept(see below);
 
-    // `variant` observation:
+    // `variant` query:
     explicit constexpr operator bool() const noexcept;  // only if `null_t` is in `Ts...`
     const std::type_info &type() const noexcept;
     bool valid() const noexcept;
@@ -125,7 +125,8 @@ constexpr variant() noexcept;  // only if `null_t` is in `Ts...`
 
 __Effects:__ Constructs the `variant` holding an instance of `null_t`.
 
-__Remarks:__ This constructor shall not participate in overload resolution unless `null_t` is in `Ts...`.
+__Remarks:__ This constructor shall not participate in overload resolution unless `null_t` is in
+             `Ts...`.
 
 ```cpp
 variant(const variant &that);
@@ -133,11 +134,11 @@ variant(const variant &that);
 
 Let `U` be the type of the value in `that`.
 
-__Requires:__ `std::is_copy_constructible_v<T>` is `true` for all `T` in `Ts...`,
-              `that.valid()` must be `true`.
+__Requires:__ `std::is_copy_constructible_v<T>` is `true` for all `T` in `Ts...`, and `that.valid()`
+              must be `true`.
 
 __Effects:__ Initializes the contained value of the `variant` as if constructing an object of type
-             `U` with the argument `mpark::get<U>(that)`.
+             `U` with the argument `get<U>(that)`.
 
 __Throws:__ Any exception thrown by the selected constructor of `U`.
 
@@ -147,11 +148,11 @@ variant(variant &&that) noexcept(see below);
 
 Let `U` be the type of the value in `that`.
 
-__Requires:__ `std::is_move_constructible_v<T>` is `true` for all `T` in `Ts...`,
-              `that.valid()` must be `true`.
+__Requires:__ `std::is_move_constructible_v<T>` is `true` for all `T` in `Ts...`, and `that.valid()`
+              must be `true`.
 
 __Effects:__ Initializes the contained value of the `variant` as if constructing an object of type
-             `U` with the argument `mpark::get<U>(std::move(that))`.
+             `U` with the argument `get<U>(std::move(that))`.
 
 __Throws:__ Any exception thrown by the selected constructor of `U`.
 
@@ -251,8 +252,8 @@ __Remarks:__ This constructor shall not participate in overload resolution unles
 ~variant();
 ```
 
-__Effects:__ If `valid()` is `true`, calls `mpark::get<U>(*this).~U();` where `U` is the type of the
-             value in `*this`.
+__Effects:__ If `valid()` is `true`, calls `get<U>(*this).~U();` where `U` is the type of the value
+             in `*this`.
 
 ### Assignment                                                                      [variant.assign]
 
@@ -263,18 +264,18 @@ variant &operator=(const variant &that);
 Let `U` be the type of the value in `that`.
 
 __Requires:__ `std::is_copy_constructible_v<T>` and `std::is_copy_assignable_v<T>` is `true` for all
-              `T` in `Ts...`, `that.valid()` must be `true`.
+              `T` in `Ts...`, and `that.valid()` must be `true`.
 
 __Effects:__ If the type of the value in `*this` and `that` are both `U`, calls
-             `mpark::get<U>(*this) = get<U>(that);` Otherwise, constructs a temporary object `temp`
-             of type `U` with the argument `get<U>(that)`, destructs the value in `*this`, then
+             `get<U>(*this) = get<U>(that);` Otherwise, constructs a temporary object `temp` of
+             type `U` with the argument `get<U>(that)`, destructs the value in `*this`, then
              initializes the contained value of `*this` as if constructing an object type `U` with
              the argument `std::move(temp)`.
 
 __Returns:__ `*this`
 
 __Exception Safety:__ If the type of the value in `*this` and `that` are both `U`, the state of the
-                      value in `*this` is defined by the exception safety specification of the
+                      value in `*this` is determined by the exception safety specification of the
                       selected assignment operator of `U`. Otherwise, if an exception is thrown
                       during the call to the copy constructor of `U`, `*this` is unaffected.
                       If an exception is thrown during the call to the move constructor of `U`,
@@ -285,11 +286,11 @@ variant &operator=(variant &&that) noexcept(see below);
 ```
 
 __Requires:__ `std::is_move_constructible_v<T>` and `std::is_move_assignable_v<T>` is `true` for all
-              `T` in `Ts...`, `that.valid()` must be `true`.
+              `T` in `Ts...`, and `that.valid()` must be `true`.
 
 __Effects:__ If the type of the value in `*this` and `that` are both `U`, calls
-             `mpark::get<U>(*this) = get<U>(std::move(that));` Otherwise, constructs a temporary
-             object `temp` of type `U` with the argument `get<U>(std::move(that))`, destructs the
+             `get<U>(*this) = get<U>(std::move(that));` Otherwise, constructs a temporary object
+             `temp` of type `U` with the argument `get<U>(std::move(that))`, destructs the
              value in `*this`, then initializes the contained value of `*this` as if constructing
              an object type `U` with the argument `std::move(temp)`.
 
@@ -300,7 +301,7 @@ __Remarks:__ The expression inside `noexcept` is equivalent to the logical `AND`
              `std::is_nothrow_move_assignable_v<T>` for all `T` in `Ts...`.
 
 __Exception Safety:__ If the type of the value in `*this` and `that` are both `U`, the state of the
-                      value in `*this` is defined by the exception safety specification of the
+                      value in `*this` is determined by the exception safety specification of the
                       selected assignment operator of `U`. Otherwise, if an exception is thrown
                       during the call to the copy constructor of `U`, `*this` is unaffected.
                       If an exception is thrown during the call to the move constructor of `U`,
@@ -330,9 +331,9 @@ overload resolution rules.
 __Requires:__ `std::is_constructible_v<U, T &&>` and `std::is_assignable_v<U &, T &&>` is `true`.
 
 __Effects:__ If the type of the value in `*this` is `U`, calls
-             `mpark::get<U>(*this) = std::forward<T>(t);` Otherwise, constructs a temporary object
-             `temp` of type `U` with the argument `std::forward<T>(t)`, destructs the value in
-             `*this`, then initializes the contained value of `*this` as if constructing an object
+             `get<U>(*this) = std::forward<T>(t);` Otherwise, constructs a temporary object `temp`
+             of type `U` with the argument `std::forward<T>(t)`, destructs the value in `*this`,
+             then initializes the contained value of `*this` as if constructing an object
              type `U` with the argument `std::move(temp)`.
 
 __Returns:__ `*this`
@@ -342,7 +343,7 @@ __Remarks:__ This constructor shall not participate in overload resolution unles
              resolution rules.
 
 __Exception Safety:__ If the type of the value in `*this` is `U`, the state of the value in `*this`
-                      is defined by the exception safety specification of the selected assignment
+                      is determined by the exception safety specification of the selected assignment
                       operator of `U`. Otherwise, if an exception is thrown during the construction
                       of the temporary object, `*this` is unaffected. If an exception is thrown
                       during the initialization of the value in `*this`, no assignment takes place
@@ -401,10 +402,76 @@ __Remarks:__ This constructor shall not participate in overload resolution unles
 __Exception Safety:__ If an exception is thrown during the initialization of the value in `*this`,
                       no initialization takes place and `valid()` will be `false`.
 
+### Query                                                                            [variant.query]
+
+```cpp
+explicit constexpr operator bool() const noexcept;  // only if `null_t` is in `Ts...`
+```
+
+__Requires:__ `valid()` must be `true`.
+
+__Returns:__ `true` if `*this` is null, otherwise `false`.
+
+__Remarks:__ This constructor shall not participate in overload resolution unless `null_t` is in
+             `Ts...`.
+
+```cpp
+const std::type_info &type() const noexcept;
+```
+
+__Requires:__ `valid()` must be `true`.
+
+__Returns:__ `typeid(U)` where the type of the value in `*this` is `U`.
+
+```cpp
+bool valid() const noexcept;
+```
+
+__Returns:__ `true` if `*this` contains a value, otherwise `false`.
+
 ### Swap                                                                              [variant.swap]
-### Observation                                                                     [variant.observ]
+
+```cpp
+void swap(variant &that) noexcept(see below);
+```
+
+__Requires:__ `std::is_move_constructible_v<T>` is `true` for all `T` in `Ts...`, `T &` shall be
+              [Swappable] and `valid()` and `that.valid()` must be both `true`.
+
+[Swappable]: http://en.cppreference.com/w/cpp/concept/Swappable
+
+__Effects:__ If the type of the value in `*this` and `that` are both `U`, calls
+             `swap(get<U>(*this), get<U>(that));` Otherwise, calls `std::swap(*this, that);`.
+
+__Remarks:__ The expression inside `noexcept` is equivalent to the logical `AND` of
+             `std::is_nothrow_move_constructible_v<Ts>...` and
+             `noexcept(swap(std::declval<Ts &>(), std::declval<Ts &>()))...` where `std::swap` is
+             in scope.
+
+__Exception Safety:__ If an exception is thrown during the call to
+                      `swap(get<U>(*this), get<U>(that)`, the state of the value in `*this` and
+                      `that` is determined by the exception safety guarantees of `swap` for `U &`.
+                      If an exception is thrown during the call to `swap(*this, that)`, the state of
+                      the value in `*this` and `that` is determined by the exception safety
+                      guarantee of `variant`'s move constructor and assignment operator.
 
 ### Element access                                                                    [variant.elem]
+
+// TODO
+
 ### Visitation                                                                       [variant.visit]
-### Hash support                                                                      [variant.hash]
+
+// TODO
+
 ### Specialized algorithms                                                         [variant.special]
+
+```cpp
+template <typename... Ts>
+void swap(variant<Ts...> &lhs, variant<Ts...> &rhs) noexcept(noexcept(lhs.swap(rhs)));
+```
+
+__Effects:__ Calls `lhs.swap(rhs)`.
+
+### Hash support                                                                      [variant.hash]
+
+// TODO
