@@ -26,6 +26,16 @@ namespace mpark {
 
     namespace variant {
 
+      template <typename T, typename U>
+      constexpr bool is_nothrow_swappable_impl() {
+        using std::swap;
+        return noexcept(swap(std::declval<T &>(), std::declval<U &>()));
+      }
+
+      template <typename T, typename U = T>
+      struct is_nothrow_swappable
+          : meta::bool_<is_nothrow_swappable_impl<T, U>()> {};
+
       template <typename T>
       struct storage {
         private:
@@ -119,17 +129,25 @@ namespace mpark {
 
         // Swap.
 
-        void swap(variant &that) { apply(swapper{*this, that}, *this, that); }
+        void swap(variant &that) noexcept(
+            meta::and_<std::is_nothrow_move_constructible<Ts>...,
+                       detail::variant::is_nothrow_swappable<Ts>...>{}) {
+          assert(valid());
+          assert(that.valid());
+          apply(swapper{*this, that}, *this, that);
+        }
 
-        // Observation.
+        // Query.
 
         template <typename T = null_t,
                   typename = std::enable_if_t<meta::in<meta::list<Ts...>, T>{}>>
         explicit constexpr operator bool() const noexcept {
+          assert(valid());
           return index_ != find_index<T>{};
         }
 
         const std::type_info &type() const noexcept {
+          assert(valid());
           return apply<typer>(std::forward_as_tuple(), *this);
         }
 
@@ -336,7 +354,8 @@ namespace mpark {
   };  // variant
 
   template <typename... Ts>
-  void swap(variant<Ts...> &lhs, variant<Ts...> &rhs) {
+  void swap(variant<Ts...> &lhs,
+            variant<Ts...> &rhs) noexcept(noexcept(lhs.swap(rhs))) {
     lhs.swap(rhs);
   }
 
