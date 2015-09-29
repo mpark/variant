@@ -348,7 +348,7 @@ namespace mpark {
     std::enable_if_t<
         std::is_constructible<T, std::initializer_list<U> &, Args &&...>{},
     void> emplace(std::initializer_list<U> arg, Args &&... args) {
-      super::emplace(arg, std::forward<Args>(args)...);
+      super::template emplace<T>(arg, std::forward<Args>(args)...);
     }
 
   };  // variant
