@@ -4,7 +4,7 @@ project(variant)
 
 include_directories(include)
 
-add_subdirectory(3rdparty/googletest)
+add_subdirectory(3rdparty/googletest/googletest)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 enable_testing()
 
