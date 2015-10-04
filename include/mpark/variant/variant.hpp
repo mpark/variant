@@ -90,6 +90,11 @@ namespace mpark {
   }  // detail
 
   //- 20.N.2 class template `variant`:
+
+  template <typename... Ts> class variant;
+
+  template <> class variant<> {};
+
   template <typename... Ts>
   class variant : public detail::variant::variant<Ts...> {
     private:
