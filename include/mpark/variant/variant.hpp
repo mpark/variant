@@ -10,7 +10,6 @@
 #include <exp/type_traits.hpp>
 #include <meta/meta.hpp>
 
-#include <mpark/variant/detail/ref.hpp>
 #include <mpark/variant/detail/union.hpp>
 #include <mpark/variant/unsafe/get.hpp>
 
@@ -25,12 +24,9 @@ namespace mpark {
     namespace variant {
 
       template <typename... Ts>
-      using storage = union_<meta::if_<std::is_reference<Ts>, ref<Ts>, Ts>...>;
-
-      template <typename... Ts>
-      class variant : public storage<Ts...> {
+      class variant : public union_<Ts...> {
         private:
-        using super = storage<Ts...>;
+        using super = union_<Ts...>;
         using members = meta::list<Ts...>;
 
         public:

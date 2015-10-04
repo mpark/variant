@@ -1,9 +1,12 @@
 #pragma once
 
 #include <new>
+#include <type_traits>
 #include <utility>
 
 #include <meta/meta.hpp>
+
+#include <mpark/variant/detail/ref.hpp>
 
 namespace mpark {
 
@@ -23,6 +26,8 @@ namespace mpark {
       template <typename T, typename... Ts>
       class union_<T, Ts...> {
         public:
+        using Head = meta::if_<std::is_reference<T>, ref<T>, T>;
+
         /* Must be handled by the user of this class. */
         constexpr union_() {}
         ~union_() {}
@@ -79,7 +84,7 @@ namespace mpark {
 
         template <typename... Args>
         void construct(meta::size_t<0>, Args &&... args) {
-          ::new (&head_) T(std::forward<Args>(args)...);
+          ::new (&head_) Head(std::forward<Args>(args)...);
         }
 
         template <std::size_t I, typename... Args>
@@ -90,7 +95,7 @@ namespace mpark {
         /* Destruct the element at index I. */
 
         void destruct(meta::size_t<0>) {
-          head_.~T();
+          head_.~Head();
         }
 
         template <std::size_t I>
@@ -100,7 +105,7 @@ namespace mpark {
 
         private:
         union {
-          T head_;
+          Head head_;
           union_<Ts...> tail_;
         };
 
