@@ -30,7 +30,7 @@ namespace exp {
       best_match(T);
 
       template <typename U = T,
-                typename = std::enable_if_t<std::is_lvalue_reference<U>{}>>
+                typename = meta::if_<std::is_lvalue_reference<U>>>
       best_match(std::remove_reference_t<T> &&) = delete;
 
       using super::operator();
@@ -38,7 +38,7 @@ namespace exp {
       meta::id<T> operator()(T) const;
 
       template <typename U = T,
-                typename = std::enable_if_t<std::is_lvalue_reference<U>{}>>
+                typename = meta::if_<std::is_lvalue_reference<U>>>
       void operator()(std::remove_reference_t<T> &&) const = delete;
 
     };  // best_match<meta::list<T, Ts...>>
@@ -94,6 +94,6 @@ namespace exp {
 
   template <typename T, typename... Ts>
   struct same_type<T, Ts...>
-      : std::enable_if<(std::is_same<T, Ts>{} && ...), T> {};
+      : std::enable_if<meta::and_<std::is_same<T, Ts>...>{}, T> {};
 
 }  // namespace exp

@@ -41,25 +41,25 @@ namespace mpark {
         explicit constexpr variant(in_place_t (&)(meta::size_t<I>),
                                    Args &&... args)
             : super(meta::size_t<I>{}, std::forward<Args>(args)...), index_(I) {
-          static_assert(I < members::size());
+          static_assert(I < members::size(), "");
           using T = meta::at_c<members, I>;
-          static_assert(std::is_constructible<T, Args &&...>{});
+          static_assert(std::is_constructible<T, Args &&...>{}, "");
         }
 
         template <typename T, typename... Args>
         explicit constexpr variant(in_place_t (&)(meta::id<T>), Args &&... args)
             : variant(in_place<meta::find_index<members, T>{}>,
                       std::forward<Args>(args)...) {
-          static_assert(meta::count<members, T>{} == 1);
+          static_assert(meta::count<members, T>{} == 1, "");
         }
 
         //- 20.N.2.3 assignment:
 
         template <std::size_t I, typename... Args>
         void emplace(Args &&... args) {
-          static_assert(I < members::size());
+          static_assert(I < members::size(), "");
           using T = meta::at_c<members, I>;
-          static_assert(std::is_constructible<T, Args &&...>{});
+          static_assert(std::is_constructible<T, Args &&...>{}, "");
           auto &self = static_cast<mpark::variant<Ts...> &>(*this);
           self.destruct();
           self.template construct<I>(std::forward<Args>(args)...);
@@ -67,7 +67,7 @@ namespace mpark {
 
         template <typename T, typename... Args>
         void emplace(Args &&... args) {
-          static_assert(meta::count<members, T>{} == 1);
+          static_assert(meta::count<members, T>{} == 1, "");
           emplace<meta::find_index<members, T>{}>(std::forward<Args>(args)...);
         }
 
@@ -109,13 +109,13 @@ namespace mpark {
     /* constructs the variant object in an indeterminate state */
     constexpr variant() noexcept : super{} {}
 
-    template <std::size_t I,
-              typename U,
-              typename... Args,
-              typename = std::enable_if_t<
-                  std::is_constructible<meta::at_c<members, I>,
-                                        std::initializer_list<U> &,
-                                        Args &&...>{}>>
+    template <
+        std::size_t I,
+        typename U,
+        typename... Args,
+        typename = meta::if_<std::is_constructible<meta::at_c<members, I>,
+                                                   std::initializer_list<U> &,
+                                                   Args &&...>>>
     explicit constexpr variant(in_place_t (&ip)(meta::size_t<I>),
                                std::initializer_list<U> init,
                                Args &&... args)
@@ -125,41 +125,41 @@ namespace mpark {
         typename T,
         typename U,
         typename... Args,
-        typename = std::enable_if_t<
-            std::is_constructible<T, std::initializer_list<U> &, Args &&...>{}>>
+        typename = meta::if_<
+            std::is_constructible<T, std::initializer_list<U> &, Args &&...>>>
     explicit constexpr variant(in_place_t (&ip)(meta::id<T>),
                                std::initializer_list<U> init,
                                Args &&... args)
         : super(ip, init, std::forward<Args>(args)...) {}
 
-    template <
-        typename Arg,
-        typename = std::enable_if_t<exp::has_best_match<members, Arg &&>{}>>
+    template <typename Arg,
+              typename = meta::if_<exp::has_best_match<members, Arg &&>>>
     constexpr variant(Arg &&arg)
         : variant(in_place<exp::get_best_match<members, Arg &&>>,
                   std::forward<Arg>(arg)) {}
 
     variant(const variant &that) {
-      static_assert((std::is_copy_constructible<Ts>{} && ...));
+      static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
       assert(that.valid());
       type_switch(that)(constructor{*this});
     }
 
     variant(variant &that) {
-      static_assert((std::is_copy_constructible<Ts>{} && ...));
+      static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
       assert(that.valid());
       type_switch(that)(constructor{*this});
     }
 
-    variant(const variant &&that) {
-      static_assert((std::is_copy_constructible<Ts>{} && ...));
+    variant(const variant &&that) noexcept(
+        meta::and_<std::is_nothrow_move_constructible<Ts>...>{}) {
+      static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
       assert(that.valid());
       type_switch(std::move(that))(constructor{*this});
     }
 
     variant(variant &&that) noexcept(
-        (std::is_nothrow_move_constructible<Ts>{} && ...)) {
-      static_assert((std::is_move_constructible<Ts>{} && ...));
+        meta::and_<std::is_nothrow_move_constructible<Ts>...>{}) {
+      static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
       assert(that.valid());
       type_switch(std::move(that))(constructor{*this});
     }
@@ -172,26 +172,25 @@ namespace mpark {
     using super::emplace;
 
     template <std::size_t I, typename U, typename... Args>
-    std::enable_if_t<std::is_constructible<meta::at_c<members, I>,
-                                           std::initializer_list<U> &,
-                                           Args &&...>{},
+    meta::if_<std::is_constructible<meta::at_c<members, I>,
+                                    std::initializer_list<U> &,
+                                    Args &&...>,
     void> emplace(std::initializer_list<U> init, Args &&... args) {
       super::template emplace<I>(init, std::forward<Args>(args)...);
     }
 
     template <typename T, typename U, typename... Args>
-    std::enable_if_t<
-        std::is_constructible<T, std::initializer_list<U> &, Args &&...>{},
+    meta::if_<std::is_constructible<T, std::initializer_list<U> &, Args &&...>,
     void> emplace(std::initializer_list<U> init, Args &&... args) {
       super::template emplace<T>(init, std::forward<Args>(args)...);
     }
 
     template <std::size_t I, typename Arg>
     void assign(Arg &&arg) {
-      static_assert(I < members::size());
+      static_assert(I < members::size(), "");
       using T = meta::at_c<members, I>;
-      static_assert(std::is_constructible<T, Arg &&>{});
-      static_assert(std::is_assignable<T &, Arg &&>{});
+      static_assert(std::is_constructible<T, Arg &&>{}, "");
+      static_assert(std::is_assignable<T &, Arg &&>{}, "");
       if (this->index_ == I) {
         unsafe::get<I>(*this) = std::forward<Arg>(arg);
       } else if (std::is_nothrow_constructible<T, Arg &&>{}) {
@@ -203,48 +202,48 @@ namespace mpark {
 
     template <typename T, typename Arg>
     void assign(Arg &&arg) {
-      static_assert(meta::count<members, T>{} == 1);
+      static_assert(meta::count<members, T>{} == 1, "");
       assign<meta::find_index<members, T>{}>(std::forward<Arg>(arg));
     }
 
     template <typename Arg>
-    std::enable_if_t<exp::has_best_match<members, Arg &&>{},
+    meta::if_<exp::has_best_match<members, Arg &&>,
     variant &> operator=(Arg &&arg) {
       assign<exp::get_best_match<members, Arg &&>>(std::forward<Arg>(arg));
       return *this;
     }
 
     variant &operator=(const variant &that) {
-      static_assert((std::is_copy_constructible<Ts>{} && ...));
-      static_assert((std::is_copy_assignable<Ts>{} && ...));
+      static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
+      static_assert(meta::and_<std::is_copy_assignable<Ts>...>{}, "");
       assert(that.valid());
       type_switch(that)(assigner{*this});
       return *this;
     }
 
     variant &operator=(variant &that) {
-      static_assert((std::is_copy_constructible<Ts>{} && ...));
-      static_assert((std::is_copy_assignable<Ts>{} && ...));
+      static_assert(meta::and_<std::is_copy_constructible<Ts>...>{}, "");
+      static_assert(meta::and_<std::is_copy_assignable<Ts>...>{}, "");
       assert(that.valid());
       type_switch(that)(assigner{*this});
       return *this;
     }
 
     variant &operator=(const variant &&that) noexcept(
-        (std::is_nothrow_move_constructible<Ts>{} && ...) &&
-        (std::is_nothrow_move_assignable<Ts>{} && ...)) {
-      static_assert((std::is_move_constructible<Ts>{} && ...));
-      static_assert((std::is_move_assignable<Ts>{} && ...));
+        meta::and_<std::is_nothrow_move_constructible<Ts>...,
+                   std::is_nothrow_move_assignable<Ts>...>{}) {
+      static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
+      static_assert(meta::and_<std::is_move_assignable<Ts>...>{}, "");
       assert(that.valid());
       type_switch(std::move(that))(assigner{*this});
       return *this;
     }
 
     variant &operator=(variant &&that) noexcept(
-        (std::is_nothrow_move_constructible<Ts>{} && ...) &&
-        (std::is_nothrow_move_assignable<Ts>{} && ...)) {
-      static_assert((std::is_move_constructible<Ts>{} && ...));
-      static_assert((std::is_move_assignable<Ts>{} && ...));
+        meta::and_<std::is_nothrow_move_constructible<Ts>...,
+                   std::is_nothrow_move_assignable<Ts>...>{}) {
+      static_assert(meta::and_<std::is_move_constructible<Ts>...>{}, "");
+      static_assert(meta::and_<std::is_move_assignable<Ts>...>{}, "");
       assert(that.valid());
       type_switch(std::move(that))(assigner{*this});
       return *this;
@@ -265,8 +264,8 @@ namespace mpark {
     //- 20.N.2.5 swap:
 
     void swap(variant &that) noexcept(
-        (std::is_nothrow_move_constructible<Ts>{} && ...) &&
-        (exp::is_nothrow_swappable<Ts>{} && ...)) {
+        meta::and_<std::is_nothrow_move_constructible<Ts>...,
+                   exp::is_nothrow_swappable<Ts>...>{}) {
       assert(this->valid());
       assert(that.valid());
       type_switch(*this, that)(swapper{*this, that});
@@ -323,7 +322,7 @@ namespace mpark {
 
     template <std::size_t I, typename... Args>
     void construct(Args &&... args) {
-      static_assert(I < members::size());
+      static_assert(I < members::size(), "");
       try {
         this->index_ = meta::npos{};
         super::construct(meta::size_t<I>{}, std::forward<Args>(args)...);
@@ -335,7 +334,7 @@ namespace mpark {
 
     template <std::size_t I>
     void destruct() noexcept {
-      static_assert(I < members::size());
+      static_assert(I < members::size(), "");
       super::destruct(meta::size_t<I>{});
     }
 

@@ -6,7 +6,7 @@ This is the reference implementation of proposal [P0080].
 
 ## Requirements
 
-This library requires a standard conformant __C++17__ compiler.
+This library requires a standard conformant __C++14__ compiler.
 
 Tested configurations:
   * __Mac OS X Yosemite__: `clang-3.6+`

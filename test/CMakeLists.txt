@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_definitions(-std=c++1z)
+add_definitions(-std=c++14)
 add_definitions(-Werror)
 add_definitions(-Weverything)
 

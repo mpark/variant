@@ -12,12 +12,12 @@ namespace mpark {
       template <typename T>
       class ref {
         public:
-        static_assert(std::is_reference<T>{});
+        static_assert(std::is_reference<T>{}, "");
 
         ref(T r) noexcept : ptr(std::addressof(static_cast<T>(r))) {}
 
         template <typename U = T,
-                  typename = std::enable_if_t<std::is_lvalue_reference<U>{}>>
+                  typename = meta::if_<std::is_lvalue_reference<U>>>
         ref(std::remove_reference_t<T> &&) = delete;
 
         ~ref() = default;

@@ -33,7 +33,7 @@ namespace mpark {
         private:
         template <typename F,
                   typename S = R,
-                  typename = std::enable_if_t<!std::is_same<S, deduce_t>{}>>
+                  typename = meta::if_<meta::not_<std::is_same<S, deduce_t>>>>
         decltype(auto) dispatch(exp::priority<2>, F &&f) const {
           return dispatch<S>(std::forward<F>(f));
         }
@@ -46,7 +46,7 @@ namespace mpark {
 
         template <typename F,
                   typename S = R,
-                  typename = std::enable_if_t<std::is_same<S, deduce_t>{}>>
+                  typename = meta::if_<std::is_same<S, deduce_t>>>
         decltype(auto) dispatch(exp::priority<0>, F &&f) const {
           return dispatch<deduce_t>(std::forward<F>(f));
         }

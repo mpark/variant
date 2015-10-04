@@ -14,7 +14,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   auto *get(const variant<Ts...> *v) noexcept {
     using members = meta::list<Ts...>;
-    static_assert(I < members::size());
+    static_assert(I < members::size(), "");
     using T = meta::at_c<members, I>;
     using R = std::remove_reference_t<const T>;
     if (!v) {
@@ -36,7 +36,7 @@ namespace mpark {
   template <typename T, typename... Ts>
   auto *get(const variant<Ts...> *v) noexcept {
     using members = meta::list<Ts...>;
-    static_assert(meta::count<members, T>{} == 1);
+    static_assert(meta::count<members, T>{} == 1, "");
     return get<meta::find_index<members, T>{}>(v);
   }
 
@@ -73,7 +73,7 @@ namespace mpark {
   template <typename T, typename... Ts>
   const auto &get(const variant<Ts...> &v) {
     using members = meta::list<Ts...>;
-    static_assert(meta::count<members, T>{} == 1);
+    static_assert(meta::count<members, T>{} == 1, "");
     return get<meta::find_index<members, T>{}>(v);
   }
 
