@@ -2,7 +2,16 @@
 
 > Discriminated Union with Value Semantics
 
-This is the reference implementation of proposal [P0080].
+The reference implementation of proposal [P0080].
+
+## Quick Start
+
+Since project uses `git submodule`, I recommend specifying the `--recursive`
+flag to `git clone` in order to recursively clone the required submodules.
+
+```bash
+git clone --recursive git@github.com:mpark/variant.git
+```
 
 ## Requirements
 
