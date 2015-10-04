@@ -20,7 +20,7 @@ add_definitions(-Wno-weak-vtables)
 function(add_test_case name)
   add_executable(${name}.test ${name}.test.cpp)
   target_link_libraries(${name}.test gtest gtest_main pthread)
-  add_test(${name} ${name}.test)
+  add_test(${name} ${name}.test --gtest_color=yes)
 endfunction(add_test_case)
 
 # add_test_case(assign.ref)

@@ -1,9 +1,6 @@
-# MPark.Variant [![experimental]](http://github.com/badges/stability-badges)
+# Variant [![experimental]](http://github.com/badges/stability-badges)
 
-[experimental]: http://badges.github.io/stability-badges/dist/experimental.svg
-
-> An experimental library aimed to provide a sum type with value semantics for
-> Modern C++.
+> Discriminated Union with Value Semantics
 
 ## Tests
 
@@ -14,6 +11,6 @@ commands from the top-level directory of the project to build and run the tests.
 mkdir build
 cd build
 cmake ..
-make
-make test
+cmake --build .
+ctest -V
 ```
