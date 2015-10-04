@@ -1,20 +1,28 @@
 #pragma once
 
 #include <stdexcept>
-#include <string>
 
 namespace mpark {
 
-  /* The exception to be thrown on a bad variant access. */
-  class bad_variant_access : public std::logic_error {
+  //- 20.N.3 class `bad_variant_access`
+
+  /* exception indicating an invalid access to a `variant` object
+
+     The class `bad_variant_access` defines the type of objects thrown as
+     exceptions to report the situation where an invalid attempt is made to
+     access the value of a `variant` via `get`.
+
+     Given an object `v` of type `variant<Types...>`,
+       * For index-based operations,
+         `get<I>(v)` is invalid if `get<I>(&v) == nullptr`
+       * For type-based operations,
+         `get<T>(v)` is invalid if `get<T>(&v) == nullptr` */
+  class bad_variant_access : public std::exception {
     public:
-
-    explicit bad_variant_access(const std::string &what_arg)
-        : std::logic_error(what_arg) {}
-
-    explicit bad_variant_access(const char *what_arg)
-        : std::logic_error(what_arg) {}
-
+    bad_variant_access() = default;
+    bad_variant_access(const bad_variant_access &) = default;
+    bad_variant_access &operator=(const bad_variant_access &) = default;
+    virtual const char *what() const noexcept { return "bad_variant_access"; }
   };  // bad_variant_access
 
 }  // namespace mpark

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <new>
 #include <utility>
 
 #include <meta/meta.hpp>
@@ -10,36 +11,33 @@ namespace mpark {
 
     namespace variant {
 
-      /**
-       *   `union_t` is a variadic `union` which simply overlaps the N specified
-       *   types inside of a union. Compile-time indices are used to determine
-       *   that the element at the specified index needs to be constructed or
-       *   retrieved.
-       **/
-      template <typename... Ts>
-      class union_t;
+      /* `union_` is a variadic recursive `union` which overlaps the N
+         specified types. Compile-time indices are used to determine the element
+         that needs to be constructed or retrieved. */
+      template <typename... Ts> class union_;
 
-      /* Base case for `union_t`. */
-      template <>
-      class union_t<> {};
+      /* Base case for `union_`. */
+      template <> class union_<> {};
 
-      /* Recursive case for `union_t`. */
+      /* Recursive case for `union_`. */
       template <typename T, typename... Ts>
-      class union_t<T, Ts...> {
+      class union_<T, Ts...> {
         public:
+        /* Must be handled by the user of this class. */
+        constexpr union_() {}
+        ~union_() {}
 
-        constexpr union_t() {}
+        /* Construct the element at index I. */
 
         template <typename... Args>
-        explicit constexpr union_t(meta::size_t<0>, Args &&... args)
+        explicit constexpr union_(meta::size_t<0>, Args &&... args)
             : head_(std::forward<Args>(args)...) {}
 
         template <std::size_t I, typename... Args>
-        explicit constexpr union_t(meta::size_t<I>, Args &&... args)
+        explicit constexpr union_(meta::size_t<I>, Args &&... args)
             : tail_(meta::size_t<I - 1>{}, std::forward<Args>(args)...) {}
 
-        /* Must be defined by the user of this class. */
-        ~union_t() {}
+        /* Access the element at index I. */
 
         constexpr T &operator[](meta::size_t<0>) & noexcept {
           return head_;
@@ -77,6 +75,8 @@ namespace mpark {
           return std::move(tail_)[meta::size_t<I - 1>{}];
         }
 
+        /* Construct the element at index I. */
+
         template <typename... Args>
         void construct(meta::size_t<0>, Args &&... args) {
           ::new (&head_) T(std::forward<Args>(args)...);
@@ -87,7 +87,11 @@ namespace mpark {
           tail_.construct(meta::size_t<I - 1>{}, std::forward<Args>(args)...);
         }
 
-        void destruct(meta::size_t<0>) { head_.~T(); }
+        /* Destruct the element at index I. */
+
+        void destruct(meta::size_t<0>) {
+          head_.~T();
+        }
 
         template <std::size_t I>
         void destruct(meta::size_t<I>) {
@@ -95,13 +99,12 @@ namespace mpark {
         }
 
         private:
-
         union {
           T head_;
-          union_t<Ts...> tail_;
+          union_<Ts...> tail_;
         };
 
-      };  // union_t<T, Ts...>
+      };  // union_<T, Ts...>
 
     }  // namespace variant
 
