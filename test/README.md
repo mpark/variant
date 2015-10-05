@@ -14,3 +14,5 @@ cmake ..
 cmake --build .
 ctest -V
 ```
+
+[experimental]: http://badges.github.io/stability-badges/dist/experimental.svg
