@@ -27,6 +27,7 @@ namespace mpark {
       class union_<T, Ts...> {
         public:
         using Head = meta::if_<std::is_reference<T>, ref<T>, T>;
+        using Tail = union_<Ts...>;
 
         /* Must be handled by the user of this class. */
         constexpr union_() {}
@@ -61,23 +62,23 @@ namespace mpark {
         }
 
         template <std::size_t I>
-        constexpr auto &operator[](meta::size_t<I>) & noexcept {
-          return tail_[meta::size_t<I - 1>{}];
+        constexpr auto &&operator[](meta::size_t<I>) & noexcept {
+          return static_cast<Tail &>(tail_)[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
-        constexpr const auto &operator[](meta::size_t<I>) const & noexcept {
-          return tail_[meta::size_t<I - 1>{}];
+        constexpr auto &&operator[](meta::size_t<I>) const & noexcept {
+          return static_cast<const Tail &>(tail_)[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
         constexpr auto &&operator[](meta::size_t<I>) && noexcept {
-          return std::move(tail_)[meta::size_t<I - 1>{}];
+          return static_cast<Tail &&>(tail_)[meta::size_t<I - 1>{}];
         }
 
         template <std::size_t I>
-        constexpr const auto &&operator[](meta::size_t<I>) const && noexcept {
-          return std::move(tail_)[meta::size_t<I - 1>{}];
+        constexpr auto &&operator[](meta::size_t<I>) const && noexcept {
+          return static_cast<const Tail &&>(tail_)[meta::size_t<I - 1>{}];
         }
 
         /* Construct the element at index I. */
@@ -106,7 +107,7 @@ namespace mpark {
         private:
         union {
           Head head_;
-          union_<Ts...> tail_;
+          Tail tail_;
         };
 
       };  // union_<T, Ts...>

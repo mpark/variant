@@ -37,13 +37,13 @@ namespace mpark {
       }
 
       template <typename T, std::size_t N>
-      constexpr const auto &at_(const std::array<T, N> &array,
+      constexpr auto &&at_(const std::array<T, N> &array,
                                 const std::size_t *index) {
         return at_(array[*index], index + 1);
       }
 
       template <typename T, std::size_t N>
-      constexpr const auto &at(
+      constexpr auto &&at(
           const std::array<T, N> &array,
           const std::size_t(&indices)[exp::rank<std::array<T, N>>{}]) {
         return at_(array, std::begin(indices));

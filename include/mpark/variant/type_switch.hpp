@@ -54,7 +54,7 @@ namespace mpark {
         template <typename S, typename F>
         decltype(auto) dispatch(F &&f) const {
           static constexpr auto vtable = make_vtable<S, F &&, Vs...>();
-          return exp::apply([&](Vs... vs) {
+          return exp::apply([&](Vs... vs) -> decltype(auto) {
             return at(vtable, {vs.index()...})(std::forward<F>(f),
                                                static_cast<Vs>(vs)...);
           }, std::move(this->vs_));
