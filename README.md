@@ -6,8 +6,8 @@ The reference implementation of proposal [P0080].
 
 ## Quick Start
 
-Since project uses `git submodule`, I recommend specifying the `--recursive`
-flag to `git clone` in order to recursively clone the required submodules.
+Since this project uses `git submodule`, specifying the `--recursive` flag to
+`git clone` is recommended.
 
 ```bash
 git clone --recursive git@github.com:mpark/variant.git
