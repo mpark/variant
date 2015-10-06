@@ -10,6 +10,7 @@ endfunction(add_test_case)
 
 # add_test_case(assign.ref)
 # add_test_case(assign.val)
+add_test_case(cnstr.conversion)
 add_test_case(cnstr.default)
 add_test_case(cnstr.in_place)
 # add_test_case(cnstr.ref)

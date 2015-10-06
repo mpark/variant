@@ -21,12 +21,12 @@ namespace mpark {
         TypeSwitch(std::tuple<Vs...> &&vs) : vs_(std::move(vs)) {}
 
         template <typename F>
-        decltype(auto) operator()(F &&f) const && {
+        decltype(auto) operator()(F &&f) && {
           return dispatch(exp::priority<2>{}, std::forward<F>(f));
         }
 
         template <typename... Fs>
-        decltype(auto) operator()(Fs &&... fs) const && {
+        decltype(auto) operator()(Fs &&... fs) && {
           return std::move(*this)(overload(std::forward<Fs>(fs)...));
         }
 
@@ -34,25 +34,25 @@ namespace mpark {
         template <typename F,
                   typename S = R,
                   typename = meta::if_<meta::not_<std::is_same<S, deduce_t>>>>
-        decltype(auto) dispatch(exp::priority<2>, F &&f) const {
+        decltype(auto) dispatch(exp::priority<2>, F &&f) {
           return dispatch<S>(std::forward<F>(f));
         }
 
         template <typename F,
                   typename S = typename std::decay_t<F>::result_type>
-        decltype(auto) dispatch(exp::priority<1>, F &&f) const {
+        decltype(auto) dispatch(exp::priority<1>, F &&f) {
           return dispatch<S>(std::forward<F>(f));
         }
 
         template <typename F,
                   typename S = R,
                   typename = meta::if_<std::is_same<S, deduce_t>>>
-        decltype(auto) dispatch(exp::priority<0>, F &&f) const {
+        decltype(auto) dispatch(exp::priority<0>, F &&f) {
           return dispatch<deduce_t>(std::forward<F>(f));
         }
 
         template <typename S, typename F>
-        decltype(auto) dispatch(F &&f) const {
+        decltype(auto) dispatch(F &&f) {
           static constexpr auto vtable = make_vtable<S, F &&, Vs...>();
           return exp::apply([&](Vs... vs) -> decltype(auto) {
             return at(vtable, {vs.index()...})(std::forward<F>(f),

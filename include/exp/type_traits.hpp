@@ -47,7 +47,7 @@ namespace exp {
 
   /* `has_best_match` */
   template <typename List, typename T>
-  struct has_best_match : std::is_convertible<T, detail::best_match<List>> {};
+  struct has_best_match : std::is_constructible<detail::best_match<List>, T> {};
 
   /* `get_best_match` */
   template <typename List, typename T>
