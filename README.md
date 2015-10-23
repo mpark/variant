@@ -4,6 +4,9 @@
 
 The reference implementation of proposal [P0080].
 
+`variant` reached consensus in Kona! I'll be updating this implementation
+shortly for the Kona `variant`.
+
 ## Quick Start
 
 Since this project uses `git submodule`, specifying the `--recursive` flag to
