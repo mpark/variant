@@ -1,15 +1,17 @@
-#include <mpark/variant.hpp>
+#include <variant.hpp>
 
 #include <string>
 
 #include <gtest/gtest.h>
 
-TEST(DefaultCnstr, VariantTs) {
-  mpark::variant<int, std::string> v;
-  (void)v;
+namespace exp = std::experimental;
+
+TEST(Cnstr_Default, Variant) {
+  exp::variant<int, std::string> v;
+  EXPECT_EQ(0, exp::get<0>(v));
 }
 
-TEST(DefaultCnstr, Variant) {
-  mpark::variant<> v;
+TEST(Cnstr_Default, DiamondVariant) {
+  exp::variant<> v;
   (void)v;
 }

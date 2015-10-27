@@ -1,11 +1,11 @@
 # Variant [![experimental]](http://github.com/badges/stability-badges)
 
-> Discriminated Union with Value Semantics
+> A type-safe `union`
 
 ## Tests
 
-This directory contains the tests for __MPark.Variant__. Execute the following
-commands from the top-level directory of the project to build and run the tests.
+This directory contains the tests for `variant`. Execute the following commands
+from the top-level directory of the project to build and run the tests.
 
 ```bash
 mkdir build

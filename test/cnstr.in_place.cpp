@@ -1,82 +1,64 @@
-#include <mpark/variant.hpp>
+#include <variant.hpp>
 
 #include <string>
 
 #include <gtest/gtest.h>
 
+namespace exp = std::experimental;
+
 using namespace std::string_literals;
 
-TEST(InPlaceCnstr, IndexDirect) {
-  using I = meta::size_t<0>;
-  mpark::variant<int, std::string> v(mpark::in_place<I{}>, 42);
-  EXPECT_EQ(I{}, v.index());
-  EXPECT_EQ(42, mpark::get<I{}>(v));
+TEST(Cnstr_InPlace, IndexDirect) {
+  exp::variant<int, std::string> v(exp::in_place_index<0>, 42);
+  EXPECT_EQ(42, exp::get<0>(v));
 }
 
-TEST(InPlaceCnstr, IndexDirectDuplicate) {
-  using I = meta::size_t<0>;
-  mpark::variant<int, int> v(mpark::in_place<I{}>, 42);
-  EXPECT_EQ(I{}, v.index());
-  EXPECT_EQ(42, mpark::get<I{}>(v));
+TEST(Cnstr_InPlace, IndexDirectDuplicate) {
+  exp::variant<int, int> v(exp::in_place_index<0>, 42);
+  EXPECT_EQ(42, exp::get<0>(v));
 }
 
-TEST(InPlaceCnstr, IndexConversion) {
-  using I = meta::size_t<1>;
-  mpark::variant<int, std::string> v(mpark::in_place<I{}>, "42");
-  EXPECT_EQ(I{}, v.index());
-  EXPECT_EQ("42"s, mpark::get<I{}>(v));
+TEST(Cnstr_InPlace, IndexConversion) {
+  exp::variant<int, std::string> v(exp::in_place_index<1>, "42");
+  EXPECT_EQ("42"s, exp::get<1>(v));
 }
 
-TEST(InPlaceCnstr, IndexConversionDuplicateRef) {
-  using I = meta::size_t<0>;
+TEST(Cnstr_InPlace, IndexConversionDuplicateRef) {
   std::ostringstream strm;
-  mpark::variant<std::ostream &, std::ostream &> v(mpark::in_place<I{}>, strm);
-  EXPECT_EQ(I{}, v.index());
-  EXPECT_EQ(&strm, &mpark::get<I{}>(v));
+  exp::variant<std::ostream &, std::ostream &> v(exp::in_place_index<0>, strm);
+  EXPECT_EQ(&strm, &exp::get<0>(v));
 }
 
-TEST(InPlaceCnstr, IndexInitializerList) {
-  using I = meta::size_t<1>;
-  mpark::variant<int, std::string> v(mpark::in_place<I{}>, {'4', '2'});
-  EXPECT_EQ(I{}, v.index());
-  EXPECT_EQ("42"s, mpark::get<I{}>(v));
+TEST(Cnstr_InPlace, IndexInitializerList) {
+  exp::variant<int, std::string> v(exp::in_place_index<1>, {'4', '2'});
+  EXPECT_EQ("42"s, exp::get<1>(v));
 }
 
-TEST(InPlaceCnstr, TypeDirect) {
-  using T = std::string;
-  mpark::variant<int, std::string> v(mpark::in_place<T>, "42"s);
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ("42"s, mpark::get<T>(v));
+TEST(Cnstr_InPlace, TypeDirect) {
+  exp::variant<int, std::string> v(exp::in_place_type<std::string>, "42"s);
+  EXPECT_EQ("42"s, exp::get<std::string>(v));
 }
 
-TEST(InPlaceCnstr, TypeDirectRef) {
-  using T = int &;
+TEST(Cnstr_InPlace, TypeDirectRef) {
   int expected = 42;
-  mpark::variant<int &, std::ostream &> v(mpark::in_place<T>, expected);
-  EXPECT_EQ(0u, v.index());
-  auto &actual = mpark::get<T>(v);
+  exp::variant<int &, std::ostream &> v(exp::in_place_type<int &>, expected);
+  auto &actual = exp::get<int &>(v);
   EXPECT_EQ(expected, actual);
   EXPECT_EQ(&expected, &actual);
 }
 
-TEST(InPlaceCnstr, TypeConversion) {
-  using T = int;
-  mpark::variant<int, std::string> v(mpark::in_place<T>, 42.5);
-  EXPECT_EQ(0u, v.index());
-  EXPECT_EQ(42, mpark::get<T>(v));
+TEST(Cnstr_InPlace, TypeConversion) {
+  exp::variant<int, std::string> v(exp::in_place_type<int>, 42.5);
+  EXPECT_EQ(42, exp::get<int>(v));
 }
 
-TEST(InPlaceCnstr, TypeConversionRef) {
-  using T = std::ostream &;
+TEST(Cnstr_InPlace, TypeConversionRef) {
   std::ostringstream strm;
-  mpark::variant<int, std::ostream &> v(mpark::in_place<T>, strm);
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ(&strm, &mpark::get<T>(v));
+  exp::variant<int, std::ostream &> v(exp::in_place_type<std::ostream &>, strm);
+  EXPECT_EQ(&strm, &exp::get<std::ostream &>(v));
 }
 
-TEST(InPlaceCnstr, TypeInitializerList) {
-  using T = std::string;
-  mpark::variant<int, std::string> v(mpark::in_place<T>, {'4', '2'});
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ("42"s, mpark::get<T>(v));
+TEST(Cnstr_InPlace, TypeInitializerList) {
+  exp::variant<int, std::string> v(exp::in_place_type<std::string>, {'4', '2'});
+  EXPECT_EQ("42"s, exp::get<std::string>(v));
 }

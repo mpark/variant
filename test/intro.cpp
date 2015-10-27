@@ -1,37 +1,41 @@
-#include <mpark/variant.hpp>
+#include <variant.hpp>
 
 #include <iostream>
 #include <string>
 
 #include <gtest/gtest.h>
 
-TEST(Variant, Intro) {
-  using namespace std::string_literals;
+namespace exp = std::experimental;
 
+using namespace std::string_literals;
+
+TEST(Variant, Intro) {
   // direct initialization.
-  mpark::variant<int, std::string> v("hello world!"s);
+  exp::variant<int, std::string> v("hello world!"s);
 
   // direct access via reference.
-  EXPECT_EQ("hello world!"s, mpark::get<std::string>(v));
+  EXPECT_EQ("hello world!"s, exp::get<std::string>(v));
 
   // bad access.
-  EXPECT_THROW(mpark::get<int>(v), mpark::bad_variant_access);
+  EXPECT_THROW(exp::get<int>(v), exp::bad_variant_access);
 
   // copy construction.
-  mpark::variant<int, std::string> w(v);
+  exp::variant<int, std::string> w(v);
 
   // direct access via pointer.
-  EXPECT_FALSE(mpark::get<int>(&w));
-  EXPECT_TRUE(mpark::get<std::string>(&w));
+  EXPECT_FALSE(exp::get_if<int>(&w));
+  EXPECT_TRUE(exp::get_if<std::string>(&w));
 
   // diff-type assignment.
   v = 42;
 
+  struct unary {
+    int operator()(int) const { return 0; }
+    int operator()(const std::string &) const { return 1; }
+  };  // unary
+
   // single visitation.
-  EXPECT_EQ(0, mpark::type_switch (v) (
-    [](int                ) { return 0; },
-    [](const std::string &) { return 1; }
-  ));
+  EXPECT_EQ(0, exp::visit(unary{}, v));
 
   // same-type assignment.
   w = "hello"s;
@@ -43,11 +47,13 @@ TEST(Variant, Intro) {
 
   EXPECT_EQ(v, w);
 
-  // double visitation.
-  EXPECT_EQ(0, mpark::type_switch (v, w) (
-    [](int                , int                ) { return 0; },
-    [](int                , const std::string &) { return 1; },
-    [](const std::string &, int                ) { return 2; },
-    [](const std::string &, const std::string &) { return 3; }
-  ));
+  struct binary {
+    int operator()(int, int) const { return 0; }
+    int operator()(int, const std::string &) const { return 1; }
+    int operator()(const std::string &, int) const { return 2; }
+    int operator()(const std::string &, const std::string &) const { return 3; }
+  };  // binary
+
+  // binary visitation.
+  EXPECT_EQ(0, exp::visit(binary{}, v, w));
 }

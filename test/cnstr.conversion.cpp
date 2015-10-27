@@ -1,63 +1,57 @@
-#include <mpark/variant.hpp>
+#include <variant.hpp>
 
 #include <string>
 
 #include <gtest/gtest.h>
 
+namespace exp = std::experimental;
+
 using namespace std::string_literals;
 
-TEST(ConvCnstr, Direct) {
-  mpark::variant<int, std::string> v(42);
-  EXPECT_EQ(0u, v.index());
-  EXPECT_EQ(42, mpark::get<int>(v));
+TEST(Cnstr_Conversion, Direct) {
+  exp::variant<int, std::string> v(42);
+  EXPECT_EQ(42, exp::get<int>(v));
 }
 
-TEST(ConvCnstr, DirectRef) {
+TEST(Cnstr_Conversion, DirectRef) {
   int expected = 42;
-  mpark::variant<int &, std::string &> v(expected);
-  auto &actual = mpark::get<int &>(v);
-  EXPECT_EQ(0u, v.index());
+  exp::variant<int &, std::string &> v(expected);
+  auto &actual = exp::get<int &>(v);
   EXPECT_EQ(expected, actual);
   EXPECT_EQ(&expected, &actual);
 }
 
-TEST(ConvCnstr, DirectConversion) {
-  mpark::variant<int, std::string> v("42");
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+TEST(Cnstr_Conversion, DirectConversion) {
+  exp::variant<int, std::string> v("42");
+  EXPECT_EQ("42"s, exp::get<std::string>(v));
 }
 
-TEST(ConvCnstr, DirectConversionRef) {
+TEST(Cnstr_Conversion, DirectConversionRef) {
   std::ostringstream strm;
-  mpark::variant<int &, std::ostream &> v(strm);
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ(&strm, &mpark::get<std::ostream &>(v));
+  exp::variant<int &, std::ostream &> v(strm);
+  EXPECT_EQ(&strm, &exp::get<std::ostream &>(v));
 }
 
-TEST(ConvCnstr, CopyInitialization) {
-  mpark::variant<int, std::string> v = 42;
-  EXPECT_EQ(0u, v.index());
-  EXPECT_EQ(42, mpark::get<int>(v));
+TEST(Cnstr_Conversion, CopyInitialization) {
+  exp::variant<int, std::string> v = 42;
+  EXPECT_EQ(42, exp::get<int>(v));
 }
 
-TEST(ConvCnstr, CopyInitializationRef) {
+TEST(Cnstr_Conversion, CopyInitializationRef) {
   std::string expected = "42";
-  mpark::variant<int &, std::string &> v = expected;
-  EXPECT_EQ(1u, v.index());
-  auto &actual = mpark::get<std::string &>(v);
+  exp::variant<int &, std::string &> v = expected;
+  auto &actual = exp::get<std::string &>(v);
   EXPECT_EQ(expected, actual);
   EXPECT_EQ(&expected, &actual);
 }
 
-TEST(ConvCnstr, CopyInitializationConversion) {
-  mpark::variant<int, std::string> v = "42";
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+TEST(Cnstr_Conversion, CopyInitializationConversion) {
+  exp::variant<int, std::string> v = "42";
+  EXPECT_EQ("42"s, exp::get<std::string>(v));
 }
 
-TEST(ConvCnstr, CopyInitializationConversionRef) {
+TEST(Cnstr_Conversion, CopyInitializationConversionRef) {
   std::ostringstream strm;
-  mpark::variant<int &, std::ostream &> v = strm;
-  EXPECT_EQ(1u, v.index());
-  EXPECT_EQ(&strm, &mpark::get<std::ostream &>(v));
+  exp::variant<int &, std::ostream &> v = strm;
+  EXPECT_EQ(&strm, &exp::get<std::ostream &>(v));
 }
