@@ -8,6 +8,7 @@
 
 #include <meta/meta.hpp>
 
+#include <variant/access.hpp>
 #include <variant/detail/index_visitor.hpp>
 #include <variant/detail/invoke.hpp>
 #include <variant/detail/type_traits.hpp>
@@ -61,12 +62,12 @@ struct vtable {
   template <typename F, size_t... Is>
   static constexpr decltype(auto) dispatch_(true_type, F f, Vs... vs) {
     return invoke(static_cast<F>(f)(meta::size_t<Is>{}...),
-                  unsafe::get<Is>(static_cast<Vs>(vs))...);
+                  get<Is>(static_cast<Vs>(vs))...);
   }
 
   template <typename F, size_t... Is>
   static constexpr decltype(auto) dispatch_(false_type, F f, Vs... vs) {
-    return invoke(static_cast<F>(f), unsafe::get<Is>(static_cast<Vs>(vs))...);
+    return invoke(static_cast<F>(f), get<Is>(static_cast<Vs>(vs))...);
   }
 
   template <typename F, size_t... Is>

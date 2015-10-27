@@ -7,11 +7,13 @@
 #include <meta/meta.hpp>
 
 #include <variant/bad_variant_access.hpp>
-#include <variant/detail/overload.hpp>
-#include <variant/visit.hpp>
+#include <variant/detail/unsafe/get.hpp>
 
 namespace std {
 namespace experimental {
+
+// Forward declaration
+template <typename... Ts> class variant;
 
 //- 20.N.7 element access:
 
