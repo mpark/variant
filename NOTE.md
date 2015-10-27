@@ -20,3 +20,5 @@
    constructor throw? or is `*this` also corrupted?
 6. Should `tuple_not_found` be `constexpr size_t`? or `std::integral_constant`?
 7. Fix `) constexpr {` for rel-ops of `monostate`.
+
+[experimental]: http://badges.github.io/stability-badges/dist/experimental.svg

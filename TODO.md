@@ -10,3 +10,5 @@
    `static_assert` vs SFINAE.
 4. Add `allocator` support.
 3. Add proper `constexpr` support.
+
+[experimental]: http://badges.github.io/stability-badges/dist/experimental.svg
