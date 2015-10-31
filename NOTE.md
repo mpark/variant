@@ -16,9 +16,8 @@
 3. How should `variant<>` behave?
 4. `variant<int &>::operator=` is ill-formed. Does that mean
    `variant<int &>::variant(const variant<int &> &)` is also ill-formed?
-5. If the `that` in `variant(const variant &that)` is corrupted, does the copy
-   constructor throw? or is `*this` also corrupted?
-6. Should `tuple_not_found` be `constexpr size_t`? or `std::integral_constant`?
-7. Fix `) constexpr {` for rel-ops of `monostate`.
+5. Should `tuple_not_found` be a `constexpr` variable of type `size_t`? or
+   a `std::integral_constant` type?
+6. Fix `) constexpr {` for rel-ops of `monostate`.
 
 [experimental]: http://badges.github.io/stability-badges/dist/experimental.svg
