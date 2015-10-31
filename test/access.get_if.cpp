@@ -9,14 +9,14 @@
 
 namespace exp = std::experimental;
 
-enum class Qualifier { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
+enum Qual { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 
-Qualifier get_qualifier(int *) { return Qualifier::Ptr; }
-Qualifier get_qualifier(const int *) { return Qualifier::ConstPtr; }
-Qualifier get_qualifier(int &) { return Qualifier::LRef; }
-Qualifier get_qualifier(const int &) { return Qualifier::ConstLRef; }
-Qualifier get_qualifier(int &&) { return Qualifier::RRef; }
-Qualifier get_qualifier(const int &&) { return Qualifier::ConstRRef; }
+constexpr Qual get_qual(int *) { return Ptr; }
+constexpr Qual get_qual(const int *) { return ConstPtr; }
+constexpr Qual get_qual(int &) { return LRef; }
+constexpr Qual get_qual(const int &) { return ConstLRef; }
+constexpr Qual get_qual(int &&) { return RRef; }
+constexpr Qual get_qual(const int &&) { return ConstRRef; }
 
 struct move_thrower_t {
   move_thrower_t() = default;
@@ -30,60 +30,78 @@ TEST(Access_GetIf, MutVarMutType) {
   exp::variant<int> v(42);
   EXPECT_EQ(42, *exp::get_if<int>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::Ptr, get_qualifier(exp::get_if<int>(&v)));
+  EXPECT_EQ(Ptr, get_qual(exp::get_if<int>(&v)));
 }
 
 TEST(Access_GetIf, MutVarMutTypeRef) {
   int expected = 42;
   exp::variant<int &> v(expected);
-  EXPECT_EQ(42, *exp::get_if<int &>(&v));
+  EXPECT_EQ(expected, *exp::get_if<int &>(&v));
+  EXPECT_EQ(&expected, exp::get_if<int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::Ptr, get_qualifier(exp::get_if<int &>(&v)));
+  EXPECT_EQ(Ptr, get_qual(exp::get_if<int &>(&v)));
 }
 
 TEST(Access_GetIf, MutVarConstType) {
   exp::variant<const int> v(42);
   EXPECT_EQ(42, *exp::get_if<const int>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(exp::get_if<const int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(exp::get_if<const int>(&v)));
 }
 
 TEST(Access_GetIf, MutVarConstTypeRef) {
   int expected = 42;
   exp::variant<const int &> v(expected);
-  EXPECT_EQ(42, *exp::get_if<const int &>(&v));
+  EXPECT_EQ(expected, *exp::get_if<const int &>(&v));
+  EXPECT_EQ(&expected, exp::get_if<const int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(exp::get_if<const int &>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(exp::get_if<const int &>(&v)));
 }
 
 TEST(Access_GetIf, ConstVarMutType) {
   const exp::variant<int> v(42);
   EXPECT_EQ(42, *exp::get_if<int>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(exp::get_if<int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(exp::get_if<int>(&v)));
+
+  /* constexpr */ {
+    constexpr exp::variant<int> v(42);
+    static_assert(42 == *exp::get_if<int>(&v), "");
+    // Check qualifier.
+    static_assert(ConstPtr == get_qual(exp::get_if<int>(&v)), "");
+  }
 }
 
 TEST(Access_GetIf, ConstVarMutTypeRef) {
   int expected = 42;
   const exp::variant<int &> v(expected);
-  EXPECT_EQ(42, *exp::get_if<int &>(&v));
+  EXPECT_EQ(expected, *exp::get_if<int &>(&v));
+  EXPECT_EQ(&expected, exp::get_if<int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::Ptr, get_qualifier(exp::get_if<int &>(&v)));
+  EXPECT_EQ(Ptr, get_qual(exp::get_if<int &>(&v)));
 }
 
 TEST(Access_GetIf, ConstVarConstType) {
   const exp::variant<const int> v(42);
   EXPECT_EQ(42, *exp::get_if<const int>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(exp::get_if<const int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(exp::get_if<const int>(&v)));
+
+  /* constexpr */ {
+    constexpr exp::variant<const int> v(42);
+    static_assert(42 == *exp::get_if<const int>(&v), "");
+    // Check qualifier.
+    static_assert(ConstPtr == get_qual(exp::get_if<const int>(&v)), "");
+  }
 }
 
 TEST(Access_GetIf, ConstVarConstTypeRef) {
   int expected = 42;
   const exp::variant<const int &> v(expected);
-  EXPECT_EQ(42, *exp::get_if<const int &>(&v));
+  EXPECT_EQ(expected, *exp::get_if<const int &>(&v));
+  EXPECT_EQ(&expected, exp::get_if<const int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstPtr, get_qualifier(exp::get_if<const int &>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(exp::get_if<const int &>(&v)));
 }
 
 TEST(Access_GetIf, MoveCorruptedByException) {

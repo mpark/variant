@@ -19,15 +19,15 @@ namespace detail {
 /* `std::apply` */
 
 template <typename F, typename Tuple, size_t... Is>
-decltype(auto) apply_(F &&f, Tuple &&tuple, index_sequence<Is...>) {
+decltype(auto) apply_impl(F &&f, Tuple &&tuple, index_sequence<Is...>) {
   return invoke(forward<F>(f), get<Is>(forward<Tuple>(tuple))...);
 }
 
 template <typename F, typename Tuple>
 decltype(auto) apply(F &&f, Tuple &&tuple) {
-  return apply_(forward<F>(f),
-                forward<Tuple>(tuple),
-                make_index_sequence<tuple_size<decay_t<Tuple>>{}>{});
+  return apply_impl(forward<F>(f),
+                    forward<Tuple>(tuple),
+                    make_index_sequence<tuple_size<decay_t<Tuple>>{}>{});
 }
 
 }  // namespace detail

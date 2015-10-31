@@ -9,14 +9,14 @@
 
 namespace exp = std::experimental;
 
-enum class Qualifier { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
+enum Qual { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 
-Qualifier get_qualifier(int *) { return Qualifier::Ptr; }
-Qualifier get_qualifier(const int *) { return Qualifier::ConstPtr; }
-Qualifier get_qualifier(int &) { return Qualifier::LRef; }
-Qualifier get_qualifier(const int &) { return Qualifier::ConstLRef; }
-Qualifier get_qualifier(int &&) { return Qualifier::RRef; }
-Qualifier get_qualifier(const int &&) { return Qualifier::ConstRRef; }
+constexpr Qual get_qual(int *) { return Ptr; }
+constexpr Qual get_qual(const int *) { return ConstPtr; }
+constexpr Qual get_qual(int &) { return LRef; }
+constexpr Qual get_qual(const int &) { return ConstLRef; }
+constexpr Qual get_qual(int &&) { return RRef; }
+constexpr Qual get_qual(const int &&) { return ConstRRef; }
 
 struct move_thrower_t {
   move_thrower_t() = default;
@@ -30,34 +30,88 @@ TEST(Access_Get, MutVarMutType) {
   exp::variant<int> v(42);
   EXPECT_EQ(42, exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::LRef, get_qualifier(exp::get<int>(v)));
-  EXPECT_EQ(Qualifier::RRef, get_qualifier(exp::get<int>(std::move(v))));
+  EXPECT_EQ(LRef, get_qual(exp::get<int>(v)));
+  EXPECT_EQ(RRef, get_qual(exp::get<int>(std::move(v))));
+}
+
+TEST(Access_GetIf, MutVarMutTypeRef) {
+  int expected = 42;
+  exp::variant<int &> v(expected);
+  EXPECT_EQ(expected, exp::get<int &>(v));
+  EXPECT_EQ(&expected, &exp::get<int &>(v));
+  // Check qualifier.
+  EXPECT_EQ(LRef, get_qual(exp::get<int &>(v)));
+  EXPECT_EQ(LRef, get_qual(exp::get<int &>(std::move(v))));
 }
 
 TEST(Access_Get, MutVarConstType) {
   exp::variant<const int> v(42);
   EXPECT_EQ(42, exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, get_qualifier(exp::get<const int>(v)));
-  EXPECT_EQ(Qualifier::ConstRRef,
-            get_qualifier(exp::get<const int>(std::move(v))));
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int>(v)));
+  EXPECT_EQ(ConstRRef, get_qual(exp::get<const int>(std::move(v))));
+}
+
+TEST(Access_Get, MutVarConstTypeRef) {
+  int expected = 42;
+  exp::variant<const int &> v(expected);
+  EXPECT_EQ(expected, exp::get<const int &>(v));
+  EXPECT_EQ(&expected, &exp::get<const int &>(v));
+  // Check qualifier.
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int &>(v)));
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int &>(std::move(v))));
 }
 
 TEST(Access_Get, ConstVarMutType) {
   const exp::variant<int> v(42);
   EXPECT_EQ(42, exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, get_qualifier(exp::get<int>(v)));
-  EXPECT_EQ(Qualifier::ConstRRef, get_qualifier(exp::get<int>(std::move(v))));
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<int>(v)));
+  EXPECT_EQ(ConstRRef, get_qual(exp::get<int>(std::move(v))));
+
+  /* constexpr */ {
+    constexpr exp::variant<int> v(42);
+    static_assert(42 == exp::get<int>(v), "");
+    // Check qualifier.
+    static_assert(ConstLRef == get_qual(exp::get<int>(v)), "");
+    static_assert(ConstRRef == get_qual(exp::get<int>(std::move(v))), "");
+  }
+}
+
+TEST(Access_Get, ConstVarMutTypeRef) {
+  int expected = 42;
+  const exp::variant<int &> v(expected);
+  EXPECT_EQ(expected, exp::get<int &>(v));
+  EXPECT_EQ(&expected, &exp::get<int &>(v));
+  // Check qualifier.
+  EXPECT_EQ(LRef, get_qual(exp::get<int &>(v)));
+  EXPECT_EQ(LRef, get_qual(exp::get<int &>(std::move(v))));
 }
 
 TEST(Access_Get, ConstVarConstType) {
   const exp::variant<const int> v(42);
   EXPECT_EQ(42, exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, get_qualifier(exp::get<const int>(v)));
-  EXPECT_EQ(Qualifier::ConstRRef,
-            get_qualifier(exp::get<const int>(std::move(v))));
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int>(v)));
+  EXPECT_EQ(ConstRRef, get_qual(exp::get<const int>(std::move(v))));
+
+  /* constexpr */ {
+    constexpr exp::variant<const int> v(42);
+    static_assert(42 == exp::get<const int>(v), "");
+    // Check qualifier.
+    static_assert(ConstLRef == get_qual(exp::get<const int>(v)), "");
+    static_assert(ConstRRef == get_qual(exp::get<const int>(std::move(v))), "");
+  }
+}
+
+TEST(Access_Get, ConstVarConstTypeRef) {
+  int expected = 42;
+  const exp::variant<const int &> v(expected);
+  EXPECT_EQ(expected, exp::get<const int &>(v));
+  EXPECT_EQ(&expected, &exp::get<const int &>(v));
+  // Check qualifier.
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int &>(v)));
+  EXPECT_EQ(ConstLRef, get_qual(exp::get<const int &>(std::move(v))));
 }
 
 TEST(Access_Get, MoveCorruptedByException) {

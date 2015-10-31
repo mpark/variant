@@ -14,6 +14,11 @@ namespace exp = std::experimental;
 TEST(Cnstr_Default, Variant) {
   exp::variant<int, std::string> v;
   EXPECT_EQ(0, exp::get<0>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int> v;
+    static_assert(0 == exp::get<0>(v), "");
+  }
 }
 
 TEST(Cnstr_Default, DiamondVariant) {

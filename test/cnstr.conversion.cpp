@@ -16,19 +16,35 @@ using namespace std::string_literals;
 TEST(Cnstr_Conversion, Direct) {
   exp::variant<int, std::string> v(42);
   EXPECT_EQ(42, exp::get<int>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(42);
+    static_assert(42 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_Conversion, DirectRef) {
   int expected = 42;
   exp::variant<int &, std::string &> v(expected);
-  auto &actual = exp::get<int &>(v);
-  EXPECT_EQ(expected, actual);
-  EXPECT_EQ(&expected, &actual);
+  EXPECT_EQ(expected, exp::get<int &>(v));
+  EXPECT_EQ(&expected, &exp::get<int &>(v));
+
+  /* constexpr */ {
+    static constexpr int expected = 42;
+    constexpr exp::variant<const int &> v(expected);
+    static_assert(expected == exp::get<const int &>(v), "");
+    static_assert(&expected == &exp::get<const int &>(v), "");
+  }
 }
 
 TEST(Cnstr_Conversion, DirectConversion) {
   exp::variant<int, std::string> v("42");
   EXPECT_EQ("42"s, exp::get<std::string>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(1.1);
+    static_assert(1 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_Conversion, DirectConversionRef) {
@@ -40,19 +56,28 @@ TEST(Cnstr_Conversion, DirectConversionRef) {
 TEST(Cnstr_Conversion, CopyInitialization) {
   exp::variant<int, std::string> v = 42;
   EXPECT_EQ(42, exp::get<int>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v = 42;
+    static_assert(42 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_Conversion, CopyInitializationRef) {
   std::string expected = "42";
   exp::variant<int &, std::string &> v = expected;
-  auto &actual = exp::get<std::string &>(v);
-  EXPECT_EQ(expected, actual);
-  EXPECT_EQ(&expected, &actual);
+  EXPECT_EQ(expected, exp::get<std::string &>(v));
+  EXPECT_EQ(&expected, &exp::get<std::string &>(v));
 }
 
 TEST(Cnstr_Conversion, CopyInitializationConversion) {
   exp::variant<int, std::string> v = "42";
   EXPECT_EQ("42"s, exp::get<std::string>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v = 1.1;
+    static_assert(1 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_Conversion, CopyInitializationConversionRef) {

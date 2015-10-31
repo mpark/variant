@@ -22,6 +22,15 @@ TEST(Cnstr_Copy, Value) {
   EXPECT_EQ("hello"s, exp::get<std::string>(w));
   // Check `v`
   EXPECT_EQ("hello"s, exp::get<std::string>(v));
+
+  /* constexpr */ {
+    // `v`
+    constexpr exp::variant<int, const char *> v(42);
+    static_assert(42 == exp::get<int>(v), "");
+    // `w`
+    constexpr exp::variant<int, const char *> w(v);
+    static_assert(42 == exp::get<int>(w), "");
+  }
 }
 
 TEST(Cnstr_Copy, Ref) {

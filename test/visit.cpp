@@ -5,6 +5,7 @@
 
 #include <variant.hpp>
 
+#include <cassert>
 #include <string>
 #include <sstream>
 
@@ -14,46 +15,62 @@ namespace exp = std::experimental;
 
 using namespace std::string_literals;
 
-enum class Qualifier { LRef, ConstLRef, RRef, ConstRRef };
+enum Qual { LRef, ConstLRef, RRef, ConstRRef };
 
-struct get_qualifier {
-  Qualifier operator()(int &) const { return Qualifier::LRef; }
-  Qualifier operator()(const int &) const { return Qualifier::ConstLRef; }
-  Qualifier operator()(int &&) const { return Qualifier::RRef; }
-  Qualifier operator()(const int &&) const { return Qualifier::ConstRRef; }
-};  // get_qualifier
+struct get_qual {
+  constexpr Qual operator()(int &) const { return LRef; }
+  constexpr Qual operator()(const int &) const { return ConstLRef; }
+  constexpr Qual operator()(int &&) const { return RRef; }
+  constexpr Qual operator()(const int &&) const { return ConstRRef; }
+};  // get_qual
 
 TEST(Visit, MutVarMutType) {
   exp::variant<int> v(42);
   // Check `v`.
   EXPECT_EQ(42, exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::LRef, exp::visit(get_qualifier(), v));
-  EXPECT_EQ(Qualifier::RRef, exp::visit(get_qualifier(), std::move(v)));
+  EXPECT_EQ(LRef, exp::visit(get_qual(), v));
+  EXPECT_EQ(RRef, exp::visit(get_qual(), std::move(v)));
 }
 
 TEST(Visit, MutVarConstType) {
   exp::variant<const int> v(42);
   EXPECT_EQ(42, exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, exp::visit(get_qualifier(), v));
-  EXPECT_EQ(Qualifier::ConstRRef, exp::visit(get_qualifier(), std::move(v)));
+  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
 }
 
 TEST(Visit, ConstVarMutType) {
   const exp::variant<int> v(42);
   EXPECT_EQ(42, exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, exp::visit(get_qualifier(), v));
-  EXPECT_EQ(Qualifier::ConstRRef, exp::visit(get_qualifier(), std::move(v)));
+  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
+
+  /* constexpr */ {
+    constexpr exp::variant<int> v(42);
+    static_assert(42 == exp::get<int>(v), "");
+    // Check qualifier.
+    static_assert(ConstLRef == exp::visit(get_qual(), v), "");
+    static_assert(ConstRRef == exp::visit(get_qual(), std::move(v)), "");
+  }
 }
 
 TEST(Visit, ConstVarConstType) {
   const exp::variant<const int> v(42);
   EXPECT_EQ(42, exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(Qualifier::ConstLRef, exp::visit(get_qualifier(), v));
-  EXPECT_EQ(Qualifier::ConstRRef, exp::visit(get_qualifier(), std::move(v)));
+  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
+
+  /* constexpr */ {
+    constexpr exp::variant<const int> v(42);
+    static_assert(42 == exp::get<const int>(v), "");
+    // Check qualifier.
+    static_assert(ConstLRef == exp::visit(get_qual(), v), "");
+    static_assert(ConstRRef == exp::visit(get_qual(), std::move(v)), "");
+  }
 }
 
 TEST(Visit_Homogeneous, Double) {
@@ -64,6 +81,20 @@ TEST(Visit_Homogeneous, Double) {
               strm << lhs << ' ' << rhs;
               return strm.str();
             }, v, w));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(101), w(202), x("helllo");
+    struct add {
+      constexpr int operator()(int lhs, int rhs) const { return lhs + rhs; }
+      constexpr int operator()(int lhs, const char *) const { return lhs; }
+      constexpr int operator()(const char *, int rhs) const { return rhs; }
+      constexpr int operator()(const char *, const char *) const { return 0; }
+    };  // add
+    static_assert(303 == exp::visit(add{}, v, w), "");
+    static_assert(202 == exp::visit(add{}, w, x), "");
+    static_assert(101 == exp::visit(add{}, x, v), "");
+    static_assert(0 == exp::visit(add{}, x, x), "");
+  }
 }
 
 TEST(Visit_Homogeneous, Quintuple) {

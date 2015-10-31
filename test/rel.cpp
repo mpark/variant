@@ -25,6 +25,24 @@ TEST(Rel, SameTypeSameValue) {
   EXPECT_FALSE(w > v);
   EXPECT_TRUE(w <= v);
   EXPECT_TRUE(w >= v);
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(0), w(0);
+    // v op w
+    static_assert(v == w, "");
+    static_assert(!(v != w), "");
+    static_assert(!(v < w), "");
+    static_assert(!(v > w), "");
+    static_assert(v <= w, "");
+    static_assert(v >= w, "");
+    // w op v
+    static_assert(w == v, "");
+    static_assert(!(w != v), "");
+    static_assert(!(w < v), "");
+    static_assert(!(w > v), "");
+    static_assert(w <= v, "");
+    static_assert(w >= v, "");
+  }
 }
 
 TEST(Rel, SameTypeDiffValue) {
@@ -43,6 +61,24 @@ TEST(Rel, SameTypeDiffValue) {
   EXPECT_TRUE(w > v);
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(0), w(1);
+    // v op w
+    static_assert(!(v == w), "");
+    static_assert(v != w, "");
+    static_assert(v < w, "");
+    static_assert(!(v > w), "");
+    static_assert(v <= w, "");
+    static_assert(!(v >= w), "");
+    // w op v
+    static_assert(!(w == v), "");
+    static_assert(w != v, "");
+    static_assert(!(w < v), "");
+    static_assert(w > v, "");
+    static_assert(!(w <= v), "");
+    static_assert(w >= v, "");
+  }
 }
 
 TEST(Rel, DiffTypeSameValue) {
@@ -61,6 +97,24 @@ TEST(Rel, DiffTypeSameValue) {
   EXPECT_TRUE(w > v);
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
+
+  /* constexpr */ {
+    constexpr exp::variant<int, unsigned int> v(0), w(0u);
+    // v op w
+    static_assert(!(v == w), "");
+    static_assert(v != w, "");
+    static_assert(v < w, "");
+    static_assert(!(v > w), "");
+    static_assert(v <= w, "");
+    static_assert(!(v >= w), "");
+    // w op v
+    static_assert(!(w == v), "");
+    static_assert(w != v, "");
+    static_assert(!(w < v), "");
+    static_assert(w > v, "");
+    static_assert(!(w <= v), "");
+    static_assert(w >= v, "");
+  }
 }
 
 TEST(Rel, DiffTypeDiffValue) {
@@ -79,4 +133,22 @@ TEST(Rel, DiffTypeDiffValue) {
   EXPECT_TRUE(w > v);
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
+
+  /* constexpr */  {
+    constexpr exp::variant<int, unsigned int> v(0), w(1u);
+    // v op w
+    static_assert(!(v == w), "");
+    static_assert(v != w, "");
+    static_assert(v < w, "");
+    static_assert(!(v > w), "");
+    static_assert(v <= w, "");
+    static_assert(!(v >= w), "");
+    // w op v
+    static_assert(!(w == v), "");
+    static_assert(w != v, "");
+    static_assert(!(w < v), "");
+    static_assert(w > v, "");
+    static_assert(!(w <= v), "");
+    static_assert(w >= v, "");
+  }
 }

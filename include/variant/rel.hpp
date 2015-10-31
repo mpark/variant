@@ -7,6 +7,7 @@
 #define VARIANT_REL_HPP
 
 #include <cstddef>
+#include <cstdlib>
 
 #include <variant/detail/index_visitor.hpp>
 #include <variant/visit.hpp>
@@ -22,10 +23,12 @@ struct equal {
   }
 
   template <typename T, typename U>
-  constexpr bool operator()(const T &, const U &) const { return false; }
+  constexpr bool operator()(const T &, const U &) const {
+    assert(false);
+    return false;
+  }
 };  // equal
 
-template <size_t I, size_t J>
 struct less {
   template <typename T>
   constexpr bool operator()(const T &lhs, const T &rhs) const {
@@ -34,7 +37,8 @@ struct less {
 
   template <typename T, typename U>
   constexpr bool operator()(const T &, const U &) const {
-    return I < J;
+    assert(false);
+    return false;
   }
 };  // less
 
@@ -45,7 +49,8 @@ struct less {
 template <typename... Ts>
 constexpr bool operator==(const variant<Ts...> &lhs,
                           const variant<Ts...> &rhs) {
-  return visit(detail::equal{}, lhs, rhs);
+  using namespace detail;
+  return lhs.index() == rhs.index() && unsafe::visit(detail::equal{}, lhs, rhs);
 }
 
 template <typename... Ts>
@@ -57,7 +62,11 @@ constexpr bool operator!=(const variant<Ts...> &lhs,
 template <typename... Ts>
 constexpr bool operator<(const variant<Ts...> &lhs,
                          const variant<Ts...> &rhs) {
-  return visit(detail::make_index_visitor<detail::less>(), lhs, rhs);
+  using namespace detail;
+  if (lhs.index() == rhs.index()) {
+    return unsafe::visit(detail::less{}, lhs, rhs);
+  }
+  return lhs.index() < rhs.index();
 }
 
 template <typename... Ts>

@@ -15,4 +15,12 @@ TEST(Access_HoldsAlternative, Typical) {
   EXPECT_FALSE(exp::holds_alternative<1>(v));
   EXPECT_TRUE(exp::holds_alternative<int>(v));
   EXPECT_FALSE(exp::holds_alternative<std::string>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(42);
+    static_assert(exp::holds_alternative<0>(v), "");
+    static_assert(!exp::holds_alternative<1>(v), "");
+    static_assert(exp::holds_alternative<int>(v), "");
+    static_assert(!exp::holds_alternative<const char *>(v), "");
+  }
 }

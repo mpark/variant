@@ -16,16 +16,31 @@ using namespace std::string_literals;
 TEST(Cnstr_InPlace, IndexDirect) {
   exp::variant<int, std::string> v(exp::in_place_index<0>, 42);
   EXPECT_EQ(42, exp::get<0>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(exp::in_place_index<0>, 42);
+    static_assert(42 == exp::get<0>(v), "");
+  }
 }
 
 TEST(Cnstr_InPlace, IndexDirectDuplicate) {
   exp::variant<int, int> v(exp::in_place_index<0>, 42);
   EXPECT_EQ(42, exp::get<0>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, int> v(exp::in_place_index<0>, 42);
+    static_assert(42 == exp::get<0>(v), "");
+  }
 }
 
 TEST(Cnstr_InPlace, IndexConversion) {
   exp::variant<int, std::string> v(exp::in_place_index<1>, "42");
   EXPECT_EQ("42"s, exp::get<1>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(exp::in_place_index<0>, 1.1);
+    static_assert(1 == exp::get<0>(v), "");
+  }
 }
 
 TEST(Cnstr_InPlace, IndexConversionDuplicateRef) {
@@ -42,19 +57,28 @@ TEST(Cnstr_InPlace, IndexInitializerList) {
 TEST(Cnstr_InPlace, TypeDirect) {
   exp::variant<int, std::string> v(exp::in_place_type<std::string>, "42"s);
   EXPECT_EQ("42"s, exp::get<std::string>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(exp::in_place_type<int>, 42);
+    static_assert(42 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_InPlace, TypeDirectRef) {
   int expected = 42;
   exp::variant<int &, std::ostream &> v(exp::in_place_type<int &>, expected);
-  auto &actual = exp::get<int &>(v);
-  EXPECT_EQ(expected, actual);
-  EXPECT_EQ(&expected, &actual);
+  EXPECT_EQ(expected, exp::get<int &>(v));
+  EXPECT_EQ(&expected, &exp::get<int &>(v));
 }
 
 TEST(Cnstr_InPlace, TypeConversion) {
   exp::variant<int, std::string> v(exp::in_place_type<int>, 42.5);
   EXPECT_EQ(42, exp::get<int>(v));
+
+  /* constexpr */ {
+    constexpr exp::variant<int, const char *> v(exp::in_place_type<int>, 42.5);
+    static_assert(42 == exp::get<int>(v), "");
+  }
 }
 
 TEST(Cnstr_InPlace, TypeConversionRef) {
