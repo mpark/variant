@@ -1,0 +1,75 @@
+sudo: false
+language: cpp
+
+matrix:
+  include:
+    # clang-3.6 (Ubuntu)
+    - env: CLANG_VERSION=3.6
+      compiler: clang
+      os: linux
+      addons:
+        apt:
+          packages:
+            - clang-3.6
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.6
+    # clang-3.7 (Ubuntu)
+    - env: CLANG_VERSION=3.7
+      compiler: clang
+      os: linux
+      addons:
+        apt:
+          packages:
+            - clang-3.7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+    # gcc-4.9 (Ubuntu)
+    - env: GCC_VERSION=4.9
+      compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-4.9
+          sources:
+            - ubuntu-toolchain-r-test
+    # gcc-5 (Ubuntu)
+    - env: GCC_VERSION=5
+      compiler: gcc
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-5
+          sources:
+            - ubuntu-toolchain-r-test
+    # apple clang (OS X)
+    - env: BEFORE_INSTALL="brew install cmake"
+      compiler: clang
+      os: osx
+      osx_image: xcode7.1
+    # clang-3.6 (OS X)
+    - env: BEFORE_INSTALL="brew install cmake llvm36" CLANG_VERSION=3.6
+      compiler: clang
+      os: osx
+      osx_image: xcode7.1
+
+before_install:
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then brew update; fi
+  - if [ -n "${BEFORE_INSTALL}" ]; then ${BEFORE_INSTALL}; fi
+  - if [ -n "$GCC_VERSION" ]; then export CC="gcc-${GCC_VERSION}" CXX="g++-${GCC_VERSION}"; fi
+  - if [ -n "$CLANG_VERSION" ]; then export CC="clang-${CLANG_VERSION}" CXX="clang++-${CLANG_VERSION}"; fi
+
+install:
+  - mkdir build
+  - cd build
+  - cmake ..
+  - cmake --build .
+
+script:
+  - ctest -VV
+
+notifications:
+  email: false
