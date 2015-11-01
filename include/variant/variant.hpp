@@ -110,7 +110,8 @@ class variant_impl_<meta::list<Ts...>,
     *this = variant_impl_(meta::size_t<I>{}, forward<Args>(args)...);
   }
 
-  void swap(variant_impl_ &that) noexcept(noexcept(std::swap(*this, that))) {
+  void swap(variant_impl_ &that) noexcept(noexcept(
+      std::swap(declval<variant_impl_ &>(), declval<variant_impl_ &>()))) {
     std::swap(*this, that);
   }
 };
