@@ -10,26 +10,26 @@
 
 #include <gtest/gtest.h>
 
-namespace exp = std::experimental;
+namespace std_exp = std::experimental;
 
 using namespace std::string_literals;
 
 TEST(Variant, Intro) {
   // direct initialization.
-  exp::variant<int, std::string> v("hello world!"s);
+  std_exp::variant<int, std::string> v("hello world!"s);
 
   // direct access via reference.
-  EXPECT_EQ("hello world!"s, exp::get<std::string>(v));
+  EXPECT_EQ("hello world!"s, std_exp::get<std::string>(v));
 
   // bad access.
-  EXPECT_THROW(exp::get<int>(v), exp::bad_variant_access);
+  EXPECT_THROW(std_exp::get<int>(v), std_exp::bad_variant_access);
 
   // copy construction.
-  exp::variant<int, std::string> w(v);
+  std_exp::variant<int, std::string> w(v);
 
   // direct access via pointer.
-  EXPECT_FALSE(exp::get_if<int>(&w));
-  EXPECT_TRUE(exp::get_if<std::string>(&w));
+  EXPECT_FALSE(std_exp::get_if<int>(&w));
+  EXPECT_TRUE(std_exp::get_if<std::string>(&w));
 
   // diff-type assignment.
   v = 42;
@@ -40,7 +40,7 @@ TEST(Variant, Intro) {
   };  // unary
 
   // single visitation.
-  EXPECT_EQ(0, exp::visit(unary{}, v));
+  EXPECT_EQ(0, std_exp::visit(unary{}, v));
 
   // same-type assignment.
   w = "hello"s;
@@ -60,5 +60,5 @@ TEST(Variant, Intro) {
   };  // binary
 
   // binary visitation.
-  EXPECT_EQ(0, exp::visit(binary{}, v, w));
+  EXPECT_EQ(0, std_exp::visit(binary{}, v, w));
 }

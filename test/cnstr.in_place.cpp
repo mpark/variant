@@ -9,85 +9,94 @@
 
 #include <gtest/gtest.h>
 
-namespace exp = std::experimental;
+namespace std_exp = std::experimental;
 
 using namespace std::string_literals;
 
 TEST(Cnstr_InPlace, IndexDirect) {
-  exp::variant<int, std::string> v(exp::in_place_index<0>, 42);
-  EXPECT_EQ(42, exp::get<0>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_index<0>, 42);
+  EXPECT_EQ(42, std_exp::get<0>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(exp::in_place_index<0>, 42);
-    static_assert(42 == exp::get<0>(v), "");
+    constexpr std_exp::variant<int, const char *> v(std_exp::in_place_index<0>,
+                                                    42);
+    static_assert(42 == std_exp::get<0>(v), "");
   }
 }
 
 TEST(Cnstr_InPlace, IndexDirectDuplicate) {
-  exp::variant<int, int> v(exp::in_place_index<0>, 42);
-  EXPECT_EQ(42, exp::get<0>(v));
+  std_exp::variant<int, int> v(std_exp::in_place_index<0>, 42);
+  EXPECT_EQ(42, std_exp::get<0>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int, int> v(exp::in_place_index<0>, 42);
-    static_assert(42 == exp::get<0>(v), "");
+    constexpr std_exp::variant<int, int> v(std_exp::in_place_index<0>, 42);
+    static_assert(42 == std_exp::get<0>(v), "");
   }
 }
 
 TEST(Cnstr_InPlace, IndexConversion) {
-  exp::variant<int, std::string> v(exp::in_place_index<1>, "42");
-  EXPECT_EQ("42"s, exp::get<1>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_index<1>, "42");
+  EXPECT_EQ("42"s, std_exp::get<1>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(exp::in_place_index<0>, 1.1);
-    static_assert(1 == exp::get<0>(v), "");
+    constexpr std_exp::variant<int, const char *> v(std_exp::in_place_index<0>,
+                                                    1.1);
+    static_assert(1 == std_exp::get<0>(v), "");
   }
 }
 
 TEST(Cnstr_InPlace, IndexConversionDuplicateRef) {
   std::ostringstream strm;
-  exp::variant<std::ostream &, std::ostream &> v(exp::in_place_index<0>, strm);
-  EXPECT_EQ(&strm, &exp::get<0>(v));
+  std_exp::variant<std::ostream &, std::ostream &> v(std_exp::in_place_index<0>,
+                                                     strm);
+  EXPECT_EQ(&strm, &std_exp::get<0>(v));
 }
 
 TEST(Cnstr_InPlace, IndexInitializerList) {
-  exp::variant<int, std::string> v(exp::in_place_index<1>, {'4', '2'});
-  EXPECT_EQ("42"s, exp::get<1>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_index<1>, {'4', '2'});
+  EXPECT_EQ("42"s, std_exp::get<1>(v));
 }
 
 TEST(Cnstr_InPlace, TypeDirect) {
-  exp::variant<int, std::string> v(exp::in_place_type<std::string>, "42"s);
-  EXPECT_EQ("42"s, exp::get<std::string>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_type<std::string>,
+                                       "42"s);
+  EXPECT_EQ("42"s, std_exp::get<std::string>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(exp::in_place_type<int>, 42);
-    static_assert(42 == exp::get<int>(v), "");
+    constexpr std_exp::variant<int, const char *> v(std_exp::in_place_type<int>,
+                                                    42);
+    static_assert(42 == std_exp::get<int>(v), "");
   }
 }
 
 TEST(Cnstr_InPlace, TypeDirectRef) {
   int expected = 42;
-  exp::variant<int &, std::ostream &> v(exp::in_place_type<int &>, expected);
-  EXPECT_EQ(expected, exp::get<int &>(v));
-  EXPECT_EQ(&expected, &exp::get<int &>(v));
+  std_exp::variant<int &, std::ostream &> v(std_exp::in_place_type<int &>,
+                                            expected);
+  EXPECT_EQ(expected, std_exp::get<int &>(v));
+  EXPECT_EQ(&expected, &std_exp::get<int &>(v));
 }
 
 TEST(Cnstr_InPlace, TypeConversion) {
-  exp::variant<int, std::string> v(exp::in_place_type<int>, 42.5);
-  EXPECT_EQ(42, exp::get<int>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_type<int>, 42.5);
+  EXPECT_EQ(42, std_exp::get<int>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(exp::in_place_type<int>, 42.5);
-    static_assert(42 == exp::get<int>(v), "");
+    constexpr std_exp::variant<int, const char *> v(std_exp::in_place_type<int>,
+                                                    42.5);
+    static_assert(42 == std_exp::get<int>(v), "");
   }
 }
 
 TEST(Cnstr_InPlace, TypeConversionRef) {
   std::ostringstream strm;
-  exp::variant<int, std::ostream &> v(exp::in_place_type<std::ostream &>, strm);
-  EXPECT_EQ(&strm, &exp::get<std::ostream &>(v));
+  std_exp::variant<int, std::ostream &> v(
+      std_exp::in_place_type<std::ostream &>, strm);
+  EXPECT_EQ(&strm, &std_exp::get<std::ostream &>(v));
 }
 
 TEST(Cnstr_InPlace, TypeInitializerList) {
-  exp::variant<int, std::string> v(exp::in_place_type<std::string>, {'4', '2'});
-  EXPECT_EQ("42"s, exp::get<std::string>(v));
+  std_exp::variant<int, std::string> v(std_exp::in_place_type<std::string>,
+                                       {'4', '2'});
+  EXPECT_EQ("42"s, std_exp::get<std::string>(v));
 }

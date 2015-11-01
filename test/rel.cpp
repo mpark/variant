@@ -7,10 +7,10 @@
 
 #include <gtest/gtest.h>
 
-namespace exp = std::experimental;
+namespace std_exp = std::experimental;
 
 TEST(Rel, SameTypeSameValue) {
-  exp::variant<int, std::string> v(0), w(0);
+  std_exp::variant<int, std::string> v(0), w(0);
   // v op w
   EXPECT_TRUE(v == w);
   EXPECT_FALSE(v != w);
@@ -27,7 +27,7 @@ TEST(Rel, SameTypeSameValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(0), w(0);
+    constexpr std_exp::variant<int, const char *> v(0), w(0);
     // v op w
     static_assert(v == w, "");
     static_assert(!(v != w), "");
@@ -46,7 +46,7 @@ TEST(Rel, SameTypeSameValue) {
 }
 
 TEST(Rel, SameTypeDiffValue) {
-  exp::variant<int, std::string> v(0), w(1);
+  std_exp::variant<int, std::string> v(0), w(1);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -63,7 +63,7 @@ TEST(Rel, SameTypeDiffValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(0), w(1);
+    constexpr std_exp::variant<int, const char *> v(0), w(1);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");
@@ -82,7 +82,7 @@ TEST(Rel, SameTypeDiffValue) {
 }
 
 TEST(Rel, DiffTypeSameValue) {
-  exp::variant<int, unsigned int> v(0), w(0u);
+  std_exp::variant<int, unsigned int> v(0), w(0u);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -99,7 +99,7 @@ TEST(Rel, DiffTypeSameValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr exp::variant<int, unsigned int> v(0), w(0u);
+    constexpr std_exp::variant<int, unsigned int> v(0), w(0u);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");
@@ -118,7 +118,7 @@ TEST(Rel, DiffTypeSameValue) {
 }
 
 TEST(Rel, DiffTypeDiffValue) {
-  exp::variant<int, unsigned int> v(0), w(1u);
+  std_exp::variant<int, unsigned int> v(0), w(1u);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -135,7 +135,7 @@ TEST(Rel, DiffTypeDiffValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */  {
-    constexpr exp::variant<int, unsigned int> v(0), w(1u);
+    constexpr std_exp::variant<int, unsigned int> v(0), w(1u);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");

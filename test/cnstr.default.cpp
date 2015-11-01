@@ -9,19 +9,19 @@
 
 #include <gtest/gtest.h>
 
-namespace exp = std::experimental;
+namespace std_exp = std::experimental;
 
 TEST(Cnstr_Default, Variant) {
-  exp::variant<int, std::string> v;
-  EXPECT_EQ(0, exp::get<0>(v));
+  std_exp::variant<int, std::string> v;
+  EXPECT_EQ(0, std_exp::get<0>(v));
 
   /* constexpr */ {
-    constexpr exp::variant<int> v;
-    static_assert(0 == exp::get<0>(v), "");
+    constexpr std_exp::variant<int> v;
+    static_assert(0 == std_exp::get<0>(v), "");
   }
 }
 
 TEST(Cnstr_Default, DiamondVariant) {
-  exp::variant<> v;
+  std_exp::variant<> v;
   (void)v;
 }

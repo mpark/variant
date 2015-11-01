@@ -11,7 +11,7 @@
 
 #include <gtest/gtest.h>
 
-namespace exp = std::experimental;
+namespace std_exp = std::experimental;
 
 using namespace std::string_literals;
 
@@ -25,82 +25,82 @@ struct get_qual {
 };  // get_qual
 
 TEST(Visit, MutVarMutType) {
-  exp::variant<int> v(42);
+  std_exp::variant<int> v(42);
   // Check `v`.
-  EXPECT_EQ(42, exp::get<int>(v));
+  EXPECT_EQ(42, std_exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(LRef, exp::visit(get_qual(), v));
-  EXPECT_EQ(RRef, exp::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(LRef, std_exp::visit(get_qual(), v));
+  EXPECT_EQ(RRef, std_exp::visit(get_qual(), std::move(v)));
 }
 
 TEST(Visit, MutVarConstType) {
-  exp::variant<const int> v(42);
-  EXPECT_EQ(42, exp::get<const int>(v));
+  std_exp::variant<const int> v(42);
+  EXPECT_EQ(42, std_exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstLRef, std_exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, std_exp::visit(get_qual(), std::move(v)));
 }
 
 TEST(Visit, ConstVarMutType) {
-  const exp::variant<int> v(42);
-  EXPECT_EQ(42, exp::get<int>(v));
+  const std_exp::variant<int> v(42);
+  EXPECT_EQ(42, std_exp::get<int>(v));
   // Check qualifier.
-  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstLRef, std_exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, std_exp::visit(get_qual(), std::move(v)));
 
   /* constexpr */ {
-    constexpr exp::variant<int> v(42);
-    static_assert(42 == exp::get<int>(v), "");
+    constexpr std_exp::variant<int> v(42);
+    static_assert(42 == std_exp::get<int>(v), "");
     // Check qualifier.
-    static_assert(ConstLRef == exp::visit(get_qual(), v), "");
-    static_assert(ConstRRef == exp::visit(get_qual(), std::move(v)), "");
+    static_assert(ConstLRef == std_exp::visit(get_qual(), v), "");
+    static_assert(ConstRRef == std_exp::visit(get_qual(), std::move(v)), "");
   }
 }
 
 TEST(Visit, ConstVarConstType) {
-  const exp::variant<const int> v(42);
-  EXPECT_EQ(42, exp::get<const int>(v));
+  const std_exp::variant<const int> v(42);
+  EXPECT_EQ(42, std_exp::get<const int>(v));
   // Check qualifier.
-  EXPECT_EQ(ConstLRef, exp::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, exp::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstLRef, std_exp::visit(get_qual(), v));
+  EXPECT_EQ(ConstRRef, std_exp::visit(get_qual(), std::move(v)));
 
   /* constexpr */ {
-    constexpr exp::variant<const int> v(42);
-    static_assert(42 == exp::get<const int>(v), "");
+    constexpr std_exp::variant<const int> v(42);
+    static_assert(42 == std_exp::get<const int>(v), "");
     // Check qualifier.
-    static_assert(ConstLRef == exp::visit(get_qual(), v), "");
-    static_assert(ConstRRef == exp::visit(get_qual(), std::move(v)), "");
+    static_assert(ConstLRef == std_exp::visit(get_qual(), v), "");
+    static_assert(ConstRRef == std_exp::visit(get_qual(), std::move(v)), "");
   }
 }
 
 TEST(Visit_Homogeneous, Double) {
-  exp::variant<int, std::string> v("hello"s), w("world!"s);
+  std_exp::variant<int, std::string> v("hello"s), w("world!"s);
   EXPECT_EQ("hello world!"s,
-            exp::visit([](const auto &lhs, const auto &rhs) {
+            std_exp::visit([](const auto &lhs, const auto &rhs) {
               std::ostringstream strm;
               strm << lhs << ' ' << rhs;
               return strm.str();
             }, v, w));
 
   /* constexpr */ {
-    constexpr exp::variant<int, const char *> v(101), w(202), x("helllo");
+    constexpr std_exp::variant<int, const char *> v(101), w(202), x("helllo");
     struct add {
       constexpr int operator()(int lhs, int rhs) const { return lhs + rhs; }
       constexpr int operator()(int lhs, const char *) const { return lhs; }
       constexpr int operator()(const char *, int rhs) const { return rhs; }
       constexpr int operator()(const char *, const char *) const { return 0; }
     };  // add
-    static_assert(303 == exp::visit(add{}, v, w), "");
-    static_assert(202 == exp::visit(add{}, w, x), "");
-    static_assert(101 == exp::visit(add{}, x, v), "");
-    static_assert(0 == exp::visit(add{}, x, x), "");
+    static_assert(303 == std_exp::visit(add{}, v, w), "");
+    static_assert(202 == std_exp::visit(add{}, w, x), "");
+    static_assert(101 == std_exp::visit(add{}, x, v), "");
+    static_assert(0 == std_exp::visit(add{}, x, x), "");
   }
 }
 
 TEST(Visit_Homogeneous, Quintuple) {
-  exp::variant<int, std::string> v(101), w("+"s), x(202), y("="s), z(303);
+  std_exp::variant<int, std::string> v(101), w("+"s), x(202), y("="s), z(303);
   EXPECT_EQ("101+202=303"s,
-            exp::visit([](const auto &... elems) {
+            std_exp::visit([](const auto &... elems) {
               std::ostringstream strm;
               std::initializer_list<int>({(strm << elems, 0)...});
               return std::move(strm).str();
@@ -108,10 +108,10 @@ TEST(Visit_Homogeneous, Quintuple) {
 }
 
 TEST(Visit_Heterogeneous, Double) {
-  exp::variant<int, std::string> v("hello"s);
-  exp::variant<double, const char *> w("world!");
+  std_exp::variant<int, std::string> v("hello"s);
+  std_exp::variant<double, const char *> w("world!");
   EXPECT_EQ("hello world!"s,
-            exp::visit([](const auto &lhs, const auto &rhs) {
+            std_exp::visit([](const auto &lhs, const auto &rhs) {
               std::ostringstream strm;
               strm << lhs << ' ' << rhs;
               return strm.str();
@@ -119,13 +119,13 @@ TEST(Visit_Heterogeneous, Double) {
 }
 
 TEST(Visit_Heterogenous, Quintuple) {
-  exp::variant<int, double> v(101);
-  exp::variant<const char *> w("+");
-  exp::variant<bool, std::string, int> x(202);
-  exp::variant<char, std::string, const char *> y('=');
-  exp::variant<long, short> z(303L);
+  std_exp::variant<int, double> v(101);
+  std_exp::variant<const char *> w("+");
+  std_exp::variant<bool, std::string, int> x(202);
+  std_exp::variant<char, std::string, const char *> y('=');
+  std_exp::variant<long, short> z(303L);
   EXPECT_EQ("101+202=303"s,
-            exp::visit([](const auto &... elems) {
+            std_exp::visit([](const auto &... elems) {
               std::ostringstream strm;
               std::initializer_list<int>({(strm << elems, 0)...});
               return std::move(strm).str();
