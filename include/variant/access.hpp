@@ -87,14 +87,11 @@ namespace detail {
 struct get_impl {
   template <size_t I, typename V>
   static constexpr auto &&get(V &&v) {
-    auto *result = get_if<I>(&v);
-    if (!result) {
-      throw bad_variant_access{};
-    }  // if
     using alternatives = meta::as_list<decay_t<V>>;
     using T = meta::at_c<alternatives, I>;
     using R = meta::_t<qualify_as<T, V &&>>;
-    return static_cast<R>(*result);
+    auto *result = get_if<I>(&v);
+    return static_cast<R>(*(result ? result : throw bad_variant_access{}));
   }
 
   template <typename T, typename V>
