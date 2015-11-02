@@ -8,6 +8,7 @@
 
 #include <array>
 #include <cstddef>
+#include <initializer_list>
 #include <type_traits>
 #include <utility>
 
@@ -55,8 +56,8 @@ constexpr auto &&at_(const array<T, N> &elems, const size_t *index) {
 
 template <typename T, size_t N>
 constexpr auto &&at(const array<T, N> &elems,
-                    const size_t (&indices)[rank<array<T, N>>{}]) {
-  return at_(elems, begin(indices));
+                    std::initializer_list<size_t> list) {
+  return at_(elems, begin(list));
 }
 
 /* `make_vtable` */

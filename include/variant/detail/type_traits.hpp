@@ -64,14 +64,6 @@ struct priority<0> {};
 template <size_t I>
 struct priority : priority<I - 1> {};
 
-/* `rank` for `std::array` */
-
-template <typename T>
-struct rank : meta::size_t<0> {};
-
-template <typename T, size_t N>
-struct rank<array<T, N>> : meta::size_t<rank<T>{} + 1> {};
-
 /* `same_type` (similar to `std::common_type`) */
 
 template <typename... Ts>
