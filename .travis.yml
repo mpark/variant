@@ -25,16 +25,6 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.7
-    # gcc-4.9 (Ubuntu)
-    - env: GCC_VERSION=4.9
-      compiler: gcc
-      os: linux
-      addons:
-        apt:
-          packages:
-            - g++-4.9
-          sources:
-            - ubuntu-toolchain-r-test
     # gcc-5 (Ubuntu)
     - env: GCC_VERSION=5
       compiler: gcc
