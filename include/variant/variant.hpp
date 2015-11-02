@@ -128,7 +128,7 @@ class variant_impl_<meta::list<Ts...>,
 
   variant_impl_() = default;
 
-  variant_impl_(const variant_impl_ &that) {
+  variant_impl_(const variant_impl_ &that) : variant_impl_{} {
     static_assert(meta::and_<is_copy_constructible<Ts>...>{}, "");
     unsafe::visit(make_index_visitor<constructor>(*this), that);
   }
@@ -275,7 +275,8 @@ class variant_impl_<meta::list<Ts...>,
     super::template emplace<I>(forward<Args>(args)...);
   }
 
-  void swap(variant_impl_ &that) noexcept(noexcept(super::swap(that))) {
+  void swap(variant_impl_ &that) noexcept(noexcept(
+      declval<variant_impl_ &>().super::swap(declval<variant_impl_ &>()))) {
     super::swap(that);
   }
 
