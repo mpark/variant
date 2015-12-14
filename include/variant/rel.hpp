@@ -63,10 +63,8 @@ template <typename... Ts>
 constexpr bool operator<(const variant<Ts...> &lhs,
                          const variant<Ts...> &rhs) {
   using namespace detail;
-  if (lhs.index() == rhs.index()) {
-    return unsafe::visit(detail::less{}, lhs, rhs);
-  }
-  return lhs.index() < rhs.index();
+  return lhs.index() < rhs.index() || (lhs.index() == rhs.index() &&
+                                       unsafe::visit(detail::less{}, lhs, rhs));
 }
 
 template <typename... Ts>
