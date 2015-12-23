@@ -17,7 +17,7 @@ struct Obj {
 
 TEST(Dtor, Value) {
   bool dtor_called = false;
-  // Construct/Destruct X.
+  // Construct/Destruct `Obj`.
   {
     std_exp::variant<Obj, Obj &> v(std_exp::in_place_type<Obj>, dtor_called);
   }
@@ -28,10 +28,9 @@ TEST(Dtor, Value) {
 TEST(Dtor, Ref) {
   bool dtor_called = false;
   Obj obj(dtor_called);
-  // Construct/Destruct X.
   {
     std_exp::variant<Obj, Obj &> v(std_exp::in_place_type<Obj &>, obj);
   }
-  // Check that the destructor was called.
+  // Check that the destructor was __not__ called.
   EXPECT_FALSE(dtor_called);
 }
