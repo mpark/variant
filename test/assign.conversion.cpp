@@ -72,8 +72,8 @@ TEST(Assign_Conversion, SameTypeOptimization) {
   EXPECT_EQ("hello world!"s, x);
   // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
-  // Use `std::string::operator=` to assign into `v`.
-  v = "hello"s;
+  // Use `std::string::operator=(const char *)` to assign into `v`.
+  v = "hello";
   // Check `v`.
   const std::string &y = std_exp::get<std::string>(v);
   EXPECT_EQ("hello"s, y);
