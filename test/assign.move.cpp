@@ -5,34 +5,34 @@
 
 #include <variant.hpp>
 
-#include <string>
-
 #include <gtest/gtest.h>
 
 namespace std_exp = std::experimental;
 
-using namespace std::string_literals;
-
 TEST(Assign_Move, SameType) {
+  struct Obj {
+    Obj() = default;
+    Obj(const Obj &) = delete;
+    Obj(Obj &&) noexcept { EXPECT_TRUE(false); }
+    Obj &operator=(const Obj &) = delete;
+    Obj &operator=(Obj &&) noexcept { EXPECT_TRUE(true); return *this; }
+  };
   // `v`, `w`.
-  std_exp::variant<int, std::string> v("hello"s), w("world"s);
-  EXPECT_EQ("hello"s, std_exp::get<std::string>(v));
-  EXPECT_EQ("world"s, std_exp::get<std::string>(w));
+  std_exp::variant<Obj, int> v, w;
   // move assignment.
   v = std::move(w);
-  EXPECT_EQ("world"s, std_exp::get<std::string>(v));
-  // Check `w`.
-  EXPECT_TRUE(std_exp::get<std::string>(w).empty());
 }
 
 TEST(Assign_Move, DiffType) {
+  struct Obj {
+    Obj() = default;
+    Obj(const Obj &) = delete;
+    Obj(Obj &&) noexcept { EXPECT_TRUE(true); }
+    Obj &operator=(const Obj &) = delete;
+    Obj &operator=(Obj &&) noexcept { EXPECT_TRUE(false); return *this; }
+  };
   // `v`, `w`.
-  std_exp::variant<int, std::string> v(42), w("world"s);
-  EXPECT_EQ(42, std_exp::get<int>(v));
-  EXPECT_EQ("world"s, std_exp::get<std::string>(w));
+  std_exp::variant<Obj, int> v(42), w;
   // move assignment.
   v = std::move(w);
-  EXPECT_EQ("world"s, std_exp::get<std::string>(v));
-  // Check `w`.
-  EXPECT_TRUE(std_exp::get<std::string>(w).empty());
 }
