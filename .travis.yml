@@ -14,6 +14,19 @@ matrix:
             - g++-5
           sources:
             - ubuntu-toolchain-r-test
+    # clang-3.5 (Ubuntu)
+    - env: CLANG_VERSION=3.5
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages:
+            - clang-3.5
+            - libc++-dev
+          sources:
+            - ubuntu-toolchain-r-test
     # clang-3.6 (Ubuntu)
     - env: CLANG_VERSION=3.6
       compiler: clang
@@ -32,8 +45,18 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode7.1
+    # clang-3.5 (OS X)
+    - env: CLANG_VERSION=3.5 BEFORE_INSTALL="brew install cmake llvm35"
+      compiler: clang
+      os: osx
+      osx_image: xcode7.1
     # clang-3.6 (OS X)
     - env: CLANG_VERSION=3.6 BEFORE_INSTALL="brew install cmake llvm36"
+      compiler: clang
+      os: osx
+      osx_image: xcode7.1
+    # clang-3.7 (OS X)
+    - env: CLANG_VERSION=3.7 BEFORE_INSTALL="brew install cmake llvm37"
       compiler: clang
       os: osx
       osx_image: xcode7.1
