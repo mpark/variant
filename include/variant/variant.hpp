@@ -165,13 +165,7 @@ class variant_impl_<meta::list<Ts...>,
     if (this->index() == I) {
       unsafe::get<I>(*this) = forward<Arg>(arg);
     } else {
-      // TODO(mpark): Something feels off about this pattern. Reinvestigate.
-      struct emplacer {
-        void operator()(const T &arg) const { self.emplace<I>(T(arg)); }
-        void operator()(T &&arg) const { self.emplace<I>(move(arg)); }
-        variant_impl_ &self;
-      };  // emplacer
-      emplacer{*this}(forward<Arg>(arg));
+      assign_impl<I>{*this}(forward<Arg>(arg));
     }  // if
   }
 
@@ -195,6 +189,22 @@ class variant_impl_<meta::list<Ts...>,
   }
 
   private:
+
+  template <size_t I>
+  struct assign_impl {
+    using T = meta::at_c<meta::list<Ts...>, I>;
+
+    void operator()(const T &arg) const {
+      (*this)(arg, std::is_move_constructible<T>{});
+    }
+    void operator()(T &&arg) const { self.emplace<I>(move(arg)); }
+
+    variant_impl_ &self;
+
+    private:
+    void operator()(const T &arg, true_type) const { (*this)(T(arg)); }
+    void operator()(const T &arg, false_type) const { self.emplace<I>(arg); }
+  };  // assign_impl
 
   template <size_t I>
   struct assigner {
