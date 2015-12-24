@@ -2,6 +2,18 @@ language: cpp
 
 matrix:
   include:
+    # gcc-5 (Ubuntu)
+    - env: GCC_VERSION=5
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons:
+        apt:
+          packages:
+            - g++-5
+          sources:
+            - ubuntu-toolchain-r-test
     # clang-3.6 (Ubuntu)
     - env: CLANG_VERSION=3.6
       compiler: clang
@@ -13,33 +25,6 @@ matrix:
           packages:
             - clang-3.6
             - libc++-dev
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.6
-    # clang-3.7 (Ubuntu)
-    - env: CLANG_VERSION=3.7
-      compiler: clang
-      os: linux
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          packages:
-            - clang-3.7
-            - libc++-dev
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-3.7
-    # gcc-5 (Ubuntu)
-    - env: GCC_VERSION=5
-      compiler: gcc
-      os: linux
-      dist: trusty
-      sudo: required
-      addons:
-        apt:
-          packages:
-            - g++-5
           sources:
             - ubuntu-toolchain-r-test
     # apple clang (OS X)
