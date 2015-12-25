@@ -9,17 +9,15 @@
 
 ## Introduction
 
-`variant` reached a design consensus at the fall ISO C++ committee meeting in
-Kona, HI, USA. While the design is still not final, this library is a reference
-implementation of [P0088R0].
+`variant` reached a design consensus at the fall ISO C++ committee meeting in Kona, HI, USA.
+While the design is still not final, this library is an experimental reference implementation of [P0088R0].
 
 ## Quick Start
 
-Since this project uses `git submodule`, specifying the `--recursive` flag to
-`git clone` is recommended.
+Since this project uses `git submodule`, specifying the `--recursive` flag to `git clone` is recommended.
 
 ```bash
-git clone --recursive git@github.com:mpark/variant.git
+git clone --recursive https://github.com/mpark/variant.git
 ```
 
 ## Requirements
