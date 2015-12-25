@@ -195,7 +195,7 @@ class variant_impl_<meta::list<Ts...>,
     using T = meta::at_c<meta::list<Ts...>, I>;
 
     void operator()(const T &arg) const {
-      (*this)(arg, std::is_move_constructible<T>{});
+      (*this)(arg, is_move_constructible<T>{});
     }
     void operator()(T &&arg) const { self.emplace<I>(move(arg)); }
 

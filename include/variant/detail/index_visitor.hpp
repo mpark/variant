@@ -27,7 +27,7 @@ struct index_visitor {
         move(args_));
   }
 
-  std::tuple<Args...> args_;
+  tuple<Args...> args_;
 };  // index_visitor
 
 template <template <size_t...> class F, typename... Args>

@@ -55,8 +55,7 @@ constexpr auto &&at_(const array<T, N> &elems, const size_t *index) {
 }
 
 template <typename T, size_t N>
-constexpr auto &&at(const array<T, N> &elems,
-                    std::initializer_list<size_t> list) {
+constexpr auto &&at(const array<T, N> &elems, initializer_list<size_t> list) {
   return at_(elems, begin(list));
 }
 
