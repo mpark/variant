@@ -1,4 +1,7 @@
-# Variant [![experimental]](http://github.com/badges/stability-badges)
+# Variant
+
+[![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
+[![travis](https://travis-ci.org/mpark/variant.svg?branch=master)](https://travis-ci.org/mpark/variant)
 
 > A type-safe `union`
 
@@ -22,7 +25,7 @@ git clone --recursive git@github.com:mpark/variant.git
 This library requires a standard conformant __C++14__ compiler.
 
 Tested configurations:
-  * __Mac OS X Yosemite__: `clang-3.6+`
+  * __Ubuntu 14.04 Trusty__: `GCC 5`, `Clang 3.5+`
+  * __Mac OS X Yosemite__: `Apple Clang`, `Clang 3.5+`
 
-[experimental]: http://badges.github.io/stability-badges/dist/experimental.svg
 [P0088R0]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0088r0.pdf
