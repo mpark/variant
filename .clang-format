@@ -255,7 +255,7 @@ MaxEmptyLinesToKeep: 1
 #
 #   namespace Foo {
 #
-#     class TFoo {};
+#   class TFoo {};
 #
 #   }  // Foo
 #
@@ -263,7 +263,7 @@ MaxEmptyLinesToKeep: 1
 #
 #   namespace Foo {
 #
-#   class TFoo {};
+#     class TFoo {};
 #
 #   }  // Foo
 #
