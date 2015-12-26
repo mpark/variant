@@ -8,8 +8,6 @@
 
 #include <type_traits>
 
-#include <meta/meta.hpp>
-
 namespace std {
 namespace experimental {
 namespace detail {
@@ -23,7 +21,7 @@ class ref {
   //              For example, clang provides `__builtin_addressof`.
   constexpr ref(T t) noexcept : ptr(&static_cast<T>(t)) {}
 
-  template <typename U = T, typename = meta::if_<is_lvalue_reference<U>>>
+  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>{}>>
   constexpr ref(remove_reference_t<T> &&) = delete;
 
   ref(const ref &) = delete;

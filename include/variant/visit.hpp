@@ -6,6 +6,7 @@
 #ifndef VARIANT_VISIT_HPP
 #define VARIANT_VISIT_HPP
 
+#include <initializer_list>
 #include <utility>
 
 #include <variant/bad_variant_access.hpp>

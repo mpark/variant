@@ -8,7 +8,7 @@
 
 #include <utility>
 
-#include <meta/meta.hpp>
+#include <tuple.hpp>
 
 #include <variant/detail/index_visitor.hpp>
 #include <variant/detail/unsafe/visit.hpp>
@@ -32,7 +32,7 @@ struct hash<experimental::variant<Ts...>> {
   struct hasher {
     template <typename Arg>
     result_type operator()(const Arg &arg) const {
-      using T = meta::at_c<meta::list<Ts...>, I>;
+      using T = experimental::tuple_element_t<I, experimental::variant<Ts...>>;
       return hash<T>{}(arg);
     }
   };  // hasher

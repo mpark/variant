@@ -12,8 +12,6 @@
 #include <type_traits>
 #include <utility>
 
-#include <meta/meta.hpp>
-
 #include <variant/detail/index_visitor.hpp>
 #include <variant/detail/invoke.hpp>
 #include <variant/detail/type_traits.hpp>
@@ -25,7 +23,7 @@ namespace detail {
 
 /* `make_array` */
 
-template <typename... Ts, typename T = meta::_t<same_type<Ts...>>>
+template <typename... Ts, typename T = same_type_t<Ts...>>
 constexpr auto make_array_(priority<1>, Ts &&... ts) {
   return array<T, sizeof...(Ts)>{{forward<Ts>(ts)...}};
 }
@@ -65,7 +63,7 @@ template <typename... Vs>
 struct vtable {
   template <typename F, size_t... Is>
   static constexpr decltype(auto) dispatch_(true_type, F f, Vs... vs) {
-    return invoke(static_cast<F>(f)(meta::size_t<Is>{}...),
+    return invoke(static_cast<F>(f)(size_constant<Is>{}...),
                   unsafe::get<Is>(static_cast<Vs>(vs))...);
   }
 
@@ -98,7 +96,8 @@ template <typename F, typename... Vs>
 constexpr auto make_vtable() {
   return vtable<Vs...>::template make<F>(
       index_sequence<>{},
-      make_index_sequence<meta::as_list<decay_t<Vs>>::size()>{}...);
+      make_index_sequence<experimental::tuple_size<
+          repack_t<decay_t<Vs>, experimental::variant>>{}>{}...);
 }
 
 }  // namespace detail

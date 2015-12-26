@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <meta/meta.hpp>
+#include <tuple.hpp>
 
 #include <variant/detail/index_visitor.hpp>
 #include <variant/detail/type_traits.hpp>
@@ -25,29 +25,32 @@
 namespace std {
 namespace experimental {
 
+template <typename... Ts>
+class variant;
+
 namespace detail {
 
 template <typename... Ts>
 class variant_base {
-  using alternatives = meta::list<Ts...>;
+  using alternatives = experimental::variant<Ts...>;
   using storage =
-      union_<meta::list<Ts...>, meta::and_<is_trivially_destructible<Ts>...>{}>;
+      union_<conjunction<is_trivially_destructible<Ts>...>{}, Ts...>;
 
   public:
   constexpr bool corrupted_by_exception() const noexcept {
-    return index() == meta::npos{};
+    return index() == tuple_not_found;
   }
 
   constexpr size_t index() const noexcept { return index_; }
 
   protected:
-  variant_base() : index_(meta::npos{}), storage_() {}
+  variant_base() : index_(tuple_not_found), storage_() {}
 
   template <size_t I, typename... Args>
-  constexpr variant_base(meta::size_t<I> index, Args &&... args)
+  constexpr variant_base(size_constant<I> index, Args &&... args)
       : index_(index), storage_(index, forward<Args>(args)...) {
-    static_assert(I < alternatives::size(), "");
-    using T = meta::at_c<alternatives, I>;
+    static_assert(I < experimental::tuple_size<alternatives>{}, "");
+    using T = experimental::tuple_element_t<I, alternatives>;
     static_assert(is_constructible<T, Args &&...>{}, "");
   }
 
@@ -61,14 +64,14 @@ class variant_base {
 
   template <size_t I, typename... Args>
   void construct(Args &&... args) {
-    storage_.construct(meta::size_t<I>{}, forward<Args>(args)...);
+    storage_.construct(size_constant<I>{}, forward<Args>(args)...);
     index_ = I;
   }
 
   template <size_t I>
   void destroy() noexcept {
-    storage_.destroy(meta::size_t<I>{});
-    index_ = meta::npos{};
+    storage_.destroy(size_constant<I>{});
+    index_ = tuple_not_found;
   }
 
   size_t index_;
@@ -77,14 +80,15 @@ class variant_base {
   friend unsafe::get_impl;
 };  // variant_base
 
-template <typename Ts, bool IsTriviallyCopyable, bool IsTriviallyDestructible>
+template <bool IsTriviallyCopyable,
+          bool IsTriviallyDestructible,
+          typename... Ts>
 class variant_impl_;
 
 template <typename... Ts>
-class variant_impl_<meta::list<Ts...>,
-                    /* IsTriviallyCopyable = */ true,
-                    /* IsTriviallyDestructible = */ true>
-    : public variant_base<Ts...> {
+class variant_impl_</* IsTriviallyCopyable */ true,
+                    /* IsTriviallyDestructible */ true,
+                    Ts...> : public variant_base<Ts...> {
   using super = variant_base<Ts...>;
 
   protected:
@@ -107,7 +111,7 @@ class variant_impl_<meta::list<Ts...>,
 
   template <size_t I, typename... Args>
   void emplace(Args &&... args) {
-    *this = variant_impl_(meta::size_t<I>{}, forward<Args>(args)...);
+    *this = variant_impl_(size_constant<I>{}, forward<Args>(args)...);
   }
 
   void swap(variant_impl_ &that) noexcept(noexcept(
@@ -117,11 +121,10 @@ class variant_impl_<meta::list<Ts...>,
 };
 
 template <typename... Ts>
-class variant_impl_<meta::list<Ts...>,
-                    /* IsTriviallyCopyable = */ false,
-                    /* IsTriviallyDestructible = */ true>
-    : public variant_impl_<meta::list<Ts...>, true, true> {
-  using super = variant_impl_<meta::list<Ts...>, true, true>;
+class variant_impl_</* IsTriviallyCopyable */ false,
+                    /* IsTriviallyDestructible */ true,
+                    Ts...> : public variant_impl_<true, true, Ts...> {
+  using super = variant_impl_<true, true, Ts...>;
 
   protected:
   using super::super;
@@ -129,37 +132,37 @@ class variant_impl_<meta::list<Ts...>,
   variant_impl_() = default;
 
   variant_impl_(const variant_impl_ &that) : variant_impl_{} {
-    static_assert(meta::and_<is_copy_constructible<Ts>...>{}, "");
+    static_assert(conjunction<is_copy_constructible<Ts>...>{}, "");
     unsafe::visit(make_index_visitor<constructor>(*this), that);
   }
 
   variant_impl_(variant_impl_ &&that) noexcept(
-      meta::and_<is_nothrow_move_constructible<Ts>...>{}) {
-    static_assert(meta::and_<is_move_constructible<Ts>...>{}, "");
+      conjunction<is_nothrow_move_constructible<Ts>...>{}) {
+    static_assert(conjunction<is_move_constructible<Ts>...>{}, "");
     unsafe::visit(make_index_visitor<constructor>(*this), move(that));
   }
 
   ~variant_impl_() = default;
 
   variant_impl_ &operator=(const variant_impl_ &that) {
-    static_assert(meta::and_<is_copy_constructible<Ts>...>{}, "");
-    static_assert(meta::and_<is_copy_assignable<Ts>...>{}, "");
+    static_assert(conjunction<is_copy_constructible<Ts>...>{}, "");
+    static_assert(conjunction<is_copy_assignable<Ts>...>{}, "");
     unsafe::visit(make_index_visitor<assigner>(*this), that);
     return *this;
   }
 
   variant_impl_ &operator=(variant_impl_ &&that) noexcept(
-      meta::and_<is_nothrow_move_constructible<Ts>...,
-                 is_nothrow_move_assignable<Ts>...>{}) {
-    static_assert(meta::and_<is_move_constructible<Ts>...>{}, "");
-    static_assert(meta::and_<is_move_assignable<Ts>...>{}, "");
+      conjunction<is_nothrow_move_constructible<Ts>...,
+                  is_nothrow_move_assignable<Ts>...>{}) {
+    static_assert(conjunction<is_move_constructible<Ts>...>{}, "");
+    static_assert(conjunction<is_move_assignable<Ts>...>{}, "");
     unsafe::visit(make_index_visitor<assigner>(*this), move(that));
     return *this;
   }
 
   template <size_t I, typename Arg>
   void assign(Arg &&arg) {
-    using T = meta::at_c<meta::list<Ts...>, I>;
+    using T = experimental::tuple_element_t<I, experimental::variant<Ts...>>;
     static_assert(is_constructible<T, Arg &&>{}, "");
     static_assert(is_assignable<T &, Arg &&>{}, "");
     if (this->index() == I) {
@@ -171,13 +174,13 @@ class variant_impl_<meta::list<Ts...>,
 
   template <size_t I, typename... Args>
   void emplace(Args &&... args) {
-    this->index_ = meta::npos{};
+    this->index_ = tuple_not_found;
     this->template construct<I>(forward<Args>(args)...);
   }
 
   void swap(variant_impl_ &that) noexcept(
-      meta::and_<is_nothrow_move_constructible<Ts>...,
-                 detail::is_nothrow_swappable<Ts>...>{}) {
+      conjunction<is_nothrow_move_constructible<Ts>...,
+                  detail::is_nothrow_swappable<Ts>...>{}) {
     using namespace detail;
     if (this->index() == that.index()) {
       unsafe::visit(swapper{}, *this, that);
@@ -192,7 +195,7 @@ class variant_impl_<meta::list<Ts...>,
 
   template <size_t I>
   struct assign_impl {
-    using T = meta::at_c<meta::list<Ts...>, I>;
+    using T = experimental::tuple_element_t<I, experimental::variant<Ts...>>;
 
     void operator()(const T &arg) const {
       (*this)(arg, is_move_constructible<T>{});
@@ -239,11 +242,10 @@ class variant_impl_<meta::list<Ts...>,
 };
 
 template <typename... Ts>
-class variant_impl_<meta::list<Ts...>,
-                    /* IsTriviallyCopyable = */ false,
-                    /* IsTriviallyDestructible = */ false>
-    : public variant_impl_<meta::list<Ts...>, false, true> {
-  using super = variant_impl_<meta::list<Ts...>, false, true>;
+class variant_impl_</* IsTriviallyCopyable = */ false,
+                    /* IsTriviallyDestructible = */ false,
+                    Ts...> : public variant_impl_<false, true, Ts...> {
+  using super = variant_impl_<false, true, Ts...>;
 
   protected:
   using super::super;
@@ -309,13 +311,13 @@ class variant_impl_<meta::list<Ts...>,
 
 template <typename... Ts>
 using variant_impl =
-    variant_impl_<meta::list<Ts...>,
-                  meta::and_<is_trivially_copyable<Ts>...>{},
-                  meta::and_<is_trivially_destructible<Ts>...>{}>;
+    variant_impl_<conjunction<is_trivially_copyable<Ts>...>{},
+                  conjunction<is_trivially_destructible<Ts>...>{},
+                  Ts...>;
 
 template <typename... Ts>
 class variant : public variant_impl<Ts...> {
-  using alternatives = meta::list<Ts...>;
+  using alternatives = experimental::variant<Ts...>;
   using super = variant_impl<Ts...>;
 
   public:
@@ -323,13 +325,13 @@ class variant : public variant_impl<Ts...> {
 
   template <size_t I, typename... Args>
   explicit constexpr variant(in_place_index_t<I>, Args &&... args)
-      : super(meta::size_t<I>{}, forward<Args>(args)...) {}
+      : super(size_constant<I>{}, forward<Args>(args)...) {}
 
   template <typename T, typename... Args>
   explicit constexpr variant(in_place_type_t<T>, Args &&... args)
-      : variant(in_place_index<meta::find_index<alternatives, T>{}>,
+      : variant(in_place_index<tuple_find<T, alternatives>{}>,
                 forward<Args>(args)...) {
-    static_assert(meta::count<alternatives, T>{} == 1, "");
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
   }
 
   variant(const variant &) = default;
@@ -337,7 +339,7 @@ class variant : public variant_impl<Ts...> {
 
   ~variant() = default;
 
-  template <typename Arg, typename T = get_best_match<alternatives, Arg &&>>
+  template <typename Arg, typename T = get_best_match<Arg &&, Ts...>>
   variant &operator=(Arg &&arg) {
     assign<T>(forward<Arg>(arg));
     return *this;
@@ -353,8 +355,8 @@ class variant : public variant_impl<Ts...> {
 
   template <typename T, typename... Args>
   void emplace(Args &&... args) {
-    static_assert(meta::count<alternatives, T>{} == 1, "");
-    emplace<meta::find_index<alternatives, T>{}>(forward<Args>(args)...);
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
+    emplace<tuple_find<T,alternatives>{}>(forward<Args>(args)...);
   }
 
   private:
@@ -365,8 +367,8 @@ class variant : public variant_impl<Ts...> {
 
   template <typename T, typename Arg>
   void assign(Arg &&arg) {
-    static_assert(meta::count<alternatives, T>{} == 1, "");
-    assign<meta::find_index<alternatives, T>{}>(forward<Arg>(arg));
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
+    assign<tuple_find<T, alternatives>{}>(forward<Arg>(arg));
   }
 };
 
@@ -382,7 +384,7 @@ class variant<> {};
 
 template <typename... Ts>
 class variant : public detail::variant<Ts...> {
-  using alternatives = meta::list<Ts...>;
+  using alternatives = variant;
   using super = detail::variant<Ts...>;
 
   public:
@@ -394,9 +396,10 @@ class variant : public detail::variant<Ts...> {
   template <size_t I,
             typename U,
             typename... Args,
-            typename = meta::if_<is_constructible<meta::at_c<alternatives, I>,
-                                                  initializer_list<U> &,
-                                                  Args &&...>>>
+            typename = enable_if_t<
+                is_constructible<experimental::tuple_element_t<I, alternatives>,
+                                 initializer_list<U> &,
+                                 Args &&...>{}>>
   explicit constexpr variant(in_place_index_t<I> ip,
                              initializer_list<U> init,
                              Args &&... args)
@@ -405,15 +408,14 @@ class variant : public detail::variant<Ts...> {
   template <typename T,
             typename U,
             typename... Args,
-            typename = meta::if_<
-                is_constructible<T, initializer_list<U> &, Args &&...>>>
+            typename = enable_if_t<
+                is_constructible<T, initializer_list<U> &, Args &&...>{}>>
   explicit constexpr variant(in_place_type_t<T> ip,
                              initializer_list<U> init,
                              Args &&... args)
       : super(ip, init, forward<Args>(args)...) {}
 
-  template <typename Arg,
-            typename T = detail::get_best_match<alternatives, Arg &&>>
+  template <typename Arg, typename T = detail::get_best_match<Arg &&, Ts...>>
   constexpr variant(Arg &&arg) : variant(in_place_type<T>, forward<Arg>(arg)) {}
 
   variant(const variant &that) = default;
@@ -427,15 +429,15 @@ class variant : public detail::variant<Ts...> {
   using super::operator=;
 
   template <size_t I, typename U, typename... Args>
-  meta::if_<is_constructible<meta::at_c<alternatives, I>,
-                             initializer_list<U> &,
-                             Args &&...>,
+  enable_if_t<is_constructible<experimental::tuple_element_t<I, alternatives>,
+                               initializer_list<U> &,
+                               Args &&...>{},
   void> emplace(initializer_list<U> init, Args &&... args) {
     super::template emplace<I>(init, forward<Args>(args)...);
   }
 
   template <typename T, typename U, typename... Args>
-  meta::if_<is_constructible<T, initializer_list<U> &, Args &&...>,
+  enable_if_t<is_constructible<T, initializer_list<U> &, Args &&...>{},
   void> emplace(initializer_list<U> init, Args &&... args) {
     super::template emplace<T>(init, forward<Args>(args)...);
   }

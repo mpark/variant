@@ -21,7 +21,7 @@ namespace detail {
 template <template <size_t...> class F, typename... Args>
 struct index_visitor {
   template <size_t... Is>
-  auto operator()(meta::size_t<Is>...) && {
+  auto operator()(integral_constant<size_t, Is>...) && {
     return apply(
         [](Args... args) { return F<Is...>{static_cast<Args>(args)...}; },
         move(args_));

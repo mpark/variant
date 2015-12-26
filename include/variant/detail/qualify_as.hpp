@@ -6,7 +6,7 @@
 #ifndef VARIANT_DETAIL_QUALIFY_AS_HPP
 #define VARIANT_DETAIL_QUALIFY_AS_HPP
 
-#include <meta/meta.hpp>
+#include <variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -16,28 +16,31 @@ template <typename T, typename U>
 struct qualify_as;
 
 template <typename T, typename U>
-struct qualify_as : meta::id<T> {};
+using qualify_as_t = typename qualify_as<T, U>::type;
 
 template <typename T, typename U>
-struct qualify_as<T, const U> : meta::id<const T> {};
+struct qualify_as : id<T> {};
 
 template <typename T, typename U>
-struct qualify_as<T, U &> : meta::id<T &> {};
+struct qualify_as<T, const U> : id<const qualify_as_t<T, U>> {};
 
 template <typename T, typename U>
-struct qualify_as<T, const U &> : meta::id<const T &> {};
+struct qualify_as<T, U &> : id<qualify_as_t<T, U> &> {};
 
 template <typename T, typename U>
-struct qualify_as<T, U &&> : meta::id<T &&> {};
+struct qualify_as<T, const U &> : id<const qualify_as_t<T, U> &> {};
 
 template <typename T, typename U>
-struct qualify_as<T, const U &&> : meta::id<const T &&> {};
+struct qualify_as<T, U &&> : id<qualify_as_t<T, U> &&> {};
 
 template <typename T, typename U>
-struct qualify_as<T, U *> : meta::id<T *> {};
+struct qualify_as<T, const U &&> : id<const qualify_as_t<T, U> &&> {};
 
 template <typename T, typename U>
-struct qualify_as<T, const U *> : meta::id<const T *> {};
+struct qualify_as<T, U *> : id<qualify_as_t<T, U> *> {};
+
+template <typename T, typename U>
+struct qualify_as<T, const U *> : id<const qualify_as_t<T, U> *> {};
 
 }  // namespace detail
 }  // namespace experimental

@@ -8,12 +8,16 @@
 
 #include <cassert>
 
-#include <meta/meta.hpp>
-
 #include <variant/detail/qualify_as.hpp>
+#include <variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
+
+// Forward declaration.
+template <typename... Ts>
+class variant;
+
 namespace detail {
 
 // Forward declaration.
@@ -25,19 +29,19 @@ namespace unsafe {
 struct get_impl {
   template <size_t I, typename V>
   static constexpr auto &&get(V &&v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    static_assert(I < alternatives::size(), "");
-    using T = meta::at_c<alternatives, I>;
+    using alternatives = repack_t<decay_t<V>, experimental::variant>;
+    static_assert(I < experimental::tuple_size<alternatives>{}, "");
+    using T = experimental::tuple_element_t<I, alternatives>;
     assert(!v.corrupted_by_exception());
-    using R = meta::_t<qualify_as<T, V &&>>;
-    return static_cast<R>(forward<V>(v).storage_[meta::size_t<I>{}]);
+    using R = qualify_as_t<T, V &&>;
+    return static_cast<R>(forward<V>(v).storage_[size_constant<I>{}]);
   }
 
   template <typename T, typename V>
   static constexpr auto &&get(V &&v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    static_assert(meta::count<alternatives, T>{} == 1, "");
-    return get<meta::find_index<alternatives, T>{}>(forward<V>(v));
+    using alternatives = repack_t<decay_t<V>, experimental::variant>;
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
+    return get<tuple_find<T, alternatives>{}>(forward<V>(v));
   }
 };  // get_impl
 

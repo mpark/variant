@@ -11,50 +11,79 @@
 #include <type_traits>
 #include <utility>
 
-#include <meta/meta.hpp>
-
 namespace std {
 namespace experimental {
 namespace detail {
 
-/* `overload_set` */
+// C++17 `bool_constant`
+template <size_t B>
+using bool_constant = integral_constant<bool, B>;
 
-template <typename List>
-struct overload_set;
+// `size_constant`
+template <size_t I>
+using size_constant = integral_constant<size_t, I>;
+
+/* C++17 `std::conjunction` */
+
+template <typename... Ts>
+struct conjunction;
 
 template <>
-struct overload_set<meta::list<>> {
-  void operator()() const;
-};  // overload_set<meta::list<>>
+struct conjunction<> : true_type {};
 
-template <typename T, typename... Ts>
-struct overload_set<meta::list<T, Ts...>> : overload_set<meta::list<Ts...>> {
-  using super = overload_set<meta::list<Ts...>>;
+template <typename B>
+struct conjunction<B> : B {};
 
-  using super::operator();
+template <typename B, typename... Bs>
+struct conjunction<B, Bs...>
+    : conditional_t<B::value, conjunction<Bs...>, B> {};
 
-  meta::id<T> operator()(T) const;
+/* C++17 `std::disjunction` */
 
-  template <typename U = T, typename = meta::if_<is_lvalue_reference<U>>>
-  void operator()(remove_reference_t<T> &&) const = delete;
-};  // overload_set<meta::list<T, Ts...>>
+template <typename... Ts>
+struct disjunction;
 
-/* `get_best_match` */
-template <typename List, typename T>
-using get_best_match = meta::_t<result_of_t<overload_set<List>(T)>>;
+template <>
+struct disjunction<> : false_type {};
+
+template <typename B>
+struct disjunction<B> : B {};
+
+template <typename B, typename... Bs>
+struct disjunction<B, Bs...>
+    : conditional_t<B::value, B, disjunction<Bs...>> {};
+
+/* C++17 `std::negation` */
+
+template <typename B>
+struct negation : bool_constant<!B::value> {};
 
 /* `false_t` */
 template <typename... Ts>
 struct false_t : false_type {};
 
-/* `is_nothrow_swappable` (N4511) */
+/* `id` */
+template <typename T>
+struct id { using type = T; };
 
+/* `is_nothrow_swappable` (N4511) */
 template <typename T, typename U = T>
 struct is_nothrow_swappable
-    : meta::bool_<noexcept(swap(declval<T &>(), declval<U &>()))> {};
+    : bool_constant<noexcept(swap(declval<T &>(), declval<U &>()))> {};
+
+/* `repack` */
+template <typename From, template <typename... Ts> class To>
+struct repack;
+
+template <typename From, template <typename...> class To>
+using repack_t = typename repack<From, To>::type;
+
+template <template <typename... Ts> class From,
+          typename... Ts,
+          template <typename...> class To>
+struct repack<From<Ts...>, To> : id<To<Ts...>> {};
 
 /* `priority` */
-
 template <size_t I>
 struct priority;
 
@@ -64,16 +93,43 @@ struct priority<0> {};
 template <size_t I>
 struct priority : priority<I - 1> {};
 
-/* `same_type` (similar to `std::common_type`) */
-
+/* `same_type` */
 template <typename... Ts>
 struct same_type;
+
+template <typename... Ts>
+using same_type_t = typename same_type<Ts...>::type;
 
 template <>
 struct same_type<> {};
 
 template <typename T, typename... Ts>
-struct same_type<T, Ts...> : enable_if<meta::and_<is_same<T, Ts>...>{}, T> {};
+struct same_type<T, Ts...> : enable_if<conjunction<is_same<T, Ts>...>{}, T> {};
+
+/* `overload_set` */
+template <typename... Ts>
+struct overload_set;
+
+template <>
+struct overload_set<> {
+  void operator()() const;
+};
+
+template <typename T, typename... Ts>
+struct overload_set<T, Ts...> : overload_set<Ts...> {
+  using super = overload_set<Ts...>;
+
+  using super::operator();
+
+  id<T> operator()(T) const;
+
+  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>{}>>
+  void operator()(remove_reference_t<T> &&) const = delete;
+};
+
+/* `get_best_match` */
+template <typename T, typename... Ts>
+using get_best_match = typename result_of_t<overload_set<Ts...>(T)>::type;
 
 }  // namespace detail
 }  // namespace experimental

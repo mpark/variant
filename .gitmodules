@@ -1,6 +1,3 @@
-[submodule "3rdparty/meta"]
-	path = 3rdparty/meta
-	url = https://github.com/ericniebler/meta.git
 [submodule "3rdparty/googletest"]
 	path = 3rdparty/googletest
 	url = https://github.com/google/googletest.git

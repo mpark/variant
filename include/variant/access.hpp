@@ -9,7 +9,7 @@
 #include <cassert>
 #include <type_traits>
 
-#include <meta/meta.hpp>
+#include <tuple.hpp>
 
 #include <variant/bad_variant_access.hpp>
 #include <variant/detail/qualify_as.hpp>
@@ -31,9 +31,9 @@ constexpr bool holds_alternative(const variant<Ts...> &v) noexcept {
 
 template <typename T, typename... Ts>
 constexpr bool holds_alternative(const variant<Ts...> &v) noexcept {
-  using alternatives = meta::list<Ts...>;
-  static_assert(meta::count<alternatives, T>{} == 1, "");
-  return holds_alternative<meta::find_index<alternatives, T>{}>(v);
+  using alternatives = variant<Ts...>;
+  static_assert(tuple_count<T, alternatives>{} == 1, "");
+  return holds_alternative<tuple_find<T, alternatives>{}>(v);
 }
 
 namespace detail {
@@ -41,12 +41,12 @@ namespace detail {
 struct get_if_impl {
   template <size_t I, typename V>
   static constexpr auto *get_if(V *v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    static_assert(I < alternatives::size(), "");
-    using T = meta::at_c<alternatives, I>;
+    using alternatives = decay_t<V>;
+    static_assert(I < experimental::tuple_size<alternatives>{}, "");
+    using T = experimental::tuple_element_t<I, alternatives>;
     assert(v);
     if (!holds_alternative<I>(*v)) {
-      using R = add_pointer_t<meta::_t<qualify_as<T, V>>>;
+      using R = add_pointer_t<qualify_as_t<T, V>>;
       return static_cast<R>(nullptr);
     }  // if
     return &unsafe::get<I>(*v);
@@ -54,9 +54,9 @@ struct get_if_impl {
 
   template <typename T, typename V>
   static constexpr auto *get_if(V *v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    static_assert(meta::count<alternatives, T>{} == 1, "");
-    return get_if<meta::find_index<alternatives, T>{}>(v);
+    using alternatives = decay_t<V>;
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
+    return get_if<tuple_find<T, alternatives>{}>(v);
   }
 };  // get_if_impl
 
@@ -87,18 +87,18 @@ namespace detail {
 struct get_impl {
   template <size_t I, typename V>
   static constexpr auto &&get(V &&v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    using T = meta::at_c<alternatives, I>;
-    using R = meta::_t<qualify_as<T, V &&>>;
+    using alternatives = decay_t<V>;
+    using T = experimental::tuple_element_t<I, alternatives>;
+    using R = qualify_as_t<T, V &&>;
     auto *result = get_if<I>(&v);
     return static_cast<R>(*(result ? result : throw bad_variant_access{}));
   }
 
   template <typename T, typename V>
   static constexpr auto &&get(V &&v) {
-    using alternatives = meta::as_list<decay_t<V>>;
-    static_assert(meta::count<alternatives, T>{} == 1, "");
-    return get<meta::find_index<alternatives, T>{}>(forward<V>(v));
+    using alternatives = decay_t<V>;
+    static_assert(tuple_count<T, alternatives>{} == 1, "");
+    return get<tuple_find<T, alternatives>{}>(forward<V>(v));
   }
 };  // get_impl
 
