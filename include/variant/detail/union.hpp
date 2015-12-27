@@ -50,7 +50,7 @@ class union_<IsTriviallyDestructible> {};
     union_(const union_ &) = default;                                    \
     union_(union_ &&) = default;                                         \
                                                                          \
-    destructor;                                                          \
+    destructor                                                           \
                                                                          \
     union_ &operator=(const union_ &) = default;                         \
     union_ &operator=(union_ &&) = default;                              \
@@ -103,8 +103,8 @@ class union_<IsTriviallyDestructible> {};
   };
 
 /* is_trivially_destructible, destructor */
-UNION(true , ~union_() = default)
-UNION(false, ~union_() {}       )
+UNION(true , ~union_() = default;)
+UNION(false, ~union_() {}        )
 
 #undef UNION
 
