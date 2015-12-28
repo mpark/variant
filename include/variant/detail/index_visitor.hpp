@@ -11,6 +11,7 @@
 #include <utility>
 
 #include <variant/detail/apply.hpp>
+#include <variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -21,7 +22,7 @@ namespace detail {
 template <template <size_t...> class F, typename... Args>
 struct index_visitor {
   template <size_t... Is>
-  auto operator()(integral_constant<size_t, Is>...) && {
+  auto operator()(size_constant<Is>...) && {
     return apply(
         [](Args... args) { return F<Is...>{static_cast<Args>(args)...}; },
         move(args_));

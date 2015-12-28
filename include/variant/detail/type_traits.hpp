@@ -15,7 +15,7 @@ namespace std {
 namespace experimental {
 namespace detail {
 
-// C++17 `bool_constant`
+// C++17 `std::bool_constant`
 template <size_t B>
 using bool_constant = integral_constant<bool, B>;
 
