@@ -10,6 +10,8 @@
 #include <tuple>
 #include <utility>
 
+#include <variant/detail/type_traits.hpp>
+
 namespace std {
 namespace experimental {
 
@@ -54,11 +56,11 @@ template <typename T, typename Tuple>
 struct tuple_count;  // undefined
 
 template <typename T, typename Tuple>
-static constexpr size_t tuple_count_v = tuple_count<T, Tuple>{};
+static constexpr size_t tuple_count_v = tuple_count<T, Tuple>::value;
 
 template <typename T, typename... Ts>
 struct tuple_count<T, tuple<Ts...>>
-    : integral_constant<size_t, detail::tuple_count_impl<T, Ts...>()> {};
+    : detail::size_constant<detail::tuple_count_impl<T, Ts...>()> {};
 
 template <typename T, typename T1, typename T2>
 struct tuple_count<T, pair<T1, T2>> : tuple_count<T, tuple<T1, T2>> {};
@@ -80,11 +82,11 @@ template <typename T, typename Tuple>
 struct tuple_find;  // undefined
 
 template <typename T, typename Tuple>
-static constexpr size_t tuple_find_v = tuple_find<T, Tuple>{};
+static constexpr size_t tuple_find_v = tuple_find<T, Tuple>::value;
 
 template <typename T, typename... Ts>
 struct tuple_find<T, tuple<Ts...>>
-    : integral_constant<size_t, detail::tuple_find_impl<T, Ts...>()> {};
+    : detail::size_constant<detail::tuple_find_impl<T, Ts...>()> {};
 
 template <typename T, typename T1, typename T2>
 struct tuple_find<T, pair<T1, T2>> : tuple_find<T, tuple<T1, T2>> {};
@@ -119,7 +121,7 @@ template <typename... Ts>
 struct tuple_size<variant<Ts...>> : tuple_size<tuple<Ts...>> {};
 
 template <typename Tuple>
-static constexpr size_t tuple_size_v = tuple_size<Tuple>{};
+static constexpr size_t tuple_size_v = tuple_size<Tuple>::value;
 
 }  // namespace experimental
 }  // namespace std
