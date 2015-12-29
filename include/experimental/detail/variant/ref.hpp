@@ -3,14 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_REF_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_REF_HPP
+#ifndef EXPERIMENTAL_DETAIL_VARIANT_REF_HPP
+#define EXPERIMENTAL_DETAIL_VARIANT_REF_HPP
 
 #include <type_traits>
 
 namespace std {
 namespace experimental {
 namespace detail {
+namespace variant {
 
 template <typename T>
 class ref {
@@ -38,8 +39,9 @@ class ref {
   add_pointer_t<T> ptr;
 };  // ref
 
+}  // namespace variant
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_REF_HPP
+#endif  // EXPERIMENTAL_DETAIL_VARIANT_REF_HPP

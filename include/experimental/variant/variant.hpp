@@ -11,15 +11,15 @@
 #include <type_traits>
 #include <utility>
 
+#include <experimental/detail/type_traits.hpp>
+#include <experimental/detail/variant/index_visitor.hpp>
+#include <experimental/detail/variant/union.hpp>
+#include <experimental/detail/variant/vtable.hpp>
 #include <experimental/tuple.hpp>
-#include <experimental/variant/detail/index_visitor.hpp>
-#include <experimental/variant/detail/type_traits.hpp>
-#include <experimental/variant/detail/union.hpp>
-#include <experimental/variant/detail/unsafe/get.hpp>
-#include <experimental/variant/detail/unsafe/visit.hpp>
-#include <experimental/variant/detail/vtable.hpp>
 #include <experimental/variant/in_place.hpp>
 #include <experimental/variant/monostate.hpp>
+#include <experimental/variant/unsafe/get.hpp>
+#include <experimental/variant/unsafe/visit.hpp>
 
 namespace std {
 namespace experimental {
@@ -28,6 +28,32 @@ template <typename... Ts>
 class variant;
 
 namespace detail {
+namespace variant {
+
+/* `overload_set` */
+template <typename... Ts>
+struct overload_set;
+
+template <>
+struct overload_set<> {
+  void operator()() const;
+};
+
+template <typename T, typename... Ts>
+struct overload_set<T, Ts...> : overload_set<Ts...> {
+  using super = overload_set<Ts...>;
+
+  using super::operator();
+
+  id<T> operator()(T) const;
+
+  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>{}>>
+  void operator()(remove_reference_t<T> &&) const = delete;
+};
+
+/* `get_best_match` */
+template <typename T, typename... Ts>
+using get_best_match = typename result_of_t<overload_set<Ts...>(T)>::type;
 
 template <typename... Ts>
 class variant_base {
@@ -371,6 +397,7 @@ class variant : public variant_impl<Ts...> {
   }
 };
 
+}  // namespace variant
 }  // namespace detail
 
 //- 20.N.M class template `variant`:
@@ -382,9 +409,9 @@ template <>
 class variant<> {};
 
 template <typename... Ts>
-class variant : public detail::variant<Ts...> {
+class variant : public detail::variant::variant<Ts...> {
   using alternatives = variant;
-  using super = detail::variant<Ts...>;
+  using super = detail::variant::variant<Ts...>;
 
   public:
   //- 20.N.2.1 construction:
@@ -414,7 +441,8 @@ class variant : public detail::variant<Ts...> {
                              Args &&... args)
       : super(ip, init, forward<Args>(args)...) {}
 
-  template <typename Arg, typename T = detail::get_best_match<Arg &&, Ts...>>
+  template <typename Arg,
+            typename T = detail::variant::get_best_match<Arg &&, Ts...>>
   constexpr variant(Arg &&arg) : variant(in_place_type<T>, forward<Arg>(arg)) {}
 
   variant(const variant &that) = default;

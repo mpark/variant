@@ -9,12 +9,14 @@
 #include <cstddef>
 #include <cstdlib>
 
-#include <experimental/variant/detail/index_visitor.hpp>
-#include <experimental/variant/visit.hpp>
+#include <experimental/detail/variant/index_visitor.hpp>
+#include <experimental/variant/unsafe/visit.hpp>
 
 namespace std {
 namespace experimental {
+
 namespace detail {
+namespace variant {
 
 struct equal {
   template <typename T>
@@ -42,6 +44,7 @@ struct less {
   }
 };  // less
 
+}  // namespace variant
 }  // namespace detail
 
 //- 20.N.8 relational operators:
@@ -49,8 +52,8 @@ struct less {
 template <typename... Ts>
 constexpr bool operator==(const variant<Ts...> &lhs,
                           const variant<Ts...> &rhs) {
-  using namespace detail;
-  return lhs.index() == rhs.index() && unsafe::visit(detail::equal{}, lhs, rhs);
+  using namespace detail::variant;
+  return lhs.index() == rhs.index() && unsafe::visit(equal{}, lhs, rhs);
 }
 
 template <typename... Ts>
@@ -62,9 +65,9 @@ constexpr bool operator!=(const variant<Ts...> &lhs,
 template <typename... Ts>
 constexpr bool operator<(const variant<Ts...> &lhs,
                          const variant<Ts...> &rhs) {
-  using namespace detail;
-  return lhs.index() < rhs.index() || (lhs.index() == rhs.index() &&
-                                       unsafe::visit(detail::less{}, lhs, rhs));
+  using namespace detail::variant;
+  return lhs.index() < rhs.index() ||
+         (lhs.index() == rhs.index() && unsafe::visit(less{}, lhs, rhs));
 }
 
 template <typename... Ts>

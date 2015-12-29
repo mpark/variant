@@ -3,19 +3,20 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP
+#ifndef EXPERIMENTAL_DETAIL_VARIANT_UNION_HPP
+#define EXPERIMENTAL_DETAIL_VARIANT_UNION_HPP
 
 #include <new>
 #include <type_traits>
 #include <utility>
 
-#include <experimental/variant/detail/ref.hpp>
-#include <experimental/variant/detail/type_traits.hpp>
+#include <experimental/detail/type_traits.hpp>
+#include <experimental/detail/variant/ref.hpp>
 
 namespace std {
 namespace experimental {
 namespace detail {
+namespace variant {
 
 /* `union_` is a variadic recursive `union` which overlaps the N
    specified types. Compile-time indices are used to determine the element
@@ -108,8 +109,9 @@ UNION(false, ~union_() {}        )
 
 #undef UNION
 
+}  // namespace variant
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP
+#endif  // EXPERIMENTAL_DETAIL_VARIANT_UNION_HPP

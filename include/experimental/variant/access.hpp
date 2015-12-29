@@ -9,10 +9,10 @@
 #include <cassert>
 #include <type_traits>
 
+#include <experimental/detail/qualify_as.hpp>
 #include <experimental/tuple.hpp>
 #include <experimental/variant/bad_variant_access.hpp>
-#include <experimental/variant/detail/qualify_as.hpp>
-#include <experimental/variant/detail/unsafe/get.hpp>
+#include <experimental/variant/unsafe/get.hpp>
 
 namespace std {
 namespace experimental {
@@ -36,6 +36,7 @@ constexpr bool holds_alternative(const variant<Ts...> &v) noexcept {
 }
 
 namespace detail {
+namespace variant {
 
 struct get_if_impl {
   template <size_t I, typename V>
@@ -59,29 +60,31 @@ struct get_if_impl {
   }
 };  // get_if_impl
 
+}  // namespace variant
 }  // namespace detail
 
 template <size_t I, typename... Ts>
 constexpr auto *get_if(const variant<Ts...> *v) noexcept {
-  return detail::get_if_impl::get_if<I>(v);
+  return detail::variant::get_if_impl::get_if<I>(v);
 }
 
 template <size_t I, typename... Ts>
 constexpr auto *get_if(variant<Ts...> *v) noexcept {
-  return detail::get_if_impl::get_if<I>(v);
+  return detail::variant::get_if_impl::get_if<I>(v);
 }
 
 template <typename T, typename... Ts>
 constexpr auto *get_if(const variant<Ts...> *v) noexcept {
-  return detail::get_if_impl::get_if<T>(v);
+  return detail::variant::get_if_impl::get_if<T>(v);
 }
 
 template <typename T, typename... Ts>
 constexpr auto *get_if(variant<Ts...> *v) noexcept {
-  return detail::get_if_impl::get_if<T>(v);
+  return detail::variant::get_if_impl::get_if<T>(v);
 }
 
 namespace detail {
+namespace variant {
 
 struct get_impl {
   template <size_t I, typename V>
@@ -101,46 +104,47 @@ struct get_impl {
   }
 };  // get_impl
 
+}  // namespace variant
 }  // namespace detail
 
 template <size_t I, typename... Ts>
 constexpr auto &&get(const variant<Ts...> &v) {
-  return detail::get_impl::get<I>(v);
+  return detail::variant::get_impl::get<I>(v);
 }
 
 template <size_t I, typename... Ts>
 constexpr auto &&get(variant<Ts...> &v) {
-  return detail::get_impl::get<I>(v);
+  return detail::variant::get_impl::get<I>(v);
 }
 
 template <size_t I, typename... Ts>
 constexpr auto &&get(const variant<Ts...> &&v) {
-  return detail::get_impl::get<I>(move(v));
+  return detail::variant::get_impl::get<I>(move(v));
 }
 
 template <size_t I, typename... Ts>
 constexpr auto &&get(variant<Ts...> &&v) {
-  return detail::get_impl::get<I>(move(v));
+  return detail::variant::get_impl::get<I>(move(v));
 }
 
 template <typename T, typename... Ts>
 constexpr auto &&get(const variant<Ts...> &v) {
-  return detail::get_impl::get<T>(v);
+  return detail::variant::get_impl::get<T>(v);
 }
 
 template <typename T, typename... Ts>
 constexpr auto &&get(variant<Ts...> &v) {
-  return detail::get_impl::get<T>(v);
+  return detail::variant::get_impl::get<T>(v);
 }
 
 template <typename T, typename... Ts>
 constexpr auto &&get(const variant<Ts...> &&v) {
-  return detail::get_impl::get<T>(move(v));
+  return detail::variant::get_impl::get<T>(move(v));
 }
 
 template <typename T, typename... Ts>
 constexpr auto &&get(variant<Ts...> &&v) {
-  return detail::get_impl::get<T>(move(v));
+  return detail::variant::get_impl::get<T>(move(v));
 }
 
 }  // namespace experimental

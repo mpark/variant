@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_VTABLE_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_VTABLE_HPP
+#ifndef EXPERIMENTAL_DETAIL_VARIANT_VTABLE_HPP
+#define EXPERIMENTAL_DETAIL_VARIANT_VTABLE_HPP
 
 #include <array>
 #include <cstddef>
@@ -12,14 +12,15 @@
 #include <type_traits>
 #include <utility>
 
-#include <experimental/variant/detail/index_visitor.hpp>
-#include <experimental/variant/detail/invoke.hpp>
-#include <experimental/variant/detail/type_traits.hpp>
-#include <experimental/variant/detail/unsafe/get.hpp>
+#include <experimental/detail/invoke.hpp>
+#include <experimental/detail/type_traits.hpp>
+#include <experimental/detail/variant/index_visitor.hpp>
+#include <experimental/variant/unsafe/get.hpp>
 
 namespace std {
 namespace experimental {
 namespace detail {
+namespace variant {
 
 /* `make_array` */
 
@@ -100,8 +101,9 @@ constexpr auto make_vtable() {
           repack_t<decay_t<Vs>, experimental::variant>>{}>{}...);
 }
 
+}  // namespace variant
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_VTABLE_HPP
+#endif  // EXPERIMENTAL_DETAIL_VARIANT_VTABLE_HPP

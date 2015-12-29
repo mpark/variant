@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-#include <experimental/variant/detail/type_traits.hpp>
+#include <experimental/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -57,7 +57,7 @@ static constexpr size_t tuple_find_v = tuple_find<T, Tuple>::value;
 
 template <typename T, typename... Ts>
 struct tuple_find<T, tuple<Ts...>>
-    : detail::size_constant<detail::index({is_same<T, Ts>::value...}, true)> {};
+    : detail::size_constant<detail::find({is_same<T, Ts>::value...}, true)> {};
 
 template <typename T, typename T1, typename T2>
 struct tuple_find<T, pair<T1, T2>> : tuple_find<T, tuple<T1, T2>> {};

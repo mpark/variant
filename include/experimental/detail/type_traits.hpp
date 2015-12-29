@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_TYPE_TRAITS_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_TYPE_TRAITS_HPP
+#ifndef EXPERIMENTAL_DETAIL_TYPE_TRAITS_HPP
+#define EXPERIMENTAL_DETAIL_TYPE_TRAITS_HPP
 
 #include <algorithm>
 #include <array>
@@ -24,7 +24,6 @@ template <size_t I>
 using size_constant = integral_constant<size_t, I>;
 
 /* C++17 `std::conjunction` */
-
 template <typename... Ts>
 struct conjunction;
 
@@ -39,7 +38,6 @@ struct conjunction<B, Bs...>
     : conditional_t<B::value, conjunction<Bs...>, B> {};
 
 /* C++17 `std::disjunction` */
-
 template <typename... Ts>
 struct disjunction;
 
@@ -54,9 +52,13 @@ struct disjunction<B, Bs...>
     : conditional_t<B::value, B, disjunction<Bs...>> {};
 
 /* C++17 `std::negation` */
-
 template <typename B>
 struct negation : bool_constant<!B::value> {};
+
+/* N4511 `is_nothrow_swappable` */
+template <typename T, typename U = T>
+struct is_nothrow_swappable
+    : bool_constant<noexcept(swap(declval<T &>(), declval<U &>()))> {};
 
 /* `false_t` */
 template <typename... Ts>
@@ -66,10 +68,15 @@ struct false_t : false_type {};
 template <typename T>
 struct id { using type = T; };
 
-/* `is_nothrow_swappable` (N4511) */
-template <typename T, typename U = T>
-struct is_nothrow_swappable
-    : bool_constant<noexcept(swap(declval<T &>(), declval<U &>()))> {};
+/* `priority` */
+template <size_t I>
+struct priority;
+
+template <>
+struct priority<0> {};
+
+template <size_t I>
+struct priority : priority<I - 1> {};
 
 /* `repack` */
 template <typename From, template <typename... Ts> class To>
@@ -82,16 +89,6 @@ template <template <typename... Ts> class From,
           typename... Ts,
           template <typename...> class To>
 struct repack<From<Ts...>, To> : id<To<Ts...>> {};
-
-/* `priority` */
-template <size_t I>
-struct priority;
-
-template <>
-struct priority<0> {};
-
-template <size_t I>
-struct priority : priority<I - 1> {};
 
 /* `same_type` */
 template <typename... Ts>
@@ -106,33 +103,10 @@ struct same_type<> {};
 template <typename T, typename... Ts>
 struct same_type<T, Ts...> : enable_if<conjunction<is_same<T, Ts>...>{}, T> {};
 
-/* `overload_set` */
-template <typename... Ts>
-struct overload_set;
-
-template <>
-struct overload_set<> {
-  void operator()() const;
-};
-
-template <typename T, typename... Ts>
-struct overload_set<T, Ts...> : overload_set<Ts...> {
-  using super = overload_set<Ts...>;
-
-  using super::operator();
-
-  id<T> operator()(T) const;
-
-  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>{}>>
-  void operator()(remove_reference_t<T> &&) const = delete;
-};
-
-/* `get_best_match` */
-template <typename T, typename... Ts>
-using get_best_match = typename result_of_t<overload_set<Ts...>(T)>::type;
-
+/* `npos` */
 static constexpr size_t npos = static_cast<size_t>(-1);
 
+/* `count` */
 template <typename T>
 constexpr size_t count(initializer_list<T> elems, const T &value) {
   size_t result = 0;
@@ -144,8 +118,9 @@ constexpr size_t count(initializer_list<T> elems, const T &value) {
   return result;
 }
 
+/* `find` */
 template <typename T>
-constexpr size_t index(initializer_list<T> elems, const T &value) {
+constexpr size_t find(initializer_list<T> elems, const T &value) {
   size_t result = 0;
   for (const auto &elem : elems) {
     if (elem == value) {
@@ -156,13 +131,14 @@ constexpr size_t index(initializer_list<T> elems, const T &value) {
   return npos;
 }
 
+/* `any_of` */
 template <typename T>
 constexpr bool any_of(initializer_list<T> elems, const T &value) {
-  return index(elems, value) != npos;
+  return find(elems, value) != npos;
 }
 
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_TYPE_TRAITS_HPP
+#endif  // EXPERIMENTAL_DETAIL_TYPE_TRAITS_HPP

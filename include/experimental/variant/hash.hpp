@@ -8,9 +8,9 @@
 
 #include <utility>
 
+#include <experimental/detail/variant/index_visitor.hpp>
 #include <experimental/tuple.hpp>
-#include <experimental/variant/detail/index_visitor.hpp>
-#include <experimental/variant/detail/unsafe/visit.hpp>
+#include <experimental/variant/unsafe/visit.hpp>
 
 namespace std {
 
@@ -22,8 +22,8 @@ struct hash<experimental::variant<Ts...>> {
   using result_type = size_t;
 
   result_type operator()(const argument_type &v) const {
-    using namespace experimental::detail;
-    return unsafe::visit(make_index_visitor<hasher>(), v);
+    using namespace experimental;
+    return unsafe::visit(detail::variant::make_index_visitor<hasher>(), v);
   }
 
   private:

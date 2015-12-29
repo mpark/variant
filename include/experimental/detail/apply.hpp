@@ -3,20 +3,20 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP
+#ifndef EXPERIMENTAL_DETAIL_APPLY_HPP
+#define EXPERIMENTAL_DETAIL_APPLY_HPP
 
 #include <array>
 #include <tuple>
 #include <utility>
 
-#include <experimental/variant/detail/invoke.hpp>
+#include <experimental/detail/invoke.hpp>
 
 namespace std {
 namespace experimental {
 namespace detail {
 
-/* `std::apply` */
+/* Library Fundamentals V1 `std::experimental::apply` */
 
 template <typename F, typename Tuple, size_t... Is>
 decltype(auto) apply_impl(F &&f, Tuple &&tuple, index_sequence<Is...>) {
@@ -34,4 +34,4 @@ decltype(auto) apply(F &&f, Tuple &&tuple) {
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP
+#endif  // EXPERIMENTAL_DETAIL_APPLY_HPP

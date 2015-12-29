@@ -3,19 +3,20 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_INDEX_VISITOR_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_INDEX_VISITOR_HPP
+#ifndef EXPERIMENTAL_DETAIL_VARIANT_INDEX_VISITOR_HPP
+#define EXPERIMENTAL_DETAIL_VARIANT_INDEX_VISITOR_HPP
 
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
-#include <experimental/variant/detail/apply.hpp>
-#include <experimental/variant/detail/type_traits.hpp>
+#include <experimental/detail/apply.hpp>
+#include <experimental/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
 namespace detail {
+namespace variant {
 
 /* `index_visitor` */
 
@@ -44,8 +45,9 @@ struct is_index_visitor : false_type {};
 template <template <size_t...> class F, typename... Args>
 struct is_index_visitor<index_visitor<F, Args...>> : true_type {};
 
+}  // namespace variant
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_INDEX_VISITOR_HPP
+#endif  // EXPERIMENTAL_DETAIL_VARIANT_INDEX_VISITOR_HPP

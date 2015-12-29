@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef EXPERIMENTAL_VARIANT_DETAIL_INVOKE_HPP
-#define EXPERIMENTAL_VARIANT_DETAIL_INVOKE_HPP
+#ifndef EXPERIMENTAL_DETAIL_INVOKE_HPP
+#define EXPERIMENTAL_DETAIL_INVOKE_HPP
 
 #include <utility>
 
@@ -12,7 +12,7 @@ namespace std {
 namespace experimental {
 namespace detail {
 
-/* `std::invoke` */
+/* C++17 `std::invoke` */
 
 #define RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
@@ -42,4 +42,4 @@ constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
 }  // namespace experimental
 }  // namespace std
 
-#endif  // EXPERIMENTAL_VARIANT_DETAIL_INVOKE_HPP
+#endif  // EXPERIMENTAL_DETAIL_INVOKE_HPP

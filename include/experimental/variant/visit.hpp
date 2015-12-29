@@ -9,9 +9,9 @@
 #include <initializer_list>
 #include <utility>
 
+#include <experimental/detail/type_traits.hpp>
 #include <experimental/variant/bad_variant_access.hpp>
-#include <experimental/variant/detail/type_traits.hpp>
-#include <experimental/variant/detail/unsafe/visit.hpp>
+#include <experimental/variant/unsafe/visit.hpp>
 
 namespace std {
 namespace experimental {
@@ -20,7 +20,7 @@ template <typename F, typename... Vs>
 constexpr decltype(auto) visit(F &&f, Vs &&... vs) {
   return detail::any_of({vs.corrupted_by_exception()...}, true)
              ? throw bad_variant_access{}
-             : detail::unsafe::visit(forward<F>(f), forward<Vs>(vs)...);
+             : unsafe::visit(forward<F>(f), forward<Vs>(vs)...);
 }
 
 }  // namespace experimental
