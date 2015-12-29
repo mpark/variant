@@ -10,30 +10,17 @@
 #include <utility>
 
 #include <variant/bad_variant_access.hpp>
+#include <variant/detail/type_traits.hpp>
 #include <variant/detail/unsafe/visit.hpp>
 
 namespace std {
 namespace experimental {
 
-namespace detail {
-
-constexpr bool any_of(initializer_list<bool> bs) {
-  for (bool b : bs) {
-    if (b) {
-      return true;
-    }  // if
-  }  // for
-  return false;
-}
-
-}  // namespace detail
-
 template <typename F, typename... Vs>
 constexpr decltype(auto) visit(F &&f, Vs &&... vs) {
-  using namespace detail;
-  return !any_of({vs.corrupted_by_exception()...})
-             ? unsafe::visit(forward<F>(f), forward<Vs>(vs)...)
-             : throw bad_variant_access{};
+  return detail::any_of({vs.corrupted_by_exception()...}, true)
+             ? throw bad_variant_access{}
+             : detail::unsafe::visit(forward<F>(f), forward<Vs>(vs)...);
 }
 
 }  // namespace experimental

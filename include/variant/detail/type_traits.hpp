@@ -131,6 +131,36 @@ struct overload_set<T, Ts...> : overload_set<Ts...> {
 template <typename T, typename... Ts>
 using get_best_match = typename result_of_t<overload_set<Ts...>(T)>::type;
 
+static constexpr size_t npos = static_cast<size_t>(-1);
+
+template <typename T>
+constexpr size_t count(initializer_list<T> elems, const T &value) {
+  size_t result = 0;
+  for (const auto &elem : elems) {
+    if (elem == value) {
+      ++result;
+    }  // if
+  }  // for
+  return result;
+}
+
+template <typename T>
+constexpr size_t index(initializer_list<T> elems, const T &value) {
+  size_t result = 0;
+  for (const auto &elem : elems) {
+    if (elem == value) {
+      return result;
+    }  // if
+    ++result;
+  }  // for
+  return npos;
+}
+
+template <typename T>
+constexpr bool any_of(initializer_list<T> elems, const T &value) {
+  return index(elems, value) != npos;
+}
+
 }  // namespace detail
 }  // namespace experimental
 }  // namespace std

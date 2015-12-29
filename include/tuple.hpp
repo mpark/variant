@@ -20,36 +20,7 @@ template <typename... Ts>
 class variant;
 
 // `tuple_not_found`
-static constexpr size_t tuple_not_found = static_cast<size_t>(-1);
-
-namespace detail {
-
-template <typename T, typename... Ts>
-constexpr size_t tuple_count_impl() {
-  constexpr bool bs[] = {is_same<T, Ts>{}...};
-  size_t result = 0;
-  for (bool b : bs) {
-    if (b) {
-      ++result;
-    }  // if
-  }  // for
-  return result;
-}
-
-template <typename T, typename... Ts>
-constexpr size_t tuple_find_impl() {
-  constexpr bool bs[] = {is_same<T, Ts>{}...};
-  size_t result = 0;
-  for (bool b : bs) {
-    if (b) {
-      return result;
-    }  // if
-    ++result;
-  }  // for
-  return tuple_not_found;
-}
-
-}  // namespace detail
+static constexpr size_t tuple_not_found = detail::npos;
 
 // `tuple_count`
 template <typename T, typename Tuple>
@@ -60,7 +31,7 @@ static constexpr size_t tuple_count_v = tuple_count<T, Tuple>::value;
 
 template <typename T, typename... Ts>
 struct tuple_count<T, tuple<Ts...>>
-    : detail::size_constant<detail::tuple_count_impl<T, Ts...>()> {};
+    : detail::size_constant<detail::count({is_same<T, Ts>::value...}, true)> {};
 
 template <typename T, typename T1, typename T2>
 struct tuple_count<T, pair<T1, T2>> : tuple_count<T, tuple<T1, T2>> {};
@@ -86,7 +57,7 @@ static constexpr size_t tuple_find_v = tuple_find<T, Tuple>::value;
 
 template <typename T, typename... Ts>
 struct tuple_find<T, tuple<Ts...>>
-    : detail::size_constant<detail::tuple_find_impl<T, Ts...>()> {};
+    : detail::size_constant<detail::index({is_same<T, Ts>::value...}, true)> {};
 
 template <typename T, typename T1, typename T2>
 struct tuple_find<T, pair<T1, T2>> : tuple_find<T, tuple<T1, T2>> {};
