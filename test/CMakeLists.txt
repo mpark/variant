@@ -1,19 +1,8 @@
 cmake_minimum_required(VERSION 2.8)
 
-include(CheckCXXCompilerFlag)
-
-macro(add_compiler_flag testname flag)
-  check_cxx_compiler_flag(${flag} ${testname})
-  if (${testname})
-    add_compile_options(${flag})
-  endif()
-endmacro()
-
-add_compiler_flag(STD_CXX14 -std=c++14)
 add_compiler_flag(WALL -Wall)
-add_compiler_flag(WERROR -Werror)
 add_compiler_flag(WEXTRA -Wextra)
-add_compiler_flag(PEDANTIC -pedantic)
+add_compiler_flag(WERROR -Werror)
 
 function(add_gtest name)
   add_executable(${name} ${name}.cpp)
