@@ -3,14 +3,14 @@
 // Distributed under the Boost Software License, Version 1.0.(See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef TUPLE_HPP
-#define TUPLE_HPP
+#ifndef EXPERIMENTAL_TUPLE_HPP
+#define EXPERIMENTAL_TUPLE_HPP
 
 #include <array>
 #include <tuple>
 #include <utility>
 
-#include <variant/detail/type_traits.hpp>
+#include <experimental/variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -97,4 +97,4 @@ static constexpr size_t tuple_size_v = tuple_size<Tuple>::value;
 }  // namespace experimental
 }  // namespace std
 
-#endif  // TUPLE_HPP
+#endif  // EXPERIMENTAL_TUPLE_HPP

@@ -3,10 +3,10 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_DETAIL_QUALIFY_AS_HPP
-#define VARIANT_DETAIL_QUALIFY_AS_HPP
+#ifndef EXPERIMENTAL_VARIANT_DETAIL_QUALIFY_AS_HPP
+#define EXPERIMENTAL_VARIANT_DETAIL_QUALIFY_AS_HPP
 
-#include <variant/detail/type_traits.hpp>
+#include <experimental/variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -46,4 +46,4 @@ struct qualify_as<T, const U *> : id<const qualify_as_t<T, U> *> {};
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_DETAIL_QUALIFY_AS_HPP
+#endif  // EXPERIMENTAL_VARIANT_DETAIL_QUALIFY_AS_HPP

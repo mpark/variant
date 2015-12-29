@@ -3,15 +3,14 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_HASH_HPP
-#define VARIANT_HASH_HPP
+#ifndef EXPERIMENTAL_VARIANT_HASH_HPP
+#define EXPERIMENTAL_VARIANT_HASH_HPP
 
 #include <utility>
 
-#include <tuple.hpp>
-
-#include <variant/detail/index_visitor.hpp>
-#include <variant/detail/unsafe/visit.hpp>
+#include <experimental/tuple.hpp>
+#include <experimental/variant/detail/index_visitor.hpp>
+#include <experimental/variant/detail/unsafe/visit.hpp>
 
 namespace std {
 
@@ -40,4 +39,4 @@ struct hash<experimental::variant<Ts...>> {
 
 }  // namespace std
 
-#endif  // VARIANT_HASH_HPP
+#endif  // EXPERIMENTAL_VARIANT_HASH_HPP

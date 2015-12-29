@@ -3,14 +3,14 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_DETAIL_APPLY_HPP
-#define VARIANT_DETAIL_APPLY_HPP
+#ifndef EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP
+#define EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP
 
 #include <array>
 #include <tuple>
 #include <utility>
 
-#include <variant/detail/invoke.hpp>
+#include <experimental/variant/detail/invoke.hpp>
 
 namespace std {
 namespace experimental {
@@ -34,4 +34,4 @@ decltype(auto) apply(F &&f, Tuple &&tuple) {
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_DETAIL_APPLY_HPP
+#endif  // EXPERIMENTAL_VARIANT_DETAIL_APPLY_HPP

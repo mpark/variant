@@ -3,15 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_DETAIL_UNION_HPP
-#define VARIANT_DETAIL_UNION_HPP
+#ifndef EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP
+#define EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP
 
 #include <new>
 #include <type_traits>
 #include <utility>
 
-#include <variant/detail/ref.hpp>
-#include <variant/detail/type_traits.hpp>
+#include <experimental/variant/detail/ref.hpp>
+#include <experimental/variant/detail/type_traits.hpp>
 
 namespace std {
 namespace experimental {
@@ -112,4 +112,4 @@ UNION(false, ~union_() {}        )
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_DETAIL_UNION_HPP
+#endif  // EXPERIMENTAL_VARIANT_DETAIL_UNION_HPP

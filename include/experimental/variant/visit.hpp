@@ -3,15 +3,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_VISIT_HPP
-#define VARIANT_VISIT_HPP
+#ifndef EXPERIMENTAL_VARIANT_VISIT_HPP
+#define EXPERIMENTAL_VARIANT_VISIT_HPP
 
 #include <initializer_list>
 #include <utility>
 
-#include <variant/bad_variant_access.hpp>
-#include <variant/detail/type_traits.hpp>
-#include <variant/detail/unsafe/visit.hpp>
+#include <experimental/variant/bad_variant_access.hpp>
+#include <experimental/variant/detail/type_traits.hpp>
+#include <experimental/variant/detail/unsafe/visit.hpp>
 
 namespace std {
 namespace experimental {
@@ -26,4 +26,4 @@ constexpr decltype(auto) visit(F &&f, Vs &&... vs) {
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_VISIT_HPP
+#endif  // EXPERIMENTAL_VARIANT_VISIT_HPP

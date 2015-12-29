@@ -3,24 +3,23 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_VARIANT_HPP
-#define VARIANT_VARIANT_HPP
+#ifndef EXPERIMENTAL_VARIANT_VARIANT_HPP
+#define EXPERIMENTAL_VARIANT_VARIANT_HPP
 
 #include <cstddef>
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
 
-#include <tuple.hpp>
-
-#include <variant/detail/index_visitor.hpp>
-#include <variant/detail/type_traits.hpp>
-#include <variant/detail/union.hpp>
-#include <variant/detail/unsafe/get.hpp>
-#include <variant/detail/unsafe/visit.hpp>
-#include <variant/detail/vtable.hpp>
-#include <variant/in_place.hpp>
-#include <variant/monostate.hpp>
+#include <experimental/tuple.hpp>
+#include <experimental/variant/detail/index_visitor.hpp>
+#include <experimental/variant/detail/type_traits.hpp>
+#include <experimental/variant/detail/union.hpp>
+#include <experimental/variant/detail/unsafe/get.hpp>
+#include <experimental/variant/detail/unsafe/visit.hpp>
+#include <experimental/variant/detail/vtable.hpp>
+#include <experimental/variant/in_place.hpp>
+#include <experimental/variant/monostate.hpp>
 
 namespace std {
 namespace experimental {
@@ -456,4 +455,4 @@ class variant : public detail::variant<Ts...> {
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_VARIANT_HPP
+#endif  // EXPERIMENTAL_VARIANT_VARIANT_HPP

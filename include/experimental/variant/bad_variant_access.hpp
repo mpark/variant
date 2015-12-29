@@ -3,8 +3,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef VARIANT_BAD_VARIANT_ACCESS_HPP
-#define VARIANT_BAD_VARIANT_ACCESS_HPP
+#ifndef EXPERIMENTAL_VARIANT_BAD_VARIANT_ACCESS_HPP
+#define EXPERIMENTAL_VARIANT_BAD_VARIANT_ACCESS_HPP
 
 #include <stdexcept>
 
@@ -29,4 +29,4 @@ class bad_variant_access : public exception {
 }  // namespace experimental
 }  // namespace std
 
-#endif  // VARIANT_BAD_VARIANT_ACCESS_HPP
+#endif  // EXPERIMENTAL_VARIANT_BAD_VARIANT_ACCESS_HPP
