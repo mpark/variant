@@ -167,7 +167,7 @@ BreakBeforeBraces: Attach
 #
 BreakConstructorInitializersBeforeComma: false
 
-ColumnLimit: 80
+ColumnLimit: 120
 
 # Good:
 #
