@@ -52,32 +52,6 @@ class bad_variant_access : public exception {
   virtual const char *what() const noexcept { return "bad_variant_access"; }
 };  // bad_variant_access
 
-// TODO(mpark): Find a better place for these.
-template <typename T>
-struct ref {
-  public:
-  static_assert(is_reference<T>::value, "`ref<T>` only holds references.");
-
-  constexpr ref(T t) noexcept : ref_(static_cast<T>(t)) {}
-
-  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>::value>>
-  constexpr ref(remove_reference_t<T> &&) = delete;
-
-  ref(const ref &) = default;
-  ref(ref &&) = default;
-
-  ~ref() = default;
-
-  ref &operator=(const ref &) = default;
-  ref &operator=(ref &&) = default;
-
-  constexpr T get() const noexcept { return static_cast<T>(ref_); }
-  constexpr operator T() const noexcept { return static_cast<T>(ref_); }
-
-  private:
-  T ref_;
-};  // ref
-
 //- unsafe operations
 
 namespace unsafe {
@@ -256,6 +230,31 @@ constexpr decltype(auto) visit(F &&f, Ss &&... ss) {
 }
 
 //- class `storage`
+
+template <typename T>
+struct ref {
+  public:
+  static_assert(is_reference<T>::value, "`ref<T>` only holds references.");
+
+  constexpr ref(T t) noexcept : ref_(static_cast<T>(t)) {}
+
+  template <typename U = T, typename = enable_if_t<is_lvalue_reference<U>::value>>
+  constexpr ref(remove_reference_t<T> &&) = delete;
+
+  ref(const ref &) = default;
+  ref(ref &&) = default;
+
+  ~ref() = default;
+
+  ref &operator=(const ref &) = default;
+  ref &operator=(ref &&) = default;
+
+  constexpr T get() const noexcept { return static_cast<T>(ref_); }
+  constexpr operator T() const noexcept { return static_cast<T>(ref_); }
+
+  private:
+  T ref_;
+};  // ref
 
 /* `union_t` is a variadic recursive `union` which overlaps the N
    specified types. Compile-time indices are used to determine the element
