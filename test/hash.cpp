@@ -15,11 +15,9 @@ namespace std_exp = std::experimental;
 using namespace std::string_literals;
 
 TEST(Hash, Monostate) {
-  std_exp::variant<int, std_exp::monostate, std::string> v(
-      std_exp::monostate{});
+  std_exp::variant<int, std_exp::monostate, std::string> v(std_exp::monostate{});
   // Construct hash function objects.
-  std::hash<std_exp::variant<int, std_exp::monostate, std::string>>
-      variant_hash;
+  std::hash<std_exp::variant<int, std_exp::monostate, std::string>> variant_hash;
   // Check the hash.
   EXPECT_EQ(0u, variant_hash(v));
 }

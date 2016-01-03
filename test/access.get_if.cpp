@@ -102,6 +102,14 @@ TEST(Access_GetIf, ConstVarConstTypeRef) {
   EXPECT_EQ(&expected, std_exp::get_if<const int &>(&v));
   // Check qualifier.
   EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<const int &>(&v)));
+
+  /* constexpr */ {
+    static constexpr int expected = 42;
+    constexpr std_exp::variant<const int &> v(expected);
+    static_assert(42 == *std_exp::get_if<const int &>(&v), "");
+    // Check qualifier.
+    static_assert(ConstPtr == get_qual(std_exp::get_if<const int &>(&v)), "");
+  }
 }
 
 TEST(Access_GetIf, MoveCorruptedByException) {

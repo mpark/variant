@@ -34,7 +34,7 @@ TEST(Access_Get, MutVarMutType) {
   EXPECT_EQ(RRef, get_qual(std_exp::get<int>(std::move(v))));
 }
 
-TEST(Access_GetIf, MutVarMutTypeRef) {
+TEST(Access_Get, MutVarMutTypeRef) {
   int expected = 42;
   std_exp::variant<int &> v(expected);
   EXPECT_EQ(expected, std_exp::get<int &>(v));
@@ -100,8 +100,7 @@ TEST(Access_Get, ConstVarConstType) {
     static_assert(42 == std_exp::get<const int>(v), "");
     // Check qualifier.
     static_assert(ConstLRef == get_qual(std_exp::get<const int>(v)), "");
-    static_assert(ConstRRef == get_qual(std_exp::get<const int>(std::move(v))),
-                  "");
+    static_assert(ConstRRef == get_qual(std_exp::get<const int>(std::move(v))), "");
   }
 }
 
@@ -113,6 +112,15 @@ TEST(Access_Get, ConstVarConstTypeRef) {
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(std_exp::get<const int &>(v)));
   EXPECT_EQ(ConstLRef, get_qual(std_exp::get<const int &>(std::move(v))));
+
+  /* constexpr */ {
+    static constexpr int expected = 42;
+    constexpr std_exp::variant<const int &> v(expected);
+    static_assert(42 == std_exp::get<const int &>(v), "");
+    // Check qualifier.
+    static_assert(ConstLRef == get_qual(std_exp::get<const int &>(v)), "");
+    static_assert(ConstLRef == get_qual(std_exp::get<const int &>(std::move(v))), "");
+  }
 }
 
 TEST(Access_Get, MoveCorruptedByException) {
