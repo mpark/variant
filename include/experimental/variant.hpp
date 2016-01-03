@@ -131,21 +131,18 @@ constexpr auto &&get(const storage_base<Ts...> &&s) { return access::get<T>(move
 
 struct visitation {
 
-// Base case for `at`.
+// Base case for `at_impl`.
 template <typename T>
-static constexpr const T &at_impl(const T &elem, const size_t *) {
-  return elem;
-}
+static constexpr const T &at_impl(const T &elem) { return elem; }
 
 // Recursive case for `at_impl`.
-template <typename T, size_t N>
-static constexpr auto &&at_impl(const array<T, N> &elems, const size_t *index) {
-  return at_impl(elems[*index], index + 1);
-}
+template <typename T, size_t N, typename... Is>
+static constexpr auto &&at_impl(const array<T, N> &elems, size_t i, Is... is) { return at_impl(elems[i], is...); }
 
-template <typename T, size_t N>
-static constexpr auto &&at(const array<T, N> &elems, const size_t (&indices)[lib::rank<array<T, N>>::value]) {
-  return at_impl(elems, begin(indices));
+template <typename T, size_t N, typename... Is>
+static constexpr auto &&at(const array<T, N> &elems, Is... is) {
+  static_assert(lib::rank<array<T, N>>::value == sizeof...(Is), "");
+  return at_impl(elems, is...);
 }
 
 template <typename... Ts>
@@ -164,42 +161,35 @@ static constexpr auto make_array(T &&t, Ts &&... ts) {
   return make_array_impl(cpp17::conjunction<is_same<T, Ts>...>{}, forward<T>(t), forward<Ts>(ts)...);
 }
 
-template <typename F, typename... Ss>
-struct vtable {
-
-template <size_t... Is>
-static constexpr decltype(auto) dispatch(F f, Ss... ss) {
-  return cpp17::invoke(static_cast<F>(f), index_sequence<Is...>{}, unsafe::get<Is>(static_cast<Ss>(ss))...);
-}
-
 // Base case for `make_impl`.
-template <size_t... Is>
-static constexpr auto make_impl(index_sequence<Is...>) {
-  return &dispatch<Is...>;
+template <typename F, typename... Ss, size_t... Is>
+static constexpr auto make_fmatrix_impl(index_sequence<Is...>) {
+  struct dispatcher {
+    static constexpr decltype(auto) dispatch(F f, Ss... ss) {
+      return cpp17::invoke(static_cast<F>(f), index_sequence<Is...>{}, unsafe::get<Is>(static_cast<Ss>(ss))...);
+    }
+  };
+  return &dispatcher::dispatch;
 }
 
 // Recursive case for `make_impl`.
-template <size_t... Is, size_t... Js, typename... Ls>
-static constexpr auto make_impl(index_sequence<Is...>, index_sequence<Js...>, Ls... ls) {
-  return make_array(make_impl(index_sequence<Is..., Js>{}, ls...)...);
+template <typename F, typename... Ss, size_t... Is, size_t... Js, typename... Ls>
+static constexpr auto make_fmatrix_impl(index_sequence<Is...>, index_sequence<Js...>, Ls... ls) {
+  return make_array(make_fmatrix_impl<F, Ss...>(index_sequence<Is..., Js>{}, ls...)...);
 }
-
-// `make`.
-static constexpr auto make() {
-  return make_impl(index_sequence<>{},
-                   make_index_sequence<experimental::tuple_size<lib::repack_t<decay_t<Ss>, variant>>::value>{}...);
-}
-
-};  // vtable
 
 template <typename F, typename... Ss>
-static constexpr auto make_vtable() { return vtable<F, Ss...>::make(); }
+static constexpr auto make_fmatrix() {
+  return make_fmatrix_impl<F, Ss...>(
+      index_sequence<>{},
+      make_index_sequence<experimental::tuple_size<lib::repack_t<decay_t<Ss>, variant>>::value>{}...);
+}
 
 template <typename F, typename... Ss>
 static constexpr decltype(auto) indexed_visit(F &&f, Ss &&... ss) {
   static_assert(cpp17::conjunction<is_storage_base<decay_t<Ss>>...>::value, "");
-  constexpr auto vtable = make_vtable<F &&, Ss &&...>();
-  return at(vtable, {ss.index()...})(forward<F>(f), forward<Ss>(ss)...);
+  constexpr auto fmatrix = make_fmatrix<F &&, Ss &&...>();
+  return at(fmatrix, ss.index()...)(forward<F>(f), forward<Ss>(ss)...);
 }
 
 template <typename F>
