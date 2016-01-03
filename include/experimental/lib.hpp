@@ -42,7 +42,7 @@ constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as) RETURN(((*forward<Ptr>(pt
 
 /* `std::conjunction` */
 template <typename... Ts>
-struct conjunction;
+struct conjunction;  // undefined
 
 template <>
 struct conjunction<> : true_type {};
@@ -55,7 +55,7 @@ struct conjunction<B, Bs...> : conditional_t<B::value, conjunction<Bs...>, B> {}
 
 /* `std::disjunction` */
 template <typename... Ts>
-struct disjunction;
+struct disjunction;  // undefined
 
 template <>
 struct disjunction<> : false_type {};
@@ -92,11 +92,11 @@ template <typename T>
 struct rank : size_constant<0> {};
 
 template <typename T, size_t N>
-struct rank<array<T, N>> : size_constant<rank<T>{} + 1> {};
+struct rank<array<T, N>> : size_constant<rank<T>::value + 1> {};
 
 /* `repack` */
 template <typename From, template <typename... Ts> class To>
-struct repack;
+struct repack;  // undefined
 
 template <typename From, template <typename...> class To>
 using repack_t = typename repack<From, To>::type;
@@ -106,13 +106,10 @@ struct repack<From<Ts...>, To> : id<To<Ts...>> {};
 
 /* `qualify_as` */
 template <typename T, typename U>
-struct qualify_as;
+struct qualify_as : id<T> {};
 
 template <typename T, typename U>
 using qualify_as_t = typename qualify_as<T, U>::type;
-
-template <typename T, typename U>
-struct qualify_as : id<T> {};
 
 template <typename T, typename U>
 struct qualify_as<T, const U> : add_const<qualify_as_t<T, U>> {};
