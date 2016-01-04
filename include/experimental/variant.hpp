@@ -341,22 +341,6 @@ using union_t = union_impl<cpp17::conjunction<is_trivially_destructible<Ts>...>:
 template <typename... Ts>
 class storage_base {
   public:
-  constexpr bool corrupted_by_exception() const noexcept { return index() == tuple_not_found; }
-
-  constexpr size_t index() const noexcept { return index_; }
-
-  protected:
-  storage_base() : index_(tuple_not_found), union_() {}
-
-  template <size_t I, typename... Args>
-  constexpr storage_base(lib::size_constant<I> index, Args &&... args)
-      : index_(index), union_(index, forward<Args>(args)...) {
-    using V = variant<Ts...>;
-    static_assert(I < experimental::tuple_size<V>::value, "");
-    using T = experimental::tuple_element_t<I, V>;
-    static_assert(is_constructible<T, Args &&...>::value, "");
-  }
-
   storage_base(const storage_base &) = default;
   storage_base(storage_base &&) = default;
 
@@ -365,19 +349,22 @@ class storage_base {
   storage_base &operator=(const storage_base &) = default;
   storage_base &operator=(storage_base &&) = default;
 
-  template <size_t I, typename... Args>
-  void construct(Args &&... args) {
-    union_.construct(lib::size_constant<I>{}, forward<Args>(args)...);
-    index_ = I;
-  }
+  constexpr bool corrupted_by_exception() const noexcept { return index() == tuple_not_found; }
 
-  template <size_t I>
-  void destroy() noexcept {
-    union_.destroy(lib::size_constant<I>{});
-    index_ = tuple_not_found;
-  }
+  constexpr size_t index() const noexcept { return index_; }
 
   protected:
+  constexpr storage_base() : index_(tuple_not_found), union_() {}
+
+  template <size_t I, typename... Args>
+  constexpr storage_base(lib::size_constant<I> index, Args &&... args)
+      : index_(I), union_(index, forward<Args>(args)...) {
+    using V = variant<Ts...>;
+    static_assert(I < experimental::tuple_size<V>::value, "");
+    using T = experimental::tuple_element_t<I, V>;
+    static_assert(is_constructible<T, Args &&...>::value, "");
+  }
+
   size_t index_;
   union_t<Ts...> union_;
 
@@ -393,11 +380,7 @@ class storage_impl</* is_trivially_copyable */ true,
                    Ts...> : public storage_base<Ts...> {
   using super = storage_base<Ts...>;
 
-  protected:
-  using super::super;
-
-  storage_impl() = default;
-
+  public:
   storage_impl(const storage_impl &) = default;
   storage_impl(storage_impl &&) = default;
 
@@ -406,10 +389,13 @@ class storage_impl</* is_trivially_copyable */ true,
   storage_impl &operator=(const storage_impl &) = default;
   storage_impl &operator=(storage_impl &&) = default;
 
+  protected:
+  using super::super;
+
+  storage_impl() = default;
+
   template <size_t I, typename Arg>
-  void assign(Arg &&arg) {
-    emplace<I>(forward<Arg>(arg));
-  }
+  void assign(Arg &&arg) { emplace<I>(forward<Arg>(arg)); }
 
   template <size_t I, typename... Args>
   void emplace(Args &&... args) {
@@ -434,19 +420,20 @@ class storage_impl</* is_trivially_copyable */ false,
                    Ts...> : public storage_impl<true, true, Ts...> {
   using super = storage_impl<true, true, Ts...>;
 
-  protected:
-  using super::super;
-
-  storage_impl() = default;
-
+  public:
   storage_impl(const storage_impl &that) : storage_impl{} {
     static_assert(cpp17::conjunction<is_copy_constructible<Ts>...>::value, "");
-    unsafe::indexed_visit(constructor{*this}, that);
+    if (!that.corrupted_by_exception()) {
+      unsafe::indexed_visit(constructor{*this}, that);
+    }  // if
   }
 
-  storage_impl(storage_impl &&that) noexcept(cpp17::conjunction<is_nothrow_move_constructible<Ts>...>::value) {
+  storage_impl(storage_impl &&that) noexcept(cpp17::conjunction<is_nothrow_move_constructible<Ts>...>::value)
+      : storage_impl{} {
     static_assert(cpp17::conjunction<is_move_constructible<Ts>...>::value, "");
-    unsafe::indexed_visit(constructor{*this}, move(that));
+    if (!that.corrupted_by_exception()) {
+      unsafe::indexed_visit(constructor{*this}, move(that));
+    }  // if
   }
 
   ~storage_impl() = default;
@@ -454,7 +441,11 @@ class storage_impl</* is_trivially_copyable */ false,
   storage_impl &operator=(const storage_impl &that) {
     static_assert(cpp17::conjunction<is_copy_constructible<Ts>...>::value, "");
     static_assert(cpp17::conjunction<is_copy_assignable<Ts>...>::value, "");
-    unsafe::indexed_visit(assigner{*this}, that);
+    if (that.corrupted_by_exception()) {
+      destroy();
+    } else {
+      unsafe::indexed_visit(assigner{*this}, that);
+    }  // if
     return *this;
   }
 
@@ -462,36 +453,46 @@ class storage_impl</* is_trivially_copyable */ false,
       cpp17::conjunction<is_nothrow_move_constructible<Ts>..., is_nothrow_move_assignable<Ts>...>::value) {
     static_assert(cpp17::conjunction<is_move_constructible<Ts>...>::value, "");
     static_assert(cpp17::conjunction<is_move_assignable<Ts>...>::value, "");
-    unsafe::indexed_visit(assigner{*this}, move(that));
+    if (that.corrupted_by_exception()) {
+      destroy();
+    } else {
+      unsafe::indexed_visit(assigner{*this}, move(that));
+    }  // if
     return *this;
   }
+
+  protected:
+  using super::super;
+
+  storage_impl() = default;
 
   template <size_t I, typename Arg>
   void assign(Arg &&arg) {
     using T = experimental::tuple_element_t<I, variant<Ts...>>;
     static_assert(is_constructible<T, Arg &&>::value, "");
     static_assert(is_assignable<T &, Arg &&>::value, "");
-    if (this->index() == I) {
-      unsafe::get<I>(*this) = forward<Arg>(arg);
-    } else {
+    if (this->index() != I) {
       assign_impl<I>{*this}(forward<Arg>(arg));
+    } else {
+      unsafe::get<I>(*this) = forward<Arg>(arg);
     }  // if
   }
 
   template <size_t I, typename... Args>
   void emplace(Args &&... args) {
-    this->index_ = tuple_not_found;
-    this->template construct<I>(forward<Args>(args)...);
+    destroy();
+    construct<I>(forward<Args>(args)...);
   }
 
-  void swap(storage_impl &that) noexcept(
-      cpp17::conjunction<is_nothrow_move_constructible<Ts>..., lib::is_nothrow_swappable<Ts>...>::value) {
-    if (this->index() == that.index()) {
-      unsafe::visit(swapper{}, *this, that);
+  void swap(storage_impl &that) noexcept(noexcept(std::swap(declval<storage_impl &>(), declval<storage_impl &>())) &&
+                                         cpp17::conjunction<lib::is_nothrow_swappable<Ts>...>::value) {
+    if (this->corrupted_by_exception() && that.corrupted_by_exception()) {
+      return;
+    }  // if
+    if (this->index() != that.index()) {
+      std::swap(*this, that);
     } else {
-      auto temp(move(*this));
-      *this = move(that);
-      that = move(temp);
+      unsafe::visit(swapper{}, *this, that);
     }  // if
   }
 
@@ -536,6 +537,14 @@ class storage_impl</* is_trivially_copyable */ false,
     template <typename T, typename U>
     void operator()(T &, U &) const { assert(false); }
   };  // swapper
+
+  template <size_t I, typename... Args>
+  void construct(Args &&... args) {
+    this->union_.construct(lib::size_constant<I>{}, forward<Args>(args)...);
+    this->index_ = I;
+  }
+
+  void destroy() noexcept { this->index_ = tuple_not_found; }
 };
 
 template <typename... Ts>
@@ -544,11 +553,7 @@ class storage_impl</* is_trivially_copyable = */ false,
                    Ts...> : public storage_impl<false, true, Ts...> {
   using super = storage_impl<false, true, Ts...>;
 
-  protected:
-  using super::super;
-
-  storage_impl() = default;
-
+  public:
   storage_impl(const storage_impl &) = default;
   storage_impl(storage_impl &&) = default;
 
@@ -570,6 +575,11 @@ class storage_impl</* is_trivially_copyable = */ false,
     return *this;
   }
 
+  protected:
+  using super::super;
+
+  storage_impl() = default;
+
   template <size_t I, typename Arg>
   void assign(Arg &&arg) {
     if (this->index() != I) {
@@ -584,13 +594,16 @@ class storage_impl</* is_trivially_copyable = */ false,
     super::template emplace<I>(forward<Args>(args)...);
   }
 
-  void swap(storage_impl &that) noexcept(noexcept(declval<storage_impl &>().super::swap(declval<storage_impl &>()))) {
-    super::swap(that);
+  void swap(storage_impl &that) noexcept(noexcept(std::swap(declval<storage_impl &>(), declval<storage_impl &>())) &&
+                                         noexcept(super::swap(declval<storage_impl &>()))) {
+    if (this->index() != that.index()) {
+      std::swap(*this, that);
+    } else {
+      super::swap(that);
+    }  // if
   }
 
   private:
-  using super::destroy;
-
   struct destructor {
     template <size_t I, typename Arg>
     void operator()(index_sequence<I>, Arg &) const noexcept {
@@ -598,6 +611,11 @@ class storage_impl</* is_trivially_copyable = */ false,
     }
     storage_impl &self;
   };  // destructor
+
+  template <size_t I>
+  void destroy() noexcept {
+    this->union_.destroy(lib::size_constant<I>{});
+  }
 
   void destroy() noexcept {
     if (!this->corrupted_by_exception()) {
@@ -668,18 +686,6 @@ class variant_base : public unsafe::storage<Ts...> {
   variant_base &operator=(const variant_base &) = default;
   variant_base &operator=(variant_base &&) = default;
 
-  template <size_t I, typename... Args>
-  void emplace(Args &&... args) {
-    super::template emplace<I>(forward<Args>(args)...);
-  }
-
-  template <typename T, typename... Args>
-  void emplace(Args &&... args) {
-    static_assert(tuple_count<T, V>::value == 1, "");
-    emplace<tuple_find<T, V>::value>(forward<Args>(args)...);
-  }
-
-  private:
   template <size_t I, typename Arg>
   void assign(Arg &&arg) {
     super::template assign<I>(forward<Arg>(arg));
@@ -689,6 +695,17 @@ class variant_base : public unsafe::storage<Ts...> {
   void assign(Arg &&arg) {
     static_assert(tuple_count<T, V>::value == 1, "");
     assign<tuple_find<T, V>::value>(forward<Arg>(arg));
+  }
+
+  template <size_t I, typename... Args>
+  void emplace(Args &&... args) {
+    super::template emplace<I>(forward<Args>(args)...);
+  }
+
+  template <typename T, typename... Args>
+  void emplace(Args &&... args) {
+    static_assert(tuple_count<T, V>::value == 1, "");
+    emplace<tuple_find<T, V>::value>(forward<Args>(args)...);
   }
 };
 
@@ -732,9 +749,8 @@ class variant : public variant_base<Ts...> {
   //- destruction:
   ~variant() = default;
 
-  //- assignment:
+  //- emplacement:
   using super::emplace;
-  using super::operator=;
 
   template <size_t I, typename U, typename... Args>
   enable_if_t<is_constructible<experimental::tuple_element_t<I, variant>, initializer_list<U> &, Args &&...>::value,
@@ -747,6 +763,9 @@ class variant : public variant_base<Ts...> {
   void> emplace(initializer_list<U> init, Args &&... args) {
     super::template emplace<T>(init, forward<Args>(args)...);
   }
+
+  //- assignment:
+  using super::operator=;
 
   variant &operator=(const variant &that) = default;
   variant &operator=(variant &&that) = default;
@@ -883,7 +902,8 @@ struct less {
 
 template <typename... Ts>
 constexpr bool operator==(const variant<Ts...> &lhs, const variant<Ts...> &rhs) {
-  return lhs.index() == rhs.index() && unsafe::visit(rel::equal{}, lhs, rhs);
+  return (lhs.corrupted_by_exception() && rhs.corrupted_by_exception()) ||
+         (lhs.index() == rhs.index() && unsafe::visit(rel::equal{}, lhs, rhs));
 }
 
 template <typename... Ts>
@@ -893,7 +913,8 @@ constexpr bool operator!=(const variant<Ts...> &lhs, const variant<Ts...> &rhs) 
 
 template <typename... Ts>
 constexpr bool operator<(const variant<Ts...> &lhs, const variant<Ts...> &rhs) {
-  return lhs.index() < rhs.index() || (lhs.index() == rhs.index() && unsafe::visit(rel::less{}, lhs, rhs));
+  return (lhs.index() < rhs.index()) ||
+         ((lhs.index() == rhs.index()) && !lhs.corrupted_by_exception() && unsafe::visit(rel::less{}, lhs, rhs));
 }
 
 template <typename... Ts>
@@ -936,7 +957,10 @@ struct hash<experimental::variant<Ts...>> {
   using argument_type = experimental::variant<Ts...>;
   using result_type = size_t;
 
-  result_type operator()(const argument_type &v) const { return experimental::unsafe::indexed_visit(hasher{}, v); }
+  result_type operator()(const argument_type &v) const {
+    using namespace experimental;
+    return v.corrupted_by_exception() ? tuple_not_found : unsafe::indexed_visit(hasher{}, v);
+  }
 
   private:
   struct hasher {

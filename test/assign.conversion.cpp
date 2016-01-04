@@ -56,13 +56,11 @@ TEST(Assign_Conversion, BetterMatch) {
 }
 
 TEST(Assign_Conversion, NoMatch) { struct x { };
-  static_assert(!std::is_assignable<std_exp::variant<int, std::string>, x>{},
-                "variant<int, std::string> v; v = x;");
+  static_assert(!std::is_assignable<std_exp::variant<int, std::string>, x>{}, "variant<int, std::string> v; v = x;");
 }
 
 TEST(Assign_Conversion, Ambiguous) {
-  static_assert(!std::is_assignable<std_exp::variant<short, long>, int>{},
-                "variant<short, long> v; v = 42;");
+  static_assert(!std::is_assignable<std_exp::variant<short, long>, int>{}, "variant<short, long> v; v = 42;");
 }
 
 TEST(Assign_Conversion, SameTypeOptimization) {
@@ -82,80 +80,67 @@ TEST(Assign_Conversion, SameTypeOptimization) {
   EXPECT_EQ(capacity, y.capacity());
 }
 
+struct CopyConstruction : std::exception {};
+struct CopyAssignment : std::exception {};
+struct MoveConstruction : std::exception {};
+struct MoveAssignment : std::exception {};
+
 struct copy_thrower_t {
   copy_thrower_t() = default;
-  copy_thrower_t(const copy_thrower_t &) {
-    throw std::runtime_error("copy constructor");
-  }
+  copy_thrower_t(const copy_thrower_t &) { throw CopyConstruction{}; }
   copy_thrower_t(copy_thrower_t &&) = default;
-  copy_thrower_t &operator=(const copy_thrower_t &) {
-    throw std::runtime_error("copy assignment");
-  }
+  copy_thrower_t &operator=(const copy_thrower_t &) { throw CopyAssignment{}; }
   copy_thrower_t &operator=(copy_thrower_t &&) = default;
 };  // copy_thrower_t
 
 struct move_thrower_t {
   move_thrower_t() = default;
   move_thrower_t(const move_thrower_t &) = default;
-  move_thrower_t(move_thrower_t &&) {
-    throw std::runtime_error("move constructor");
-  }
+  move_thrower_t(move_thrower_t &&) { throw MoveConstruction{}; }
   move_thrower_t &operator=(const move_thrower_t &) = default;
-  move_thrower_t &operator=(move_thrower_t &&) {
-    throw std::runtime_error("move assignment");
-  }
+  move_thrower_t &operator=(move_thrower_t &&) { throw MoveAssignment{}; }
 };  // move_thrower_t
 
 TEST(Assign_Conversion, ThrowOnAssignment) {
-  std_exp::variant<int, move_thrower_t> v(
-      std_exp::in_place_type<move_thrower_t>);
-  try {
-    // Since `variant` is already in `move_thrower_t`, assignment optimization
-    // kicks and we simply invoke
-    // `move_thrower_t &operator=(move_thrower_t &&);` which throws.
-    v = move_thrower_t{};
-  } catch (const std::exception &) {
-    EXPECT_FALSE(v.corrupted_by_exception());
-    EXPECT_EQ(1u, v.index());
-    // We can still assign into a variant in an invalid state.
-    v = 42;
-    // Check `v`.
-    EXPECT_FALSE(v.corrupted_by_exception());
-    EXPECT_EQ(42, std_exp::get<int>(v));
-  }  // try
+  std_exp::variant<int, move_thrower_t> v(std_exp::in_place_type<move_thrower_t>);
+  // Since `variant` is already in `move_thrower_t`, assignment optimization
+  // kicks and we simply invoke
+  // `move_thrower_t &operator=(move_thrower_t &&);` which throws.
+  EXPECT_THROW(v = move_thrower_t{}, MoveAssignment);
+  EXPECT_FALSE(v.corrupted_by_exception());
+  EXPECT_EQ(1u, v.index());
+  // We can still assign into a variant in an invalid state.
+  v = 42;
+  // Check `v`.
+  EXPECT_FALSE(v.corrupted_by_exception());
+  EXPECT_EQ(42, std_exp::get<int>(v));
 }
 
 TEST(Assign_Conversion, ThrowOnTemporaryConstruction) {
   std_exp::variant<int, copy_thrower_t> v(42);
-  try {
-    // Since `copy_thrower_t`'s copy constructor always throws, we will fail to
-    // construct the temporary object. This results in our variant staying in
-    // its original state.
-    copy_thrower_t copy_thrower{};
-    v = copy_thrower;
-  } catch (const std::exception &) {
-    EXPECT_FALSE(v.corrupted_by_exception());
-    EXPECT_EQ(0u, v.index());
-    EXPECT_EQ(42, std_exp::get<int>(v));
-  }  // try
+  // Since `copy_thrower_t`'s copy constructor always throws, we will fail to
+  // construct the temporary object. This results in our variant staying in
+  // its original state.
+  copy_thrower_t copy_thrower{};
+  EXPECT_THROW(v = copy_thrower, CopyConstruction);
+  EXPECT_FALSE(v.corrupted_by_exception());
+  EXPECT_EQ(0u, v.index());
+  EXPECT_EQ(42, std_exp::get<int>(v));
 }
 
 TEST(Assign_Conversion, ThrowOnVariantConstruction) {
   std_exp::variant<int, move_thrower_t> v(42);
-  try {
-    // Since `move_thrower_t`'s copy constructor never throws, we successfully
-    // construct the temporary object by copying `move_thrower_t`. We then
-    // proceed to move the temporary object into our variant, at which point
-    // `move_thrower_t`'s move constructor throws. This results in our `variant`
-    // transitioning into the invalid state.
-    move_thrower_t move_thrower;
-    v = move_thrower;
-  } catch (const std::exception &) {
-    EXPECT_TRUE(v.corrupted_by_exception());
-    // We can still assign into a variant in an invalid state.
-    v = 42;
-    // Check `v`.
-    EXPECT_FALSE(v.corrupted_by_exception());
-    EXPECT_EQ(42, std_exp::get<int>(v));
-  }  // try
+  // Since `move_thrower_t`'s copy constructor never throws, we successfully
+  // construct the temporary object by copying `move_thrower_t`. We then
+  // proceed to move the temporary object into our variant, at which point
+  // `move_thrower_t`'s move constructor throws. This results in our `variant`
+  // transitioning into the invalid state.
+  move_thrower_t move_thrower;
+  EXPECT_THROW(v = move_thrower, MoveConstruction);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  // We can still assign into a variant in an invalid state.
+  v = 42;
+  // Check `v`.
+  EXPECT_FALSE(v.corrupted_by_exception());
+  EXPECT_EQ(42, std_exp::get<int>(v));
 }

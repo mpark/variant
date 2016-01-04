@@ -18,14 +18,6 @@ constexpr Qual get_qual(const int &) { return ConstLRef; }
 constexpr Qual get_qual(int &&) { return RRef; }
 constexpr Qual get_qual(const int &&) { return ConstRRef; }
 
-struct move_thrower_t {
-  move_thrower_t() = default;
-  move_thrower_t(const move_thrower_t &) = default;
-  move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
-  move_thrower_t &operator=(const move_thrower_t &) = default;
-  move_thrower_t &operator=(move_thrower_t &&) { throw std::runtime_error(""); }
-};  // move_thrower_t
-
 TEST(Access_Get, MutVarMutType) {
   std_exp::variant<int> v(42);
   EXPECT_EQ(42, std_exp::get<int>(v));
@@ -123,25 +115,17 @@ TEST(Access_Get, ConstVarConstTypeRef) {
   }
 }
 
-TEST(Access_Get, MoveCorruptedByException) {
+TEST(Access_Get, CorruptedByException) {
+  struct move_thrower_t {
+    move_thrower_t() = default;
+    move_thrower_t(const move_thrower_t &) = default;
+    move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+    move_thrower_t &operator=(const move_thrower_t &) = default;
+    move_thrower_t &operator=(move_thrower_t &&) = default;
+  };  // move_thrower_t
   std_exp::variant<int, move_thrower_t> v(42);
-  try {
-    v = move_thrower_t{};
-  } catch (const std::exception &) {
-    EXPECT_TRUE(v.corrupted_by_exception());
-    EXPECT_THROW(std_exp::get<int>(v), std_exp::bad_variant_access);
-    EXPECT_THROW(std_exp::get<move_thrower_t>(v), std_exp::bad_variant_access);
-  }  // try
-}
-
-TEST(Access_Get, CopyCorruptedByException) {
-  std_exp::variant<int, move_thrower_t> v(42);
-  try {
-    move_thrower_t move_thrower;
-    v = move_thrower;
-  } catch (const std::exception &) {
-    EXPECT_TRUE(v.corrupted_by_exception());
-    EXPECT_THROW(std_exp::get<int>(v), std_exp::bad_variant_access);
-    EXPECT_THROW(std_exp::get<move_thrower_t>(v), std_exp::bad_variant_access);
-  }  // try
+  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  EXPECT_THROW(std_exp::get<int>(v), std_exp::bad_variant_access);
+  EXPECT_THROW(std_exp::get<move_thrower_t>(v), std_exp::bad_variant_access);
 }

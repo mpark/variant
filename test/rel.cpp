@@ -152,3 +152,48 @@ TEST(Rel, DiffTypeDiffValue) {
     static_assert(w >= v, "");
   }
 }
+
+struct move_thrower_t {
+  move_thrower_t() = default;
+  move_thrower_t(const move_thrower_t &) = default;
+  move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+  move_thrower_t &operator=(const move_thrower_t &) = default;
+  move_thrower_t &operator=(move_thrower_t &&) = default;
+  friend bool operator< (const move_thrower_t &, const move_thrower_t &) { return false; }
+  friend bool operator> (const move_thrower_t &, const move_thrower_t &) { return false; }
+  friend bool operator<=(const move_thrower_t &, const move_thrower_t &) { return true; }
+  friend bool operator>=(const move_thrower_t &, const move_thrower_t &) { return true; }
+  friend bool operator==(const move_thrower_t &, const move_thrower_t &) { return true; }
+  friend bool operator!=(const move_thrower_t &, const move_thrower_t &) { return false; }
+};  // move_thrower_t
+
+TEST(Rel, OneCorruptedByException) {
+  // `v` normal, `w` corrupted.
+  std_exp::variant<int, move_thrower_t> v(42), w(42);
+  EXPECT_THROW(w = move_thrower_t{}, std::runtime_error);
+  EXPECT_FALSE(v.corrupted_by_exception());
+  EXPECT_TRUE(w.corrupted_by_exception());
+  // v op w
+  EXPECT_FALSE(v == w);
+  EXPECT_TRUE(v != w);
+  EXPECT_TRUE(v < w);
+  EXPECT_FALSE(v > w);
+  EXPECT_TRUE(v <= w);
+  EXPECT_FALSE(v >= w);
+}
+
+TEST(Rel, BothCorruptedByException) {
+  // `v`, `w` both corrupted.
+  std_exp::variant<int, move_thrower_t> v(42);
+  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  std_exp::variant<int, move_thrower_t> w(v);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  EXPECT_TRUE(w.corrupted_by_exception());
+  // v op w
+  EXPECT_TRUE(v == w);
+  EXPECT_FALSE(v != w);
+  EXPECT_FALSE(v < w);
+  EXPECT_FALSE(v > w);
+  EXPECT_TRUE(v <= w);
+  EXPECT_TRUE(v >= w);
+}

@@ -36,3 +36,19 @@ TEST(Assign_Copy, DiffType) {
   // move assignment.
   v = w;
 }
+
+TEST(Assign_Copy, CorruptedByException) {
+  struct move_thrower_t {
+    move_thrower_t() = default;
+    move_thrower_t(const move_thrower_t &) = default;
+    move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+    move_thrower_t &operator=(const move_thrower_t &) = default;
+    move_thrower_t &operator=(move_thrower_t &&) = default;
+  };  // move_thrower_t
+  std_exp::variant<int, move_thrower_t> v(42);
+  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  std_exp::variant<int, move_thrower_t> w(42);
+  w = v;
+  EXPECT_TRUE(w.corrupted_by_exception());
+}

@@ -113,24 +113,16 @@ TEST(Access_GetIf, ConstVarConstTypeRef) {
 }
 
 TEST(Access_GetIf, MoveCorruptedByException) {
+  struct move_thrower_t {
+    move_thrower_t() = default;
+    move_thrower_t(const move_thrower_t &) = default;
+    move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+    move_thrower_t &operator=(const move_thrower_t &) = default;
+    move_thrower_t &operator=(move_thrower_t &&) = default;
+  };  // move_thrower_t
   std_exp::variant<int, move_thrower_t> v(42);
-  try {
-    v = move_thrower_t{};
-  } catch (const std::exception &) {
-    EXPECT_TRUE(v.corrupted_by_exception());
-    EXPECT_EQ(nullptr, std_exp::get_if<int>(&v));
-    EXPECT_EQ(nullptr, std_exp::get_if<move_thrower_t>(&v));
-  }  // try
-}
-
-TEST(Access_GetIf, CopyCorruptedByException) {
-  std_exp::variant<int, move_thrower_t> v(42);
-  try {
-    move_thrower_t move_thrower;
-    v = move_thrower;
-  } catch (const std::exception &) {
-    EXPECT_TRUE(v.corrupted_by_exception());
-    EXPECT_EQ(nullptr, std_exp::get_if<int>(&v));
-    EXPECT_EQ(nullptr, std_exp::get_if<move_thrower_t>(&v));
-  }  // try
+  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  EXPECT_EQ(nullptr, std_exp::get_if<int>(&v));
+  EXPECT_EQ(nullptr, std_exp::get_if<move_thrower_t>(&v));
 }

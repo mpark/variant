@@ -31,3 +31,34 @@ TEST(Hash, String) {
   // Check the hash.
   EXPECT_EQ(string_hash("hello"s), variant_hash(v));
 }
+
+struct move_thrower_t {
+  move_thrower_t() = default;
+  move_thrower_t(const move_thrower_t &) = default;
+  move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+  move_thrower_t &operator=(const move_thrower_t &) = default;
+  move_thrower_t &operator=(move_thrower_t &&) = default;
+};  // move_thrower_t
+
+namespace std {
+
+template <>
+struct hash<move_thrower_t> {
+  using argument_type = move_thrower_t;
+  using result_type = size_t;
+
+  result_type operator()(const argument_type &) const {
+    EXPECT_TRUE(false);
+    return 0u;
+  }
+};
+
+}  // namespace std
+
+TEST(Hash, CorruptedByException) {
+  std_exp::variant<int, move_thrower_t> v(42);
+  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_TRUE(v.corrupted_by_exception());
+  std::hash<std_exp::variant<int, move_thrower_t>> hash;
+  EXPECT_EQ(std_exp::tuple_not_found, hash(v));
+}
