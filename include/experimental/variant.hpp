@@ -595,7 +595,7 @@ class storage_impl</* is_trivially_copyable = */ false,
   }
 
   void swap(storage_impl &that) noexcept(noexcept(std::swap(declval<storage_impl &>(), declval<storage_impl &>())) &&
-                                         noexcept(super::swap(declval<storage_impl &>()))) {
+                                         noexcept(declval<storage_impl &>().super::swap(declval<storage_impl &>()))) {
     if (this->index() != that.index()) {
       std::swap(*this, that);
     } else {
