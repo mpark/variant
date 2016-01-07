@@ -131,20 +131,6 @@ constexpr auto &&get(const storage_base<Ts...> &&s) { return access::get<T>(move
 
 struct visitation {
 
-// Base case for `at_impl`.
-template <typename T>
-static constexpr const T &at_impl(const T &elem) { return elem; }
-
-// Recursive case for `at_impl`.
-template <typename T, size_t N, typename... Is>
-static constexpr auto &&at_impl(const array<T, N> &elems, size_t i, Is... is) { return at_impl(elems[i], is...); }
-
-template <typename T, size_t N, typename... Is>
-static constexpr auto &&at(const array<T, N> &elems, Is... is) {
-  static_assert(lib::rank<array<T, N>>::value == sizeof...(Is), "");
-  return at_impl(elems, is...);
-}
-
 template <typename... Ts>
 static constexpr auto make_array_impl(true_type, Ts &&... ts) {
   return funds_v2::make_array(forward<Ts>(ts)...);
@@ -161,7 +147,7 @@ static constexpr auto make_array(T &&t, Ts &&... ts) {
   return make_array_impl(cpp17::conjunction<is_same<T, Ts>...>{}, forward<T>(t), forward<Ts>(ts)...);
 }
 
-// Base case for `make_impl`.
+// Base case for `make_fmatrix_impl`.
 template <typename F, typename... Ss, size_t... Is>
 static constexpr auto make_fmatrix_impl(index_sequence<Is...>) {
   struct dispatcher {
@@ -172,7 +158,7 @@ static constexpr auto make_fmatrix_impl(index_sequence<Is...>) {
   return &dispatcher::dispatch;
 }
 
-// Recursive case for `make_impl`.
+// Recursive case for `make_fmatrix_impl`.
 template <typename F, typename... Ss, size_t... Is, size_t... Js, typename... Ls>
 static constexpr auto make_fmatrix_impl(index_sequence<Is...>, index_sequence<Js...>, Ls... ls) {
   return make_array(make_fmatrix_impl<F, Ss...>(index_sequence<Is..., Js>{}, ls...)...);
@@ -183,6 +169,22 @@ static constexpr auto make_fmatrix() {
   return make_fmatrix_impl<F, Ss...>(
       index_sequence<>{},
       make_index_sequence<experimental::tuple_size<lib::repack_t<decay_t<Ss>, variant>>::value>{}...);
+}
+
+// Base case for `at_impl`.
+template <typename T>
+static constexpr T &&at_impl(T &&elem) { return forward<T>(elem); }
+
+// Recursive case for `at_impl`.
+template <typename T, typename... Is>
+static constexpr auto &&at_impl(T &&elems, std::size_t i, Is... is) {
+  return at_impl(forward<T>(elems)[i], is...);
+}
+
+template <typename T, typename... Is>
+static constexpr auto &&at(T &&elems, Is... is) {
+  static_assert(lib::rank<std::decay_t<T>>::value == sizeof...(Is), "");
+  return at_impl(forward<T>(elems), is...);
 }
 
 template <typename F, typename... Ss>

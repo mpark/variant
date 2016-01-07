@@ -87,9 +87,9 @@ struct false_t : false_type {};
 template <typename T>
 struct id { using type = T; };
 
-/* `rank` for `std::array`. */
+/* `rank` */
 template <typename T>
-struct rank : size_constant<0> {};
+struct rank : std::rank<T> {};
 
 template <typename T, size_t N>
 struct rank<array<T, N>> : size_constant<rank<T>::value + 1> {};
