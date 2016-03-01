@@ -926,7 +926,7 @@ constexpr bool operator>(const variant<Ts...> &lhs, const variant<Ts...> &rhs) {
 
 template <typename... Ts>
 constexpr bool operator<=(const variant<Ts...> &lhs, const variant<Ts...> &rhs) {
-  return !(lhs > rhs);
+  return !(rhs < lhs);
 }
 
 template <typename... Ts>
