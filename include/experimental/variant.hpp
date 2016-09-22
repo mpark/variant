@@ -780,6 +780,14 @@ class variant : public variant_base<Ts...> {
   using super::swap;
 };  // variant
 
+//- variant_size:
+template <class Variant>
+struct variant_size {
+  static constexpr auto value = tuple_size<Variant>::value;
+};
+template <class Variant>
+constexpr std::size_t variant_size_v = variant_size<Variant>::value;
+
 //- element access:
 
 template <size_t I, typename... Ts>
