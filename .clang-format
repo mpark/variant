@@ -37,16 +37,7 @@ AlignTrailingComments: false
 
 ### AllowAllParametersOfDeclarationOnNextLine: true
 
-# Good:
-#
-#   if (flag)
-#     x = 42;
-#
-# Bad:
-#
-#   if (flag) x = 42;
-#
-AllowShortIfStatementsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: true
 
 # Good:
 #
@@ -167,7 +158,7 @@ BreakBeforeBraces: Attach
 #
 BreakConstructorInitializersBeforeComma: false
 
-ColumnLimit: 120
+ColumnLimit: 80
 
 # Good:
 #
@@ -255,7 +246,7 @@ MaxEmptyLinesToKeep: 1
 #
 #   namespace Foo {
 #
-#   class TFoo {};
+#     class TFoo {};
 #
 #   }  // Foo
 #
@@ -263,11 +254,11 @@ MaxEmptyLinesToKeep: 1
 #
 #   namespace Foo {
 #
-#     class TFoo {};
+#   class TFoo {};
 #
 #   }  // Foo
 #
-NamespaceIndentation: None
+NamespaceIndentation: All
 
 ### ObjCSpaceBeforeProtocolList: false
 

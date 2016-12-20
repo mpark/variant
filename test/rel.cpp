@@ -1,16 +1,17 @@
-// Copyright Michael Park 2015
+// MPark.Variant
 //
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+// Copyright Michael Park, 2015-2016
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
-#include <experimental/variant.hpp>
+#include <mpark/variant.hpp>
 
 #include <gtest/gtest.h>
 
-namespace std_exp = std::experimental;
-
 TEST(Rel, SameTypeSameValue) {
-  std_exp::variant<int, std::string> v(0), w(0);
+  mpark::variant<int, std::string> v(0), w(0);
   // v op w
   EXPECT_TRUE(v == w);
   EXPECT_FALSE(v != w);
@@ -27,7 +28,7 @@ TEST(Rel, SameTypeSameValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr std_exp::variant<int, const char *> v(0), w(0);
+    constexpr mpark::variant<int, const char *> v(0), w(0);
     // v op w
     static_assert(v == w, "");
     static_assert(!(v != w), "");
@@ -46,7 +47,7 @@ TEST(Rel, SameTypeSameValue) {
 }
 
 TEST(Rel, SameTypeDiffValue) {
-  std_exp::variant<int, std::string> v(0), w(1);
+  mpark::variant<int, std::string> v(0), w(1);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -63,7 +64,7 @@ TEST(Rel, SameTypeDiffValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr std_exp::variant<int, const char *> v(0), w(1);
+    constexpr mpark::variant<int, const char *> v(0), w(1);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");
@@ -82,7 +83,7 @@ TEST(Rel, SameTypeDiffValue) {
 }
 
 TEST(Rel, DiffTypeSameValue) {
-  std_exp::variant<int, unsigned int> v(0), w(0u);
+  mpark::variant<int, unsigned int> v(0), w(0u);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -99,7 +100,7 @@ TEST(Rel, DiffTypeSameValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */ {
-    constexpr std_exp::variant<int, unsigned int> v(0), w(0u);
+    constexpr mpark::variant<int, unsigned int> v(0), w(0u);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");
@@ -118,7 +119,7 @@ TEST(Rel, DiffTypeSameValue) {
 }
 
 TEST(Rel, DiffTypeDiffValue) {
-  std_exp::variant<int, unsigned int> v(0), w(1u);
+  mpark::variant<int, unsigned int> v(0), w(1u);
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
@@ -135,7 +136,7 @@ TEST(Rel, DiffTypeDiffValue) {
   EXPECT_TRUE(w >= v);
 
   /* constexpr */  {
-    constexpr std_exp::variant<int, unsigned int> v(0), w(1u);
+    constexpr mpark::variant<int, unsigned int> v(0), w(1u);
     // v op w
     static_assert(!(v == w), "");
     static_assert(v != w, "");
@@ -167,28 +168,28 @@ struct move_thrower_t {
   friend bool operator!=(const move_thrower_t &, const move_thrower_t &) { return false; }
 };  // move_thrower_t
 
-TEST(Rel, OneCorruptedByException) {
+TEST(Rel, OneValuelessByException) {
   // `v` normal, `w` corrupted.
-  std_exp::variant<int, move_thrower_t> v(42), w(42);
+  mpark::variant<int, move_thrower_t> v(42), w(42);
   EXPECT_THROW(w = move_thrower_t{}, std::runtime_error);
-  EXPECT_FALSE(v.corrupted_by_exception());
-  EXPECT_TRUE(w.corrupted_by_exception());
+  EXPECT_FALSE(v.valueless_by_exception());
+  EXPECT_TRUE(w.valueless_by_exception());
   // v op w
   EXPECT_FALSE(v == w);
   EXPECT_TRUE(v != w);
-  EXPECT_TRUE(v < w);
-  EXPECT_FALSE(v > w);
-  EXPECT_TRUE(v <= w);
-  EXPECT_FALSE(v >= w);
+  EXPECT_FALSE(v < w);
+  EXPECT_TRUE(v > w);
+  EXPECT_FALSE(v <= w);
+  EXPECT_TRUE(v >= w);
 }
 
-TEST(Rel, BothCorruptedByException) {
+TEST(Rel, BothValuelessByException) {
   // `v`, `w` both corrupted.
-  std_exp::variant<int, move_thrower_t> v(42);
+  mpark::variant<int, move_thrower_t> v(42);
   EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
-  std_exp::variant<int, move_thrower_t> w(v);
-  EXPECT_TRUE(v.corrupted_by_exception());
-  EXPECT_TRUE(w.corrupted_by_exception());
+  mpark::variant<int, move_thrower_t> w(v);
+  EXPECT_TRUE(v.valueless_by_exception());
+  EXPECT_TRUE(w.valueless_by_exception());
   // v op w
   EXPECT_TRUE(v == w);
   EXPECT_FALSE(v != w);

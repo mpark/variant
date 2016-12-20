@@ -1,13 +1,14 @@
-// Copyright Michael Park 2015
+// MPark.Variant
 //
-// Distributed under the Boost Software License, Version 1.0. (See accompanying
-// file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+// Copyright Michael Park, 2015-2016
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
 
-#include <experimental/variant.hpp>
+#include <mpark/variant.hpp>
 
 #include <gtest/gtest.h>
-
-namespace std_exp = std::experimental;
 
 enum Qual { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 
@@ -27,92 +28,100 @@ struct move_thrower_t {
 };  // move_thrower_t
 
 TEST(Access_GetIf, MutVarMutType) {
-  std_exp::variant<int> v(42);
-  EXPECT_EQ(42, *std_exp::get_if<int>(&v));
+  mpark::variant<int> v(42);
+  EXPECT_EQ(42, *mpark::get_if<int>(&v));
   // Check qualifier.
-  EXPECT_EQ(Ptr, get_qual(std_exp::get_if<int>(&v)));
+  EXPECT_EQ(Ptr, get_qual(mpark::get_if<int>(&v)));
 }
 
+#if 0
 TEST(Access_GetIf, MutVarMutTypeRef) {
   int expected = 42;
-  std_exp::variant<int &> v(expected);
-  EXPECT_EQ(expected, *std_exp::get_if<int &>(&v));
-  EXPECT_EQ(&expected, std_exp::get_if<int &>(&v));
+  mpark::variant<int &> v(expected);
+  EXPECT_EQ(expected, *mpark::get_if<int &>(&v));
+  EXPECT_EQ(&expected, mpark::get_if<int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Ptr, get_qual(std_exp::get_if<int &>(&v)));
+  EXPECT_EQ(Ptr, get_qual(mpark::get_if<int &>(&v)));
 }
+#endif
 
 TEST(Access_GetIf, MutVarConstType) {
-  std_exp::variant<const int> v(42);
-  EXPECT_EQ(42, *std_exp::get_if<const int>(&v));
+  mpark::variant<const int> v(42);
+  EXPECT_EQ(42, *mpark::get_if<const int>(&v));
   // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<const int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int>(&v)));
 }
 
+#if 0
 TEST(Access_GetIf, MutVarConstTypeRef) {
   int expected = 42;
-  std_exp::variant<const int &> v(expected);
-  EXPECT_EQ(expected, *std_exp::get_if<const int &>(&v));
-  EXPECT_EQ(&expected, std_exp::get_if<const int &>(&v));
+  mpark::variant<const int &> v(expected);
+  EXPECT_EQ(expected, *mpark::get_if<const int &>(&v));
+  EXPECT_EQ(&expected, mpark::get_if<const int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<const int &>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int &>(&v)));
 }
+#endif
 
 TEST(Access_GetIf, ConstVarMutType) {
-  const std_exp::variant<int> v(42);
-  EXPECT_EQ(42, *std_exp::get_if<int>(&v));
+  const mpark::variant<int> v(42);
+  EXPECT_EQ(42, *mpark::get_if<int>(&v));
   // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<int>(&v)));
 
   /* constexpr */ {
-    constexpr std_exp::variant<int> v(42);
-    static_assert(42 == *std_exp::get_if<int>(&v), "");
+    constexpr mpark::variant<int> v(42);
+    static_assert(42 == *mpark::get_if<int>(&v), "");
     // Check qualifier.
-    static_assert(ConstPtr == get_qual(std_exp::get_if<int>(&v)), "");
+    static_assert(ConstPtr == get_qual(mpark::get_if<int>(&v)), "");
   }
 }
 
+#if 0
 TEST(Access_GetIf, ConstVarMutTypeRef) {
   int expected = 42;
-  const std_exp::variant<int &> v(expected);
-  EXPECT_EQ(expected, *std_exp::get_if<int &>(&v));
-  EXPECT_EQ(&expected, std_exp::get_if<int &>(&v));
+  const mpark::variant<int &> v(expected);
+  EXPECT_EQ(expected, *mpark::get_if<int &>(&v));
+  EXPECT_EQ(&expected, mpark::get_if<int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(Ptr, get_qual(std_exp::get_if<int &>(&v)));
+  EXPECT_EQ(Ptr, get_qual(mpark::get_if<int &>(&v)));
 }
+#endif
 
 TEST(Access_GetIf, ConstVarConstType) {
-  const std_exp::variant<const int> v(42);
-  EXPECT_EQ(42, *std_exp::get_if<const int>(&v));
+  const mpark::variant<const int> v(42);
+  EXPECT_EQ(42, *mpark::get_if<const int>(&v));
   // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<const int>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int>(&v)));
 
   /* constexpr */ {
-    constexpr std_exp::variant<const int> v(42);
-    static_assert(42 == *std_exp::get_if<const int>(&v), "");
+    constexpr mpark::variant<const int> v(42);
+    static_assert(42 == *mpark::get_if<const int>(&v), "");
     // Check qualifier.
-    static_assert(ConstPtr == get_qual(std_exp::get_if<const int>(&v)), "");
+    static_assert(ConstPtr == get_qual(mpark::get_if<const int>(&v)), "");
   }
 }
 
+#if 0
 TEST(Access_GetIf, ConstVarConstTypeRef) {
   int expected = 42;
-  const std_exp::variant<const int &> v(expected);
-  EXPECT_EQ(expected, *std_exp::get_if<const int &>(&v));
-  EXPECT_EQ(&expected, std_exp::get_if<const int &>(&v));
+  const mpark::variant<const int &> v(expected);
+  EXPECT_EQ(expected, *mpark::get_if<const int &>(&v));
+  EXPECT_EQ(&expected, mpark::get_if<const int &>(&v));
   // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(std_exp::get_if<const int &>(&v)));
+  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int &>(&v)));
 
   /* constexpr */ {
     static constexpr int expected = 42;
-    constexpr std_exp::variant<const int &> v(expected);
-    static_assert(42 == *std_exp::get_if<const int &>(&v), "");
+    constexpr mpark::variant<const int &> v(expected);
+    static_assert(42 == *mpark::get_if<const int &>(&v), "");
     // Check qualifier.
-    static_assert(ConstPtr == get_qual(std_exp::get_if<const int &>(&v)), "");
+    static_assert(ConstPtr == get_qual(mpark::get_if<const int &>(&v)), "");
   }
 }
+#endif
 
-TEST(Access_GetIf, MoveCorruptedByException) {
+TEST(Access_GetIf, MoveValuelessByException) {
   struct move_thrower_t {
     move_thrower_t() = default;
     move_thrower_t(const move_thrower_t &) = default;
@@ -120,9 +129,9 @@ TEST(Access_GetIf, MoveCorruptedByException) {
     move_thrower_t &operator=(const move_thrower_t &) = default;
     move_thrower_t &operator=(move_thrower_t &&) = default;
   };  // move_thrower_t
-  std_exp::variant<int, move_thrower_t> v(42);
+  mpark::variant<int, move_thrower_t> v(42);
   EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
-  EXPECT_TRUE(v.corrupted_by_exception());
-  EXPECT_EQ(nullptr, std_exp::get_if<int>(&v));
-  EXPECT_EQ(nullptr, std_exp::get_if<move_thrower_t>(&v));
+  EXPECT_TRUE(v.valueless_by_exception());
+  EXPECT_EQ(nullptr, mpark::get_if<int>(&v));
+  EXPECT_EQ(nullptr, mpark::get_if<move_thrower_t>(&v));
 }
