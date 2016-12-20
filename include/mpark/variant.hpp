@@ -1258,10 +1258,8 @@ namespace mpark {
 
     template <std::size_t I, typename V>
     inline constexpr auto &&generic_get(V &&v) {
-      if (!holds_alternative<I>(v)) {
-        throw bad_variant_access{};
-      }
-      return access::variant::get_alt<I>(std::forward<V>(v)).value_;
+      return (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
+             access::variant::get_alt<I>(std::forward<V>(v)).value_;
     }
 
   }  // namespace detail
@@ -1414,13 +1412,10 @@ namespace mpark {
   template <typename Visitor, typename... Vs>
   inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
     using detail::visitation::variant;
-    bool results[] = {vs.valueless_by_exception()...};
-    for (bool result : results) {
-      if (result) {
-        throw bad_variant_access{};
-      }
-    }
-    return variant::visit_value(std::forward<Visitor>(visitor),
+    return (detail::all({!vs.valueless_by_exception()...})
+                ? (void)0
+                : throw bad_variant_access{}),
+           variant::visit_value(std::forward<Visitor>(visitor),
                                 std::forward<Vs>(vs)...);
   }
 
