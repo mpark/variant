@@ -757,8 +757,8 @@ namespace mpark {
           visitation::base::visit_alt_at(
               rhs.index(),
               [](auto &lhs_alt, auto &&rhs_alt) {
-                construct_alt(lhs_alt,
-                              std::forward<decltype(rhs_alt)>(rhs_alt).value_);
+                constructor::construct_alt(
+                    lhs_alt, std::forward<decltype(rhs_alt)>(rhs_alt).value_);
               },
               lhs,
               std::forward<Rhs>(rhs));
