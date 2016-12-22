@@ -206,6 +206,7 @@ namespace std {
 #include <utility>
 
 #include <mpark/cpp17.hpp>
+#include <mpark/in_place.hpp>
 
 namespace mpark {
 
@@ -260,28 +261,6 @@ namespace mpark {
   // TODO(mpark): Use __type_pack_element if available.
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
-
-  struct in_place_t {
-    explicit in_place_t() = default;
-  };
-
-  constexpr in_place_t in_place{};
-
-  template <std::size_t I>
-  struct in_place_index_t {
-    explicit in_place_index_t() = default;
-  };
-
-  template <std::size_t I>
-  constexpr in_place_index_t<I> in_place_index{};
-
-  template <typename T>
-  struct in_place_type_t {
-    explicit in_place_type_t() = default;
-  };
-
-  template <typename T>
-  constexpr in_place_type_t<T> in_place_type{};
 
   namespace detail {
 
