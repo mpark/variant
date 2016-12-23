@@ -457,7 +457,7 @@ namespace mpark {
         template <typename T, std::size_t N, std::size_t I>
         inline static constexpr auto &&at(const std::array<T, N> &elems,
                                           const std::size_t (&indices)[I]) {
-          return at_impl(elems, std::begin(indices));
+          return at_impl(elems, indices);
         }
 
         template <typename F, typename... Fs>
