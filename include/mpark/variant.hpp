@@ -673,10 +673,10 @@ namespace mpark {
       }
 
       protected:
-      inline constexpr auto &&as_base() & { return *this; }
-      inline constexpr auto &&as_base() && { return std::move(*this); }
-      inline constexpr auto &&as_base() const & { return *this; }
-      inline constexpr auto &&as_base() const && { return std::move(*this); }
+      inline constexpr base &as_base() & { return *this; }
+      inline constexpr base &&as_base() && { return std::move(*this); }
+      inline constexpr const base &as_base() const & { return *this; }
+      inline constexpr const base &&as_base() const && { return std::move(*this); }
 
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
