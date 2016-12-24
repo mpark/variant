@@ -1,22 +1,49 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.6.3)
 
-project(variant CXX)
-
-include(CheckCXXCompilerFlag)
-
-macro(add_compiler_flag testname flag)
-  check_cxx_compiler_flag(${flag} ${testname})
-  if (${testname})
-    add_compile_options(${flag})
-  endif()
-endmacro()
-
-add_compiler_flag(STD_CXX14 -std=c++14)
+project(MPark.Variant CXX)
 
 include_directories(include)
 
-add_subdirectory(3rdparty/googletest/googletest)
-include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-enable_testing()
+if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  set(MPARK_VARIANT_INCLUDE_TESTS_DEFAULT "mpark")
+else()
+  set(MPARK_VARIANT_INCLUDE_TESTS_DEFAULT "")
+endif()
 
-add_subdirectory(test)
+set(MPARK_VARIANT_INCLUDE_TESTS
+    ${MPARK_VARIANT_INCLUDE_TESTS_DEFAULT}
+    CACHE STRING
+    "Semicolon-separated list of tests to build. Possible values are `mpark` and `libc++`.")
+
+list(REMOVE_DUPLICATES MPARK_VARIANT_INCLUDE_TESTS)
+
+list(FIND MPARK_VARIANT_INCLUDE_TESTS "mpark" MPARK_VARIANT_INDEX)
+list(REMOVE_ITEM MPARK_VARIANT_INCLUDE_TESTS "mpark")
+
+if(MPARK_VARIANT_INDEX EQUAL -1)
+  set(MPARK_VARIANT_INCLUDE_MPARK_TESTS OFF)
+else()
+  set(MPARK_VARIANT_INCLUDE_MPARK_TESTS ON)
+endif()
+
+list(FIND MPARK_VARIANT_INCLUDE_TESTS "libc++" MPARK_VARIANT_INDEX)
+list(REMOVE_ITEM MPARK_VARIANT_INCLUDE_TESTS "libc++")
+
+if(MPARK_VARIANT_INDEX EQUAL -1)
+  set(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS OFF)
+else()
+  set(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS ON)
+endif()
+
+list(LENGTH MPARK_VARIANT_INCLUDE_TESTS MPARK_VARIANT_LENGTH)
+
+if(MPARK_VARIANT_LENGTH GREATER 0)
+  message(FATAL_ERROR
+    "The following values in `MPARK_VARIANT_INCLUDE_TESTS` are not one of the \
+    possible values, `mpark` and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
+endif()
+
+if(MPARK_VARIANT_INCLUDE_MPARK_TESTS OR MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+endif()
