@@ -9,8 +9,11 @@
 #ifndef MPARK_CPP17_HPP
 #define MPARK_CPP17_HPP
 
+#include <memory>
 #include <type_traits>
 #include <utility>
+
+#include <mpark/config.hpp>
 
 namespace mpark {
   namespace cpp17 {
@@ -92,6 +95,48 @@ namespace mpark {
 
     template <typename F>
     struct is_callable<F, void_t<std::result_of_t<F>>> : std::true_type {};
+
+#ifdef MPARK_BUILTIN_ADDRESSOF
+    template <typename T>
+    constexpr T *addressof(T &arg) {
+      return __builtin_addressof(arg);
+    }
+#else
+    namespace detail {
+      namespace has_addressof_impl {
+
+        struct failure;
+
+        template <typename T>
+        failure operator&(T &&);
+
+        template <typename T>
+        static constexpr bool value =
+            (std::is_class<T>::value || std::is_union<T>::value) &&
+            !std::is_same<decltype(&std::declval<T &>()), failure>::value;
+
+      }  // namespace has_addressof_impl
+
+      template <typename T>
+      using has_addressof = bool_constant<has_addressof_impl::value<T>>;
+
+    }  // namespace detail
+
+    template <typename T,
+              std::enable_if_t<detail::has_addressof<T>::value, int> = 0>
+    T *addressof(T &arg) {
+      return std::addressof(arg);
+    }
+
+    template <typename T,
+              std::enable_if_t<!detail::has_addressof<T>::value, int> = 0>
+    constexpr T *addressof(T &arg) {
+      return &arg;
+    }
+#endif
+
+    template <typename T>
+    const T *addressof(const T &&) = delete;
 
   }  // namespace cpp17
 }  // namespace mpark

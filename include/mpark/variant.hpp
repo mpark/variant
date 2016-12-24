@@ -484,7 +484,7 @@ namespace mpark {
                   access::base::get_alt<Is>(static_cast<Vs>(vs))...);
             }
           };
-          return &dispatcher::dispatch;
+          return cpp17::addressof(dispatcher::dispatch);
         }
 
         template <std::size_t I, typename F, typename... Vs>
@@ -746,7 +746,7 @@ namespace mpark {
       protected:
       template <std::size_t I, typename T, typename... Args>
       inline static void construct_alt(alt<I, T> &a, Args &&... args) {
-        ::new (static_cast<void *>(&a))
+        ::new (static_cast<void *>(cpp17::addressof(a)))
             alt<I, T>(in_place, std::forward<Args>(args)...);
       }
 
@@ -1007,7 +1007,7 @@ namespace mpark {
                                          that);
         } else {
           impl *lhs = this;
-          impl *rhs = &that;
+          impl *rhs = cpp17::addressof(that);
           if (lhs->move_nothrow() && !rhs->move_nothrow()) {
             std::swap(lhs, rhs);
           }
@@ -1313,8 +1313,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr auto *generic_get_if(V *v) noexcept {
       return v && holds_alternative<I>(*v)
-                 // TODO(mpark): __builtin_addressof
-                 ? &access::variant::get_alt<I>(*v).value_
+                 ? cpp17::addressof(access::variant::get_alt<I>(*v).value_)
                  : nullptr;
     }
 
