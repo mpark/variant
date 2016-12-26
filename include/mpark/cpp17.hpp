@@ -111,14 +111,15 @@ namespace mpark {
         failure operator&(T &&);
 
         template <typename T>
-        static constexpr bool value =
-            (std::is_class<T>::value || std::is_union<T>::value) &&
-            !std::is_same<decltype(&std::declval<T &>()), failure>::value;
+        static constexpr bool impl() {
+          return (std::is_class<T>::value || std::is_union<T>::value) &&
+                 !std::is_same<decltype(&std::declval<T &>()), failure>::value;
+        }
 
       }  // namespace has_addressof_impl
 
       template <typename T>
-      using has_addressof = bool_constant<has_addressof_impl::value<T>>;
+      using has_addressof = bool_constant<has_addressof_impl::impl<T>()>;
 
     }  // namespace detail
 
