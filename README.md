@@ -1,31 +1,70 @@
-# Variant
+# MPark.Variant
 
-[![Stability](https://img.shields.io/badge/stability-experimental-red.svg)](http://github.com/badges/stability-badges)
-[![Build Status](https://travis-ci.org/mpark/variant.svg?branch=master)](https://travis-ci.org/mpark/variant)
-[![License](http://img.shields.io/badge/license-boost-blue.svg)](https://raw.githubusercontent.com/mpark/variant/master/LICENSE_1_0.txt)
-[![Gitter](https://badges.gitter.im/mpark/variant.svg)](https://gitter.im/mpark/variant?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+> __C++14__ implementation of __C++17__ `std::variant`
 
-> A type-safe `union`
+[![stability][badge.stability]][stability]
+[![travis][badge.travis]][travis]
+[![license][badge.license]][license]
+[![gitter][badge.gitter]][gitter]
+[![wandbox][badge.wandbox]][wandbox]
+
+[badge.stability]: https://img.shields.io/badge/stability-stable-brightgreen.svg
+[badge.travis]: https://travis-ci.org/mpark/variant.svg?branch=master
+[badge.license]: http://img.shields.io/badge/license-boost-blue.svg
+[badge.gitter]: https://badges.gitter.im/mpark/variant.svg
+[badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-green.svg
+
+[stability]: http://github.com/badges/stability-badges
+[travis]: https://travis-ci.org/mpark/variant
+[license]: https://github.com/mpark/variant/blob/master/LICENSE_1_0.txt
+[gitter]: https://gitter.im/mpark/variant
+[wandbox]: http://melpon.org/wandbox/permlink/opRHkFzHSFX5KmiB
 
 ## Introduction
 
-`variant` reached a design consensus at the fall ISO C++ committee meeting in Kona, HI, USA.
-While the design is still not final, this library is an experimental reference implementation of [P0088R0].
+__MPark.Variant__ provides an implementation of __C++17__ `std::variant` as a __C++14__ library.
 
-## Quick Start
+The implementation is based on my [implementation of `std::variant` for __libc++__][libcxx-impl]
+and is continously tested against __libc++__'s `std::variant` test suite.
 
-Since this project uses `git submodule`, specifying the `--recursive` flag to `git clone` is recommended.
+## Documentation
 
-```bash
-git clone --recursive https://github.com/mpark/variant.git
-```
+Refer to [`std::variant` - cppreference.com][cppreference] for the `std::variant`
+components of __MPark.Variant__.
+
+[cppreference]: http://en.cppreference.com/w/cpp/utility/variant
+
+## CMake Variables
+
+  -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING`
+
+      Semicolon-separated list of tests to build. Possible values are `mpark` and `libc++`.
+
+      This is `"mpark"` by default if the library being built directly, and `""`by default
+      if it is being built indirectly via `add_subdirectory`.
+
+      __NOTE__: The __libc++__ tests are built with `-std=c++1z`.
 
 ## Requirements
 
 This library requires a standard conformant __C++14__ compiler.
+The following compilers are continously tested:
 
-Tested configurations:
-  * __Ubuntu 14.04 Trusty__: `GCC 5`, `Clang 3.5+`
-  * __Mac OS X Yosemite__: `Apple Clang`, `Clang 3.5+`
+  - `g++-5.4`
+  - `g++-6.2`
+  - `clang++-3.5`
+  - `clang++-3.6`
+  - `clang++-3.7`
+  - `clang++-3.8`
+  - `clang++-3.9`
+  - `apple-clang-6`
+  - `apple-clang-7`
+  - `apple-clang-8`
 
-[P0088R0]: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/p0088r0.pdf
+__NOTE__: Enabling __libc++__'s `std::variant` tests require `-std=c++1z` support.
+
+## Unit Tests
+
+Refer to [test/README.md](test/README.md).
+
+[libcxx-impl]: https://reviews.llvm.org/rL288547
