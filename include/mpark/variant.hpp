@@ -258,7 +258,7 @@ namespace mpark {
   struct variant_alternative<I, variant<Ts...>> {
     static_assert(I < sizeof...(Ts),
                   "`variant_alternative` index out of range.");
-    using type = type_pack_element_t<I, Ts...>;
+    using type = ext::type_pack_element_t<I, Ts...>;
   };
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
@@ -316,7 +316,7 @@ namespace mpark {
     template <typename T,
               template <typename> class IsTriviallyAvailable,
               template <typename> class IsAvailable>
-    constexpr Trait trait() {
+    inline constexpr Trait trait() {
       return IsTriviallyAvailable<T>::value
                  ? Trait::TriviallyAvailable
                  : IsAvailable<T>::value ? Trait::Available
@@ -469,7 +469,7 @@ namespace mpark {
         template <std::size_t I, typename F, typename... Vs>
         inline static constexpr auto make_fdiagonal_impl() {
           return make_dispatch<F, Vs...>(
-              std::index_sequence<(identity<Vs>{}, I)...>{});
+              std::index_sequence<(ext::identity<Vs>{}, I)...>{});
         }
 
         template <typename F, typename... Vs, std::size_t... Is>
@@ -1007,7 +1007,7 @@ namespace mpark {
       }
 
       private:
-      inline bool move_nothrow() const {
+      inline constexpr bool move_nothrow() const {
         constexpr bool results[] = {
             std::is_nothrow_move_constructible<Ts>::value...};
         return this->valueless_by_exception() || results[this->index()];
@@ -1025,11 +1025,12 @@ namespace mpark {
     template <typename T, typename... Ts>
     struct overload<T, Ts...> : overload<Ts...> {
       using overload<Ts...>::operator();
-      identity<T> operator()(T) const;
+      ext::identity<T> operator()(T) const;
     };
 
     template <typename T, typename... Ts>
-    using best_match_t = typename std::result_of_t<overload<Ts...>(T &&)>::type;
+    using best_match_t =
+        typename std::result_of_t<overload<Ts...>(T &&)>::type;
 
   }  // detail
 
@@ -1049,7 +1050,7 @@ namespace mpark {
 
     public:
     template <
-        typename Front = variant_alternative_t<0, variant>,
+        typename Front = ext::type_pack_element_t<0, Ts...>,
         std::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
     inline constexpr variant() noexcept(
         std::is_nothrow_default_constructible<Front>::value)
@@ -1071,8 +1072,7 @@ namespace mpark {
     template <
         std::size_t I,
         typename... Args,
-        std::enable_if_t<(I < sizeof...(Ts)), int> = 0,
-        typename T = variant_alternative_t<I, variant<Ts...>>,
+        typename T = ext::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
@@ -1084,8 +1084,7 @@ namespace mpark {
         std::size_t I,
         typename Up,
         typename... Args,
-        std::enable_if_t<(I < sizeof...(Ts)), int> = 0,
-        typename T = variant_alternative_t<I, variant<Ts...>>,
+        typename T = ext::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,
@@ -1153,8 +1152,7 @@ namespace mpark {
     template <
         std::size_t I,
         typename... Args,
-        std::enable_if_t<(I < sizeof...(Ts)), int> = 0,
-        typename T = variant_alternative_t<I, variant<Ts...>>,
+        typename T = ext::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline void emplace(Args &&... args) {
       impl_.template emplace<I>(std::forward<Args>(args)...);
@@ -1164,8 +1162,7 @@ namespace mpark {
         std::size_t I,
         typename Up,
         typename... Args,
-        std::enable_if_t<(I < sizeof...(Ts)), int> = 0,
-        typename T = variant_alternative_t<I, variant<Ts...>>,
+        typename T = ext::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,

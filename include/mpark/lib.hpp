@@ -16,6 +16,7 @@
 #include <mpark/config.hpp>
 
 namespace mpark {
+
   namespace cpp17 {
 
     template <bool B>
@@ -56,22 +57,20 @@ namespace mpark {
         template <typename T>
         struct is_swappable_impl {
           private:
-          struct sfinae_failure;
+          template <typename U,
+                    typename = decltype(swap(std::declval<U &>(),
+                                             std::declval<U &>()))>
+          inline static std::true_type test(int);
 
           template <typename U>
-          inline static auto test(int)
-              -> decltype(swap(std::declval<U &>(), std::declval<U &>()));
-
-          template <typename U>
-          inline static sfinae_failure test(void *);
+          inline static std::false_type test(...);
 
           public:
-          static constexpr bool value =
-              !std::is_same<decltype(test<T>(0)), sfinae_failure>::value;
+          using type = decltype(test<T>(0));
         };
 
         template <typename T>
-        using is_swappable = bool_constant<is_swappable_impl<T>::value>;
+        using is_swappable = typename is_swappable_impl<T>::type;
 
         template <typename T, bool = is_swappable<T>::value>
         struct is_nothrow_swappable
@@ -105,15 +104,15 @@ namespace mpark {
     namespace detail {
       namespace has_addressof_impl {
 
-        struct failure;
+        struct fail;
 
         template <typename T>
-        inline failure operator&(T &&);
+        inline fail operator&(T &&);
 
         template <typename T>
         inline static constexpr bool impl() {
           return (std::is_class<T>::value || std::is_union<T>::value) &&
-                 !std::is_same<decltype(&std::declval<T &>()), failure>::value;
+                 !std::is_same<decltype(&std::declval<T &>()), fail>::value;
         }
 
       }  // namespace has_addressof_impl
@@ -141,40 +140,48 @@ namespace mpark {
 
   }  // namespace cpp17
 
-  template <typename T>
-  struct identity {
-    using type = T;
-  };
+  namespace ext {
 
-#ifdef MPARK_TYPE_PACK_ELEMENT
-  template <std::size_t I, typename... Ts>
-  using type_pack_element_t = __type_pack_element<I, Ts...>;
-#else
-  template <std::size_t I, typename... Ts>
-  struct type_pack_element {
-    private:
-    template <std::size_t, typename T>
-    struct indexed_type {
+    template <typename T>
+    struct identity {
       using type = T;
     };
 
-    template <std::size_t... Is>
-    inline static auto set(std::index_sequence<Is...>) {
-      struct Set : indexed_type<Is, Ts>... {};
-      return Set{};
-    }
+#ifdef MPARK_TYPE_PACK_ELEMENT
+    template <std::size_t I, typename... Ts>
+    using type_pack_element_t = __type_pack_element<I, Ts...>;
+#else
+    template <std::size_t I, typename... Ts>
+    struct type_pack_element_impl {
+      private:
+      template <std::size_t, typename T>
+      struct indexed_type {
+        using type = T;
+      };
 
-    template <typename T>
-    inline static identity<T> impl(const indexed_type<I, T> &);
+      template <std::size_t... Is>
+      inline static auto make_set(std::index_sequence<Is...>) {
+        struct set : indexed_type<Is, Ts>... {};
+        return set{};
+      }
 
-    public:
-    using type =
-        typename decltype(impl(set(std::index_sequence_for<Ts...>{})))::type;
-  };
+      template <typename T>
+      inline static std::enable_if<true, T> impl(indexed_type<I, T>);
 
-  template <std::size_t I, typename... Ts>
-  using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
+      inline static std::enable_if<false, void> impl(...);
+
+      public:
+      using type = decltype(impl(make_set(std::index_sequence_for<Ts...>{})));
+    };
+
+    template <std::size_t I, typename... Ts>
+    using type_pack_element = typename type_pack_element_impl<I, Ts...>::type;
+
+    template <std::size_t I, typename... Ts>
+    using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
 #endif
+
+  }  // namespace ext
 
 }  // namespace mpark
 
