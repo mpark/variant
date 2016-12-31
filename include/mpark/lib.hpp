@@ -6,8 +6,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MPARK_CPP17_HPP
-#define MPARK_CPP17_HPP
+#ifndef MPARK_LIB_HPP
+#define MPARK_LIB_HPP
 
 #include <memory>
 #include <type_traits>
@@ -59,11 +59,11 @@ namespace mpark {
           struct sfinae_failure;
 
           template <typename U>
-          static auto test(int)
+          inline static auto test(int)
               -> decltype(swap(std::declval<U &>(), std::declval<U &>()));
 
           template <typename U>
-          static sfinae_failure test(void *);
+          inline static sfinae_failure test(void *);
 
           public:
           static constexpr bool value =
@@ -98,7 +98,7 @@ namespace mpark {
 
 #ifdef MPARK_BUILTIN_ADDRESSOF
     template <typename T>
-    constexpr T *addressof(T &arg) {
+    inline constexpr T *addressof(T &arg) {
       return __builtin_addressof(arg);
     }
 #else
@@ -108,10 +108,10 @@ namespace mpark {
         struct failure;
 
         template <typename T>
-        failure operator&(T &&);
+        inline failure operator&(T &&);
 
         template <typename T>
-        static constexpr bool impl() {
+        inline static constexpr bool impl() {
           return (std::is_class<T>::value || std::is_union<T>::value) &&
                  !std::is_same<decltype(&std::declval<T &>()), failure>::value;
         }
@@ -125,21 +125,57 @@ namespace mpark {
 
     template <typename T,
               std::enable_if_t<detail::has_addressof<T>::value, int> = 0>
-    T *addressof(T &arg) {
+    inline T *addressof(T &arg) {
       return std::addressof(arg);
     }
 
     template <typename T,
               std::enable_if_t<!detail::has_addressof<T>::value, int> = 0>
-    constexpr T *addressof(T &arg) {
+    inline constexpr T *addressof(T &arg) {
       return &arg;
     }
 #endif
 
     template <typename T>
-    const T *addressof(const T &&) = delete;
+    inline const T *addressof(const T &&) = delete;
 
   }  // namespace cpp17
+
+  template <typename T>
+  struct identity {
+    using type = T;
+  };
+
+#ifdef MPARK_TYPE_PACK_ELEMENT
+  template <std::size_t I, typename... Ts>
+  using type_pack_element_t = __type_pack_element<I, Ts...>;
+#else
+  template <std::size_t I, typename... Ts>
+  struct type_pack_element {
+    private:
+    template <std::size_t, typename T>
+    struct indexed_type {
+      using type = T;
+    };
+
+    template <std::size_t... Is>
+    inline static auto set(std::index_sequence<Is...>) {
+      struct Set : indexed_type<Is, Ts>... {};
+      return Set{};
+    }
+
+    template <typename T>
+    inline static identity<T> impl(const indexed_type<I, T> &);
+
+    public:
+    using type =
+        typename decltype(impl(set(std::index_sequence_for<Ts...>{})))::type;
+  };
+
+  template <std::size_t I, typename... Ts>
+  using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
+#endif
+
 }  // namespace mpark
 
-#endif  // MPARK_CPP17_HPP
+#endif  // MPARK_LIB_HPP

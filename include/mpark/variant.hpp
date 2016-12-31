@@ -201,11 +201,10 @@ namespace std {
 #include <functional>
 #include <initializer_list>
 #include <new>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
-#include <mpark/cpp17.hpp>
+#include <mpark/lib.hpp>
 #include <mpark/in_place.hpp>
 
 namespace mpark {
@@ -256,18 +255,15 @@ namespace mpark {
       : std::add_cv<variant_alternative_t<I, T>> {};
 
   template <std::size_t I, typename... Ts>
-  struct variant_alternative<I, variant<Ts...>>
-      : std::tuple_element<I, std::tuple<Ts...>> {};
-  // TODO(mpark): Use __type_pack_element if available.
+  struct variant_alternative<I, variant<Ts...>> {
+    static_assert(I < sizeof...(Ts),
+                  "`variant_alternative` index out of range.");
+    using type = type_pack_element_t<I, Ts...>;
+  };
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
 
   namespace detail {
-
-    template <typename T>
-    struct identity {
-      using type = T;
-    };
 
     inline constexpr bool all(std::initializer_list<bool> bs) {
       for (bool b : bs) {
@@ -306,8 +302,8 @@ namespace mpark {
 
     template <std::size_t I>
     struct find_index_checked_impl : std::integral_constant<std::size_t, I> {
-      static_assert(I != not_found, "the specified type is not found");
-      static_assert(I != ambiguous, "the specified type is ambiguous");
+      static_assert(I != not_found, "the specified type is not found.");
+      static_assert(I != ambiguous, "the specified type is ambiguous.");
     };
 
     template <typename T, typename... Ts>
