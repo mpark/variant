@@ -1,0 +1,27 @@
+image: Visual Studio 2015
+
+build:
+  verbosity: detailed
+
+clone_depth: 1
+
+platform:
+  - x86
+  - x64
+
+configuration:
+  - Debug
+  - Release
+
+build_script:
+  - mkdir build
+  - cd build
+  - set GENERATOR=Visual Studio 14 2015
+  - if "%PLATFORM%" == "x64" set GENERATOR=%GENERATOR% Win64
+  - cmake -G "%GENERATOR%"
+          -T "LLVM-vs2014"
+          -DCMAKE_C_COMPILER=clang-cl
+          -DCMAKE_CXX_COMPILER=clang-cl
+          -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+  - cmake --build . --config %CONFIGURATION%
+  - ctest -V

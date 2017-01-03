@@ -4,18 +4,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-include(CheckCXXCompilerFlag)
-
-macro(add_compiler_flag testname flag)
-  check_cxx_compiler_flag(${flag} ${testname})
-  if(${testname})
-    add_compile_options(${flag})
-  endif()
-endmacro()
-
-add_compiler_flag(WALL -Wall)
-add_compiler_flag(WEXTRA -Wextra)
-add_compiler_flag(WERROR -Werror)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND
+   "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
+  add_compile_options(-Qunused-arguments)
+  add_compile_options(-Wno-deprecated-declarations)
+  add_compile_options(-Wno-unknown-argument)
+endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
@@ -28,18 +22,23 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR}/CMakeLists.txt)
 
   execute_process(
-    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
+                             -T "${CMAKE_TOOLSET_GENERATOR}" .
     WORKING_DIRECTORY ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR})
 
   execute_process(
     COMMAND ${CMAKE_COMMAND} --build .
     WORKING_DIRECTORY ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR})
 
-  add_subdirectory(${MPARK_VARIANT_GOOGLETEST_SOURCE_DIR} ${MPARK_VARIANT_GOOGLETEST_BINARY_DIR})
+  add_subdirectory(${MPARK_VARIANT_GOOGLETEST_SOURCE_DIR}/googletest
+                   ${MPARK_VARIANT_GOOGLETEST_BINARY_DIR}/googletest)
+
+  config_compiler_and_linker()
 
   function(add_gtest name)
     add_executable(${name} ${name}.cpp)
-    target_link_libraries(${name} gtest gtest_main pthread)
+    set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
+    target_link_libraries(${name} gtest_main)
     add_test(${name} ${name} --gtest_color=yes)
   endfunction(add_gtest)
 
@@ -74,12 +73,13 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   ExternalProject_Add(llvm
     GIT_REPOSITORY    http://llvm.org/git/llvm.git
     GIT_SHALLOW       1
-    CMAKE_ARGS        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
-                      "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
+    CMAKE_ARGS        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
                       "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
     SOURCE_DIR        ${MPARK_VARIANT_LLVM_SOURCE_DIR}
     BINARY_DIR        ${MPARK_VARIANT_LLVM_BINARY_DIR}
-    BUILD_COMMAND     make cxx cxxabi cxx_experimental
+    BUILD_COMMAND     ${CMAKE_COMMAND} --build . --target cxx
+          COMMAND     ${CMAKE_COMMAND} --build . --target cxxabi
+          COMMAND     ${CMAKE_COMMAND} --build . --target cxx_experimental
     INSTALL_COMMAND   ""  # Disable install step
     STEP_TARGETS      download
   )
@@ -120,7 +120,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
         env MPARK_VARIANT_SOURCE_DIR=${CMAKE_SOURCE_DIR}
         env MPARK_VARIANT_LIBCXX_SOURCE_DIR=${MPARK_VARIANT_LIBCXX_SOURCE_DIR}
         env MPARK_VARIANT_LIBCXX_SITE_CONFIG=${MPARK_VARIANT_LIBCXX_BINARY_DIR}/test/lit.site.cfg
-        env MPARK_VARIANT_LIT=${MPARK_VARIANT_LLVM_SOURCE_DIR}/utils/lit/lit.py
+        env MPARK_VARIANT_LIT=${MPARK_VARIANT_LLVM_BINARY_DIR}/bin/llvm-lit
         ${CMAKE_CURRENT_SOURCE_DIR}/run_libcxx_tests.sh
   )
 
