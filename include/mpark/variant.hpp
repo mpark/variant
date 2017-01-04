@@ -454,16 +454,19 @@ namespace mpark {
           return result{{std::forward<Fs>(fs)...}};
         }
 
+        template <std::size_t... Is>
+        struct dispatcher {
+          template <typename F, typename... Vs>
+          inline static constexpr decltype(auto) dispatch(F f, Vs... vs) {
+            return cpp17::invoke(
+                static_cast<F>(f),
+                access::base::get_alt<Is>(static_cast<Vs>(vs))...);
+          }
+        };
+
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_dispatch(std::index_sequence<Is...>) {
-          struct dispatcher {
-            static constexpr decltype(auto) dispatch(F f, Vs... vs) {
-              return cpp17::invoke(
-                  static_cast<F>(f),
-                  access::base::get_alt<Is>(static_cast<Vs>(vs))...);
-            }
-          };
-          return cpp17::addressof(dispatcher::dispatch);
+          return &dispatcher<Is...>::template dispatch<F, Vs...>;
         }
 
         template <std::size_t I, typename F, typename... Vs>
