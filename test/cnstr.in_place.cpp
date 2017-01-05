@@ -19,8 +19,9 @@ TEST(Cnstr_InPlace, IndexDirect) {
   EXPECT_EQ(42, mpark::get<0>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(mpark::in_place_index<0>, 42);
-    static_assert(42 == mpark::get<0>(v), "");
+    constexpr mpark::variant<int, const char *> cv(mpark::in_place_index<0>,
+                                                   42);
+    static_assert(42 == mpark::get<0>(cv), "");
   }
 }
 
@@ -29,8 +30,8 @@ TEST(Cnstr_InPlace, IndexDirectDuplicate) {
   EXPECT_EQ(42, mpark::get<0>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, int> v(mpark::in_place_index<0>, 42);
-    static_assert(42 == mpark::get<0>(v), "");
+    constexpr mpark::variant<int, int> cv(mpark::in_place_index<0>, 42);
+    static_assert(42 == mpark::get<0>(cv), "");
   }
 }
 
@@ -39,8 +40,9 @@ TEST(Cnstr_InPlace, IndexConversion) {
   EXPECT_EQ("42"s, mpark::get<1>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(mpark::in_place_index<0>, 1.1);
-    static_assert(1 == mpark::get<0>(v), "");
+    constexpr mpark::variant<int, const char *> cv(mpark::in_place_index<0>,
+                                                   1.1);
+    static_assert(1 == mpark::get<0>(cv), "");
   }
 }
 
@@ -62,8 +64,9 @@ TEST(Cnstr_InPlace, TypeDirect) {
   EXPECT_EQ("42"s, mpark::get<std::string>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(mpark::in_place_type<int>, 42);
-    static_assert(42 == mpark::get<int>(v), "");
+    constexpr mpark::variant<int, const char *> cv(mpark::in_place_type<int>,
+                                                   42);
+    static_assert(42 == mpark::get<int>(cv), "");
   }
 }
 
@@ -81,8 +84,9 @@ TEST(Cnstr_InPlace, TypeConversion) {
   EXPECT_EQ(42, mpark::get<int>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(mpark::in_place_type<int>, 42.5);
-    static_assert(42 == mpark::get<int>(v), "");
+    constexpr mpark::variant<int, const char *> cv(mpark::in_place_type<int>,
+                                                   42.5);
+    static_assert(42 == mpark::get<int>(cv), "");
   }
 }
 

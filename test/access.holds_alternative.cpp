@@ -18,10 +18,10 @@ TEST(Access_HoldsAlternative, Typical) {
   EXPECT_FALSE(mpark::holds_alternative<std::string>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(42);
-    static_assert(mpark::holds_alternative<0>(v), "");
-    static_assert(!mpark::holds_alternative<1>(v), "");
-    static_assert(mpark::holds_alternative<int>(v), "");
-    static_assert(!mpark::holds_alternative<const char *>(v), "");
+    constexpr mpark::variant<int, const char *> cv(42);
+    static_assert(mpark::holds_alternative<0>(cv), "");
+    static_assert(!mpark::holds_alternative<1>(cv), "");
+    static_assert(mpark::holds_alternative<int>(cv), "");
+    static_assert(!mpark::holds_alternative<const char *>(cv), "");
   }
 }

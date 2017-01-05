@@ -50,11 +50,11 @@ TEST(Visit, ConstVarMutType) {
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), std::move(v)));
 
   /* constexpr */ {
-    constexpr mpark::variant<int> v(42);
-    static_assert(42 == mpark::get<int>(v), "");
+    constexpr mpark::variant<int> cv(42);
+    static_assert(42 == mpark::get<int>(cv), "");
     // Check qualifier.
-    static_assert(ConstLRef == mpark::visit(get_qual(), v), "");
-    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(v)), "");
+    static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
+    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(cv)), "");
   }
 }
 
@@ -66,11 +66,11 @@ TEST(Visit, ConstVarConstType) {
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), std::move(v)));
 
   /* constexpr */ {
-    constexpr mpark::variant<const int> v(42);
-    static_assert(42 == mpark::get<const int>(v), "");
+    constexpr mpark::variant<const int> cv(42);
+    static_assert(42 == mpark::get<const int>(cv), "");
     // Check qualifier.
-    static_assert(ConstLRef == mpark::visit(get_qual(), v), "");
-    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(v)), "");
+    static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
+    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(cv)), "");
   }
 }
 
@@ -84,17 +84,17 @@ TEST(Visit_Homogeneous, Double) {
             }, v, w));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> v(101), w(202), x("helllo");
+    constexpr mpark::variant<int, const char *> cv(101), cw(202), cx("helllo");
     struct add {
       constexpr int operator()(int lhs, int rhs) const { return lhs + rhs; }
       constexpr int operator()(int lhs, const char *) const { return lhs; }
       constexpr int operator()(const char *, int rhs) const { return rhs; }
       constexpr int operator()(const char *, const char *) const { return 0; }
     };  // add
-    static_assert(303 == mpark::visit(add{}, v, w), "");
-    static_assert(202 == mpark::visit(add{}, w, x), "");
-    static_assert(101 == mpark::visit(add{}, x, v), "");
-    static_assert(0 == mpark::visit(add{}, x, x), "");
+    static_assert(303 == mpark::visit(add{}, cv, cw), "");
+    static_assert(202 == mpark::visit(add{}, cw, cx), "");
+    static_assert(101 == mpark::visit(add{}, cx, cv), "");
+    static_assert(0 == mpark::visit(add{}, cx, cx), "");
   }
 }
 

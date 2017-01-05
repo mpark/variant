@@ -17,7 +17,7 @@ TEST(Cnstr_Default, Variant) {
   EXPECT_EQ(0, mpark::get<0>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int> v;
-    static_assert(0 == mpark::get<0>(v), "");
+    constexpr mpark::variant<int> cv;
+    static_assert(0 == mpark::get<0>(cv), "");
   }
 }

@@ -67,11 +67,11 @@ TEST(Access_Get, ConstVarMutType) {
   EXPECT_EQ(ConstRRef, get_qual(mpark::get<int>(std::move(v))));
 
   /* constexpr */ {
-    constexpr mpark::variant<int> v(42);
-    static_assert(42 == mpark::get<int>(v), "");
+    constexpr mpark::variant<int> cv(42);
+    static_assert(42 == mpark::get<int>(cv), "");
     // Check qualifier.
-    static_assert(ConstLRef == get_qual(mpark::get<int>(v)), "");
-    static_assert(ConstRRef == get_qual(mpark::get<int>(std::move(v))), "");
+    static_assert(ConstLRef == get_qual(mpark::get<int>(cv)), "");
+    static_assert(ConstRRef == get_qual(mpark::get<int>(std::move(cv))), "");
   }
 }
 
@@ -95,11 +95,11 @@ TEST(Access_Get, ConstVarConstType) {
   EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(std::move(v))));
 
   /* constexpr */ {
-    constexpr mpark::variant<const int> v(42);
-    static_assert(42 == mpark::get<const int>(v), "");
+    constexpr mpark::variant<const int> cv(42);
+    static_assert(42 == mpark::get<const int>(cv), "");
     // Check qualifier.
-    static_assert(ConstLRef == get_qual(mpark::get<const int>(v)), "");
-    static_assert(ConstRRef == get_qual(mpark::get<const int>(std::move(v))), "");
+    static_assert(ConstLRef == get_qual(mpark::get<const int>(cv)), "");
+    static_assert(ConstRRef == get_qual(mpark::get<const int>(std::move(cv))), "");
   }
 }
 
@@ -115,11 +115,11 @@ TEST(Access_Get, ConstVarConstTypeRef) {
 
   /* constexpr */ {
     static constexpr int expected = 42;
-    constexpr mpark::variant<const int &> v(expected);
-    static_assert(42 == mpark::get<const int &>(v), "");
+    constexpr mpark::variant<const int &> cv(expected);
+    static_assert(42 == mpark::get<const int &>(cv), "");
     // Check qualifier.
-    static_assert(ConstLRef == get_qual(mpark::get<const int &>(v)), "");
-    static_assert(ConstLRef == get_qual(mpark::get<const int &>(std::move(v))), "");
+    static_assert(ConstLRef == get_qual(mpark::get<const int &>(cv)), "");
+    static_assert(ConstLRef == get_qual(mpark::get<const int &>(std::move(cv))), "");
   }
 }
 #endif

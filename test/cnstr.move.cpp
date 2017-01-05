@@ -25,12 +25,12 @@ TEST(Cnstr_Move, Value) {
   EXPECT_TRUE(mpark::get<std::string>(v).empty());
 
   /* constexpr */ {
-    // `v`
-    constexpr mpark::variant<int, const char *> v(42);
-    static_assert(42 == mpark::get<int>(v), "");
-    // `w`
-    constexpr mpark::variant<int, const char *> w(std::move(v));
-    static_assert(42 == mpark::get<int>(w), "");
+    // `cv`
+    constexpr mpark::variant<int, const char *> cv(42);
+    static_assert(42 == mpark::get<int>(cv), "");
+    // `cw`
+    constexpr mpark::variant<int, const char *> cw(std::move(cv));
+    static_assert(42 == mpark::get<int>(cw), "");
   }
 }
 
