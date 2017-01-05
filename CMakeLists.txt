@@ -4,16 +4,9 @@ project(MPark.Variant CXX)
 
 include_directories(include)
 
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-  set(MPARK_VARIANT_INCLUDE_TESTS_DEFAULT "mpark")
-else()
-  set(MPARK_VARIANT_INCLUDE_TESTS_DEFAULT "")
-endif()
-
-set(MPARK_VARIANT_INCLUDE_TESTS
-    ${MPARK_VARIANT_INCLUDE_TESTS_DEFAULT}
-    CACHE STRING
-    "Semicolon-separated list of tests to build. Possible values are `mpark` and `libc++`.")
+set(MPARK_VARIANT_INCLUDE_TESTS "" CACHE STRING
+    "Semicolon-separated list of tests to build. \
+     Possible values are `mpark` and `libc++`.")
 
 list(REMOVE_DUPLICATES MPARK_VARIANT_INCLUDE_TESTS)
 
@@ -40,7 +33,7 @@ list(LENGTH MPARK_VARIANT_INCLUDE_TESTS MPARK_VARIANT_LENGTH)
 if(MPARK_VARIANT_LENGTH GREATER 0)
   message(FATAL_ERROR
     "The following values in `MPARK_VARIANT_INCLUDE_TESTS` are not one of the \
-    possible values, `mpark` and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
+     possible values, `mpark` and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
 endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS OR MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)

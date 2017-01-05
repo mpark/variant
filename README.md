@@ -36,12 +36,9 @@ components of __MPark.Variant__.
 
 ## CMake Variables
 
-  -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING`
+  -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING` (__default__: `""`)
 
       Semicolon-separated list of tests to build. Possible values are `mpark` and `libc++`.
-
-      This is `"mpark"` by default if the library being built directly, and `""`by default
-      if it is being built indirectly via `add_subdirectory`.
 
       __NOTE__: The __libc++__ tests are built with `-std=c++1z`.
 
