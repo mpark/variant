@@ -4,21 +4,24 @@
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
+[![appveyor][badge.appveyor]][appveyor]
 [![license][badge.license]][license]
 [![gitter][badge.gitter]][gitter]
 [![wandbox][badge.wandbox]][wandbox]
 
 [badge.stability]: https://img.shields.io/badge/stability-stable-brightgreen.svg
 [badge.travis]: https://travis-ci.org/mpark/variant.svg?branch=master
+[badge.appveyor]: https://ci.appveyor.com/api/projects/status/github/mpark/variant?branch=master&svg=true
 [badge.license]: http://img.shields.io/badge/license-boost-blue.svg
 [badge.gitter]: https://badges.gitter.im/mpark/variant.svg
 [badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-green.svg
 
 [stability]: http://github.com/badges/stability-badges
 [travis]: https://travis-ci.org/mpark/variant
+[appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE_1_0.txt
 [gitter]: https://gitter.im/mpark/variant
-[wandbox]: http://melpon.org/wandbox/permlink/opRHkFzHSFX5KmiB
+[wandbox]: http://melpon.org/wandbox/permlink/pKlAz3y3jif2HCDi
 
 ## Test
 
