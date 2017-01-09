@@ -1,3 +1,11 @@
+# MPark.Variant
+#
+# Copyright Michael Park, 2015-2016
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+
 cmake_minimum_required(VERSION 3.6.3)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -13,12 +21,12 @@ endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
-  set(MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+  set(MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest_download)
   set(MPARK_VARIANT_GOOGLETEST_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest)
   set(MPARK_VARIANT_GOOGLETEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 
   configure_file(
-    googletest-download/CMakeLists.txt.in
+    googletest_download/CMakeLists.txt.in
     ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR}/CMakeLists.txt)
 
   execute_process(
@@ -38,7 +46,7 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
   function(add_gtest name)
     add_executable(${name} ${name}.cpp)
     set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
-    target_link_libraries(${name} gtest_main)
+    target_link_libraries(${name} gtest_main mpark_variant)
     add_test(${name} ${name} --gtest_color=yes)
   endfunction(add_gtest)
 
