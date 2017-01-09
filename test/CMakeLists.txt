@@ -39,7 +39,8 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     WORKING_DIRECTORY ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR})
 
   add_subdirectory(${MPARK_VARIANT_GOOGLETEST_SOURCE_DIR}/googletest
-                   ${MPARK_VARIANT_GOOGLETEST_BINARY_DIR}/googletest)
+                   ${MPARK_VARIANT_GOOGLETEST_BINARY_DIR}/googletest
+                   EXCLUDE_FROM_ALL)
 
   config_compiler_and_linker()
 
