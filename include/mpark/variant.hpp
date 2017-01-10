@@ -204,8 +204,8 @@ namespace std {
 #include <type_traits>
 #include <utility>
 
-#include <mpark/lib.hpp>
 #include <mpark/in_place.hpp>
+#include <mpark/lib.hpp>
 
 namespace mpark {
 
@@ -258,7 +258,7 @@ namespace mpark {
   struct variant_alternative<I, variant<Ts...>> {
     static_assert(I < sizeof...(Ts),
                   "`variant_alternative` index out of range.");
-    using type = ext::type_pack_element_t<I, Ts...>;
+    using type = lib::type_pack_element_t<I, Ts...>;
   };
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
@@ -458,7 +458,7 @@ namespace mpark {
         struct dispatcher {
           template <typename F, typename... Vs>
           inline static constexpr decltype(auto) dispatch(F f, Vs... vs) {
-            return cpp17::invoke(
+            return lib::cpp17::invoke(
                 static_cast<F>(f),
                 access::base::get_alt<Is>(static_cast<Vs>(vs))...);
           }
@@ -472,7 +472,7 @@ namespace mpark {
         template <std::size_t I, typename F, typename... Vs>
         inline static constexpr auto make_fdiagonal_impl() {
           return make_dispatch<F, Vs...>(
-              std::index_sequence<(ext::identity<Vs>{}, I)...>{});
+              std::index_sequence<(lib::identity<Vs>{}, I)...>{});
         }
 
         template <typename F, typename... Vs, std::size_t... Is>
@@ -552,7 +552,7 @@ namespace mpark {
         private:
         template <typename Visitor, typename... Values>
         inline static constexpr void std_visit_exhaustive_visitor_check() {
-          static_assert(cpp17::is_callable<Visitor(Values...)>::value,
+          static_assert(lib::cpp17::is_callable<Visitor(Values...)>::value,
                         "`std::visit` requires the visitor to be exhaustive.");
         }
 
@@ -563,8 +563,8 @@ namespace mpark {
             std_visit_exhaustive_visitor_check<
                 Visitor,
                 decltype(std::forward<Alts>(alts).value_)...>();
-            return cpp17::invoke(std::forward<Visitor>(visitor_),
-                                 std::forward<Alts>(alts).value_...);
+            return lib::cpp17::invoke(std::forward<Visitor>(visitor_),
+                                      std::forward<Alts>(alts).value_...);
           }
           Visitor &&visitor_;
         };
@@ -728,7 +728,7 @@ namespace mpark {
       protected:
       template <std::size_t I, typename T, typename... Args>
       inline static void construct_alt(alt<I, T> &a, Args &&... args) {
-        ::new (static_cast<void *>(cpp17::addressof(a)))
+        ::new (static_cast<void *>(lib::cpp17::addressof(a)))
             alt<I, T>(in_place, std::forward<Args>(args)...);
       }
 
@@ -844,7 +844,7 @@ namespace mpark {
       template <bool CopyAssign, std::size_t I, typename T, typename Arg>
       inline void assign_alt(alt<I, T> &a,
                              Arg &&arg,
-                             cpp17::bool_constant<CopyAssign> tag) {
+                             lib::cpp17::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
           a.value_ = std::forward<Arg>(arg);
         } else {
@@ -989,7 +989,7 @@ namespace mpark {
                                          that);
         } else {
           impl *lhs = this;
-          impl *rhs = cpp17::addressof(that);
+          impl *rhs = lib::cpp17::addressof(that);
           if (lhs->move_nothrow() && !rhs->move_nothrow()) {
             std::swap(lhs, rhs);
           }
@@ -1028,7 +1028,7 @@ namespace mpark {
     template <typename T, typename... Ts>
     struct overload<T, Ts...> : overload<Ts...> {
       using overload<Ts...>::operator();
-      ext::identity<T> operator()(T) const;
+      lib::identity<T> operator()(T) const;
     };
 
     template <typename T, typename... Ts>
@@ -1053,7 +1053,7 @@ namespace mpark {
 
     public:
     template <
-        typename Front = ext::type_pack_element_t<0, Ts...>,
+        typename Front = lib::type_pack_element_t<0, Ts...>,
         std::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
     inline constexpr variant() noexcept(
         std::is_nothrow_default_constructible<Front>::value)
@@ -1075,7 +1075,7 @@ namespace mpark {
     template <
         std::size_t I,
         typename... Args,
-        typename T = ext::type_pack_element_t<I, Ts...>,
+        typename T = lib::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
@@ -1087,7 +1087,7 @@ namespace mpark {
         std::size_t I,
         typename Up,
         typename... Args,
-        typename T = ext::type_pack_element_t<I, Ts...>,
+        typename T = lib::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,
@@ -1155,7 +1155,7 @@ namespace mpark {
     template <
         std::size_t I,
         typename... Args,
-        typename T = ext::type_pack_element_t<I, Ts...>,
+        typename T = lib::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline void emplace(Args &&... args) {
       impl_.template emplace<I>(std::forward<Args>(args)...);
@@ -1165,7 +1165,7 @@ namespace mpark {
         std::size_t I,
         typename Up,
         typename... Args,
-        typename T = ext::type_pack_element_t<I, Ts...>,
+        typename T = lib::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T,
                                                std::initializer_list<Up> &,
                                                Args...>::value,
@@ -1204,15 +1204,15 @@ namespace mpark {
       return impl_.index();
     }
 
-    template <
-        bool Dummy = true,
-        std::enable_if_t<detail::all({Dummy,
-                                      (std::is_move_constructible<Ts>::value &&
-                                       cpp17::is_swappable<Ts>::value)...}),
-                         int> = 0>
+    template <bool Dummy = true,
+              std::enable_if_t<
+                  detail::all({Dummy,
+                               (std::is_move_constructible<Ts>::value &&
+                                lib::cpp17::is_swappable<Ts>::value)...}),
+                  int> = 0>
     inline void swap(variant &that) noexcept(
         detail::all({(std::is_nothrow_move_constructible<Ts>::value &&
-                      cpp17::is_nothrow_swappable<Ts>::value)...})) {
+                      lib::cpp17::is_nothrow_swappable<Ts>::value)...})) {
       impl_.swap(that.impl_);
     }
 
@@ -1292,7 +1292,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr auto *generic_get_if(V *v) noexcept {
       return v && holds_alternative<I>(*v)
-                 ? cpp17::addressof(access::variant::get_alt<I>(*v).value_)
+                 ? lib::cpp17::addressof(access::variant::get_alt<I>(*v).value_)
                  : nullptr;
     }
 
