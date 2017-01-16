@@ -458,7 +458,7 @@ namespace mpark {
         struct dispatcher {
           template <typename F, typename... Vs>
           inline static constexpr decltype(auto) dispatch(F f, Vs... vs) {
-            return lib::cpp17::invoke(
+            return lib::invoke(
                 static_cast<F>(f),
                 access::base::get_alt<Is>(static_cast<Vs>(vs))...);
           }
@@ -552,7 +552,7 @@ namespace mpark {
         private:
         template <typename Visitor, typename... Values>
         inline static constexpr void std_visit_exhaustive_visitor_check() {
-          static_assert(lib::cpp17::is_callable<Visitor(Values...)>::value,
+          static_assert(lib::is_callable<Visitor(Values...)>::value,
                         "`std::visit` requires the visitor to be exhaustive.");
         }
 
@@ -563,8 +563,8 @@ namespace mpark {
             std_visit_exhaustive_visitor_check<
                 Visitor,
                 decltype(std::forward<Alts>(alts).value_)...>();
-            return lib::cpp17::invoke(std::forward<Visitor>(visitor_),
-                                      std::forward<Alts>(alts).value_...);
+            return lib::invoke(std::forward<Visitor>(visitor_),
+                               std::forward<Alts>(alts).value_...);
           }
           Visitor &&visitor_;
         };
@@ -728,7 +728,7 @@ namespace mpark {
       protected:
       template <std::size_t I, typename T, typename... Args>
       inline static void construct_alt(alt<I, T> &a, Args &&... args) {
-        ::new (static_cast<void *>(lib::cpp17::addressof(a)))
+        ::new (static_cast<void *>(lib::addressof(a)))
             alt<I, T>(in_place, std::forward<Args>(args)...);
       }
 
@@ -844,7 +844,7 @@ namespace mpark {
       template <bool CopyAssign, std::size_t I, typename T, typename Arg>
       inline void assign_alt(alt<I, T> &a,
                              Arg &&arg,
-                             lib::cpp17::bool_constant<CopyAssign> tag) {
+                             lib::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
           a.value_ = std::forward<Arg>(arg);
         } else {
@@ -989,7 +989,7 @@ namespace mpark {
                                          that);
         } else {
           impl *lhs = this;
-          impl *rhs = lib::cpp17::addressof(that);
+          impl *rhs = lib::addressof(that);
           if (lhs->move_nothrow() && !rhs->move_nothrow()) {
             std::swap(lhs, rhs);
           }
@@ -1204,15 +1204,15 @@ namespace mpark {
       return impl_.index();
     }
 
-    template <bool Dummy = true,
-              std::enable_if_t<
-                  detail::all({Dummy,
-                               (std::is_move_constructible<Ts>::value &&
-                                lib::cpp17::is_swappable<Ts>::value)...}),
-                  int> = 0>
+    template <
+        bool Dummy = true,
+        std::enable_if_t<detail::all({Dummy,
+                                      (std::is_move_constructible<Ts>::value &&
+                                       lib::is_swappable<Ts>::value)...}),
+                         int> = 0>
     inline void swap(variant &that) noexcept(
         detail::all({(std::is_nothrow_move_constructible<Ts>::value &&
-                      lib::cpp17::is_nothrow_swappable<Ts>::value)...})) {
+                      lib::is_nothrow_swappable<Ts>::value)...})) {
       impl_.swap(that.impl_);
     }
 
@@ -1292,7 +1292,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr auto *generic_get_if(V *v) noexcept {
       return v && holds_alternative<I>(*v)
-                 ? lib::cpp17::addressof(access::variant::get_alt<I>(*v).value_)
+                 ? lib::addressof(access::variant::get_alt<I>(*v).value_)
                  : nullptr;
     }
 

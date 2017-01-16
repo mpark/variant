@@ -16,10 +16,9 @@
 #include <mpark/config.hpp>
 
 namespace mpark {
-
   namespace lib {
 
-    namespace cpp17 {
+    inline namespace cpp17 {
 
       // <type_traits>
       template <bool B>
@@ -107,6 +106,7 @@ namespace mpark {
       }
 #else
       namespace detail {
+
         namespace has_addressof_impl {
 
           struct fail;
@@ -185,7 +185,6 @@ namespace mpark {
 #endif
 
   }  // namespace lib
-
 }  // namespace mpark
 
 #endif  // MPARK_LIB_HPP
