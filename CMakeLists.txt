@@ -33,7 +33,7 @@ configure_package_config_file(
 
 write_basic_package_version_file(
   "${CMAKE_CURRENT_BINARY_DIR}/cmake/mpark_variant-config-version.cmake"
-  COMPATIBILITY SameMajorVersion)
+  COMPATIBILITY AnyNewerVersion)
 
 # Export.
 export(
