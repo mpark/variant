@@ -1,6 +1,6 @@
 # MPark.Variant
 
-> __C++14__ implementation of __C++17__ `std::variant`
+> __C++17__ `std::variant` as a standalone __C++14__ library.
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
@@ -25,7 +25,7 @@
 
 ## Introduction
 
-__MPark.Variant__ provides an implementation of __C++17__ `std::variant` as a __C++14__ library.
+__MPark.Variant__ provides an implementation of __C++17__ `std::variant` as a standalone __C++14__ library.
 
 The implementation is based on my [implementation of `std::variant` for __libc++__][libcxx-impl]
 and is continously tested against __libc++__ `std::variant` test suite.
