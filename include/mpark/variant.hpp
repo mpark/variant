@@ -440,15 +440,15 @@ namespace mpark {
         }
 
         template <typename F, typename... Fs>
-        inline static constexpr void std_visit_visitor_return_type_check() {
+        inline static constexpr void visit_visitor_return_type_check() {
           static_assert(all({std::is_same<F, Fs>::value...}),
-                        "`std::visit` requires the visitor to have a single "
+                        "`mpark::visit` requires the visitor to have a single "
                         "return type.");
         }
 
         template <typename... Fs>
         inline static constexpr auto make_farray(Fs &&... fs) {
-          std_visit_visitor_return_type_check<std::decay_t<Fs>...>();
+          visit_visitor_return_type_check<std::decay_t<Fs>...>();
           using result = std::array<std::common_type_t<std::decay_t<Fs>...>,
                                     sizeof...(Fs)>;
           return result{{std::forward<Fs>(fs)...}};
@@ -551,20 +551,21 @@ namespace mpark {
 
         private:
         template <typename Visitor, typename... Values>
-        inline static constexpr void std_visit_exhaustive_visitor_check() {
-          static_assert(lib::is_callable<Visitor(Values...)>::value,
-                        "`std::visit` requires the visitor to be exhaustive.");
+        inline static constexpr void visit_exhaustive_visitor_check() {
+          static_assert(
+              lib::is_callable<Visitor(Values...)>::value,
+              "`mpark::visit` requires the visitor to be exhaustive.");
         }
 
         template <typename Visitor>
         struct value_visitor {
           template <typename... Alts>
           inline constexpr decltype(auto) operator()(Alts &&... alts) const {
-            std_visit_exhaustive_visitor_check<
+            visit_exhaustive_visitor_check<
                 Visitor,
-                decltype(std::forward<Alts>(alts).value_)...>();
+                decltype(std::forward<Alts>(alts).value())...>();
             return lib::invoke(std::forward<Visitor>(visitor_),
-                               std::forward<Alts>(alts).value_...);
+                               std::forward<Alts>(alts).value()...);
           }
           Visitor &&visitor_;
         };
@@ -585,7 +586,13 @@ namespace mpark {
       inline explicit constexpr alt(in_place_t, Args &&... args)
           : value_(std::forward<Args>(args)...) {}
 
-      value_type value_;
+      constexpr T &value() & { return value_; }
+      constexpr const T &value() const & { return value_; }
+      constexpr T &&value() && { return std::move(value_); }
+      constexpr const T &&value() const && { return std::move(value_); }
+
+      private:
+      T value_;
     };
 
     template <Trait DestructibleTrait, std::size_t Index, typename... Ts>
@@ -740,7 +747,7 @@ namespace mpark {
               rhs.index(),
               [](auto &lhs_alt, auto &&rhs_alt) {
                 constructor::construct_alt(
-                    lhs_alt, std::forward<decltype(rhs_alt)>(rhs_alt).value_);
+                    lhs_alt, std::forward<decltype(rhs_alt)>(rhs_alt).value());
               },
               lhs,
               std::forward<Rhs>(rhs));
@@ -846,7 +853,7 @@ namespace mpark {
                              Arg &&arg,
                              lib::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
-          a.value_ = std::forward<Arg>(arg);
+          a.value() = std::forward<Arg>(arg);
         } else {
           struct {
             void operator()(std::true_type) const {
@@ -874,7 +881,7 @@ namespace mpark {
               [this](auto &this_alt, auto &&that_alt) {
                 this->assign_alt(
                     this_alt,
-                    std::forward<decltype(that_alt)>(that_alt).value_,
+                    std::forward<decltype(that_alt)>(that_alt).value(),
                     std::is_lvalue_reference<That>{});
               },
               *this,
@@ -982,8 +989,8 @@ namespace mpark {
           visitation::base::visit_alt_at(this->index(),
                                          [](auto &this_alt, auto &that_alt) {
                                            using std::swap;
-                                           swap(this_alt.value_,
-                                                that_alt.value_);
+                                           swap(this_alt.value(),
+                                                that_alt.value());
                                          },
                                          *this,
                                          that);
@@ -1238,7 +1245,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr auto &&generic_get(V &&v) {
       return (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
-             access::variant::get_alt<I>(std::forward<V>(v)).value_;
+             access::variant::get_alt<I>(std::forward<V>(v)).value();
     }
 
   }  // namespace detail
@@ -1292,7 +1299,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr auto *generic_get_if(V *v) noexcept {
       return v && holds_alternative<I>(*v)
-                 ? lib::addressof(access::variant::get_alt<I>(*v).value_)
+                 ? lib::addressof(access::variant::get_alt<I>(*v).value())
                  : nullptr;
     }
 
@@ -1448,7 +1455,7 @@ namespace std {
                     [](const auto &alt) {
                       using alt_type = decay_t<decltype(alt)>;
                       using value_type = typename alt_type::value_type;
-                      return hash<value_type>{}(alt.value_);
+                      return hash<value_type>{}(alt.value());
                     },
                     v);
       return hash_combine(result, hash<std::size_t>{}(v.index()));
