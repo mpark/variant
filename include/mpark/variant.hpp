@@ -1431,12 +1431,42 @@ namespace mpark {
     lhs.swap(rhs);
   }
 
+  namespace detail {
+
+    template <typename T, typename...>
+    using enabled_type = T;
+
+    namespace hash {
+
+      template <typename Hash, typename Key>
+      constexpr bool meets_requirements() {
+        return std::is_copy_constructible<Hash>::value &&
+               std::is_move_constructible<Hash>::value &&
+               lib::is_invocable_r<std::size_t, Hash, const Key &>::value;
+      }
+
+      template <typename Key>
+      constexpr bool is_enabled() {
+        using Hash = std::hash<Key>;
+        return meets_requirements<Hash, Key>() &&
+               std::is_default_constructible<Hash>::value &&
+               std::is_copy_assignable<Hash>::value &&
+               std::is_move_assignable<Hash>::value;
+      }
+
+    }  // namespace hash
+
+  }  // namespace detail
+
 }  // namespace mpark
 
 namespace std {
 
   template <typename... Ts>
-  struct hash<mpark::variant<Ts...>> {
+  struct hash<mpark::detail::enabled_type<
+      mpark::variant<Ts...>,
+      std::enable_if_t<mpark::detail::all(
+          {mpark::detail::hash::is_enabled<std::remove_const_t<Ts>>()...})>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
@@ -1448,7 +1478,8 @@ namespace std {
               : variant::visit_alt(
                     [](const auto &alt) {
                       using alt_type = decay_t<decltype(alt)>;
-                      using value_type = typename alt_type::value_type;
+                      using value_type =
+                          std::remove_const_t<typename alt_type::value_type>;
                       return hash<value_type>{}(alt.value_);
                     },
                     v);
