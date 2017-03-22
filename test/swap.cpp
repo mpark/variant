@@ -49,7 +49,9 @@ TEST(Swap, Different) {
 struct move_thrower_t {
   move_thrower_t() = default;
   move_thrower_t(const move_thrower_t &) = default;
-  move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+  [[noreturn]] move_thrower_t(move_thrower_t &&) {
+    throw std::runtime_error("");
+  }
   move_thrower_t &operator=(const move_thrower_t &) = default;
   move_thrower_t &operator=(move_thrower_t &&) = default;
 };  // move_thrower_t
@@ -86,7 +88,11 @@ TEST(Swap, BothValuelessByException) {
 TEST(Swap, DtorsSame) {
   struct Obj {
     Obj(size_t *dtor_count) : dtor_count_(dtor_count) {}
+    Obj(const Obj &) = default;
+    Obj(Obj &&) = default;
     ~Obj() { ++(*dtor_count_); }
+    Obj &operator=(const Obj &) = default;
+    Obj &operator=(Obj &&) = default;
     size_t *dtor_count_;
   };  // Obj
   size_t v_count = 0;
@@ -114,11 +120,15 @@ namespace detail {
 
 struct Obj {
   Obj(size_t *dtor_count) : dtor_count_(dtor_count) {}
+  Obj(const Obj &) = default;
+  Obj(Obj &&) = default;
   ~Obj() { ++(*dtor_count_); }
+  Obj &operator=(const Obj &) = default;
+  Obj &operator=(Obj &&) = default;
   size_t *dtor_count_;
 };  // Obj
 
-void swap(Obj &lhs, Obj &rhs) { std::swap(lhs.dtor_count_, rhs.dtor_count_); }
+static void swap(Obj &lhs, Obj &rhs) { std::swap(lhs.dtor_count_, rhs.dtor_count_); }
 
 }  // namespace detail
 
@@ -140,12 +150,20 @@ TEST(Swap, DtorsSameWithSwap) {
 TEST(Swap, DtorsDifferent) {
   struct V {
     V(size_t *dtor_count) : dtor_count_(dtor_count) {}
+    V(const V &) = default;
+    V(V &&) = default;
     ~V() { ++(*dtor_count_); }
+    V &operator=(const V &) = default;
+    V &operator=(V &&) = default;
     size_t *dtor_count_;
   };  // V
   struct W {
     W(size_t *dtor_count) : dtor_count_(dtor_count) {}
+    W(const W &) = default;
+    W(W &&) = default;
     ~W() { ++(*dtor_count_); }
+    W &operator=(const W &) = default;
+    W &operator=(W &&) = default;
     size_t *dtor_count_;
   };  // W
   size_t v_count = 0;

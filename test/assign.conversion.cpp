@@ -88,7 +88,9 @@ struct MoveAssignment : std::exception {};
 
 struct copy_thrower_t {
   copy_thrower_t() = default;
-  copy_thrower_t(const copy_thrower_t &) { throw CopyConstruction{}; }
+  [[noreturn]] copy_thrower_t(const copy_thrower_t &) {
+    throw CopyConstruction{};
+  }
   copy_thrower_t(copy_thrower_t &&) = default;
   copy_thrower_t &operator=(const copy_thrower_t &) { throw CopyAssignment{}; }
   copy_thrower_t &operator=(copy_thrower_t &&) = default;
@@ -97,7 +99,7 @@ struct copy_thrower_t {
 struct move_thrower_t {
   move_thrower_t() = default;
   move_thrower_t(const move_thrower_t &) = default;
-  move_thrower_t(move_thrower_t &&) { throw MoveConstruction{}; }
+  [[noreturn]] move_thrower_t(move_thrower_t &&) { throw MoveConstruction{}; }
   move_thrower_t &operator=(const move_thrower_t &) = default;
   move_thrower_t &operator=(move_thrower_t &&) { throw MoveAssignment{}; }
 };  // move_thrower_t

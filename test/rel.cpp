@@ -157,7 +157,9 @@ TEST(Rel, DiffTypeDiffValue) {
 struct move_thrower_t {
   move_thrower_t() = default;
   move_thrower_t(const move_thrower_t &) = default;
-  move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
+  [[noreturn]] move_thrower_t(move_thrower_t &&) {
+    throw std::runtime_error("");
+  }
   move_thrower_t &operator=(const move_thrower_t &) = default;
   move_thrower_t &operator=(move_thrower_t &&) = default;
   friend bool operator<(const move_thrower_t &, const move_thrower_t &) {
