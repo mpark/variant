@@ -643,22 +643,24 @@ namespace mpark {
 
 #undef MPARK_VARIANT_RECURSIVE_UNION
 
+    using index_t = unsigned int;
+
     template <Trait DestructibleTrait, typename... Ts>
     class base {
       public:
       inline explicit constexpr base(valueless_t tag) noexcept
-          : data_(tag), index_(-1) {}
+          : data_(tag), index_(static_cast<index_t>(-1)) {}
 
       template <std::size_t I, typename... Args>
       inline explicit constexpr base(in_place_index_t<I>, Args &&... args)
           : data_(in_place_index<I>, std::forward<Args>(args)...), index_(I) {}
 
       inline constexpr bool valueless_by_exception() const noexcept {
-        return index() == variant_npos;
+        return index_ == static_cast<index_t>(-1);
       }
 
       inline constexpr std::size_t index() const noexcept {
-        return index_ == static_cast<unsigned int>(-1) ? variant_npos : index_;
+        return valueless_by_exception() ? variant_npos : index_;
       }
 
       protected:
@@ -670,7 +672,7 @@ namespace mpark {
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
       recursive_union<DestructibleTrait, 0, Ts...> data_;
-      unsigned int index_;
+      index_t index_;
 
       friend struct access::base;
       friend struct visitation::base;
@@ -701,7 +703,9 @@ namespace mpark {
 
     MPARK_VARIANT_DESTRUCTOR(Trait::TriviallyAvailable,
                              ~destructor() = default;,
-                             void destroy() noexcept { this->index_ = -1; });
+                             void destroy() noexcept {
+                               this->index_ = static_cast<index_t>(-1);
+                             });
 
     MPARK_VARIANT_DESTRUCTOR(Trait::Available,
                              ~destructor() { destroy(); },
@@ -715,7 +719,7 @@ namespace mpark {
                                      },
                                      *this);
                                }
-                               this->index_ = -1;
+                               this->index_ = static_cast<index_t>(-1);
                              });
 
     MPARK_VARIANT_DESTRUCTOR(Trait::Unavailable,
@@ -751,7 +755,7 @@ namespace mpark {
               },
               lhs,
               std::forward<Rhs>(rhs));
-          lhs.index_ = rhs.index();
+          lhs.index_ = rhs.index_;
         }
       }
     };
