@@ -641,7 +641,7 @@ namespace mpark {
     MPARK_VARIANT_RECURSIVE_UNION(Trait::Unavailable,
                                   ~recursive_union() = delete;);
 
-#undef _MPARK_VARIANT_UNION
+#undef MPARK_VARIANT_RECURSIVE_UNION
 
     template <Trait DestructibleTrait, typename... Ts>
     class base {
