@@ -255,10 +255,10 @@ namespace mpark {
       : std::add_cv<variant_alternative_t<I, T>> {};
 
   template <std::size_t I, typename... Ts>
-  struct variant_alternative<I, variant<Ts...>> {
+  struct variant_alternative<I, variant<Ts...>>
+      : lib::identity<lib::type_pack_element_t<I, Ts...>> {
     static_assert(I < sizeof...(Ts),
                   "`variant_alternative` index out of range.");
-    using type = lib::type_pack_element_t<I, Ts...>;
   };
 
   constexpr std::size_t variant_npos = static_cast<std::size_t>(-1);
