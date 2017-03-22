@@ -553,7 +553,7 @@ namespace mpark {
         template <typename Visitor, typename... Values>
         inline static constexpr void visit_exhaustive_visitor_check() {
           static_assert(
-              lib::is_callable<Visitor(Values...)>::value,
+              lib::is_invocable<Visitor, Values...>::value,
               "`mpark::visit` requires the visitor to be exhaustive.");
         }
 
@@ -1034,7 +1034,7 @@ namespace mpark {
 
     template <typename T, typename... Ts>
     using best_match_t =
-        typename std::result_of_t<overload<Ts...>(T &&)>::type;
+        typename lib::invoke_result_t<overload<Ts...>, T &&>::type;
 
   }  // detail
 

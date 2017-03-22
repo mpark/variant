@@ -62,12 +62,6 @@ namespace mpark {
       template <typename...>
       using void_t = void;
 
-      template <typename F, typename = void>
-      struct is_callable : std::false_type {};
-
-      template <typename F>
-      struct is_callable<F, void_t<std::result_of_t<F>>> : std::true_type {};
-
       namespace detail {
         namespace swappable {
 
@@ -132,6 +126,54 @@ namespace mpark {
           RETURN(((*std::forward<Ptr>(ptr)).*pmf)(std::forward<As>(as)...))
 
 #undef RETURN
+
+      namespace detail {
+
+        template <typename Void, typename, typename...>
+        struct invoke_result {};
+
+        template <typename F, typename... Args>
+        struct invoke_result<void_t<decltype(lib::invoke(
+                                 std::declval<F>(), std::declval<Args>()...))>,
+                             F,
+                             Args...>
+            : identity<decltype(
+                  lib::invoke(std::declval<F>(), std::declval<Args>()...))> {};
+
+      }  // namespace detail
+
+      template <typename F, typename... Args>
+      using invoke_result = detail::invoke_result<void, F, Args...>;
+
+      template <typename F, typename... Args>
+      using invoke_result_t = typename invoke_result<F, Args...>::type;
+
+      namespace detail {
+
+        template <typename Void, typename, typename...>
+        struct is_invocable : std::false_type {};
+
+        template <typename F, typename... Args>
+        struct is_invocable<void_t<invoke_result_t<F, Args...>>, F, Args...>
+            : std::true_type {};
+
+        template <typename Void, typename, typename, typename...>
+        struct is_invocable_r : std::false_type {};
+
+        template <typename R, typename F, typename... Args>
+        struct is_invocable_r<void_t<invoke_result_t<F, Args...>>,
+                              R,
+                              F,
+                              Args...>
+            : std::is_convertible<invoke_result_t<F, Args...>, R> {};
+
+      }  // namespace detail
+
+      template <typename F, typename... Args>
+      using is_invocable = detail::is_invocable<void, F, Args...>;
+
+      template <typename R, typename F, typename... Args>
+      using is_invocable_r = detail::is_invocable_r<void, R, F, Args...>;
 
       // <memory>
 #ifdef MPARK_BUILTIN_ADDRESSOF
