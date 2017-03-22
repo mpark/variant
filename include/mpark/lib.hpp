@@ -18,6 +18,41 @@
 namespace mpark {
   namespace lib {
 
+    template <typename T>
+    struct identity { using type = T; };
+
+#ifdef MPARK_TYPE_PACK_ELEMENT
+    template <std::size_t I, typename... Ts>
+    using type_pack_element_t = __type_pack_element<I, Ts...>;
+#else
+    template <std::size_t I, typename... Ts>
+    struct type_pack_element_impl {
+      private:
+      template <std::size_t, typename T>
+      struct indexed_type : identity<T> {};
+
+      template <std::size_t... Is>
+      inline static auto make_set(std::index_sequence<Is...>) {
+        struct set : indexed_type<Is, Ts>... {};
+        return set{};
+      }
+
+      template <typename T>
+      inline static std::enable_if<true, T> impl(indexed_type<I, T>);
+
+      inline static std::enable_if<false> impl(...);
+
+      public:
+      using type = decltype(impl(make_set(std::index_sequence_for<Ts...>{})));
+    };
+
+    template <std::size_t I, typename... Ts>
+    using type_pack_element = typename type_pack_element_impl<I, Ts...>::type;
+
+    template <std::size_t I, typename... Ts>
+    using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
+#endif
+
     inline namespace cpp17 {
 
       // <type_traits>
@@ -144,45 +179,6 @@ namespace mpark {
       inline const T *addressof(const T &&) = delete;
 
     }  // namespace cpp17
-
-    template <typename T>
-    struct identity {
-      using type = T;
-    };
-
-#ifdef MPARK_TYPE_PACK_ELEMENT
-    template <std::size_t I, typename... Ts>
-    using type_pack_element_t = __type_pack_element<I, Ts...>;
-#else
-    template <std::size_t I, typename... Ts>
-    struct type_pack_element_impl {
-      private:
-      template <std::size_t, typename T>
-      struct indexed_type {
-        using type = T;
-      };
-
-      template <std::size_t... Is>
-      inline static auto make_set(std::index_sequence<Is...>) {
-        struct set : indexed_type<Is, Ts>... {};
-        return set{};
-      }
-
-      template <typename T>
-      inline static std::enable_if<true, T> impl(indexed_type<I, T>);
-
-      inline static std::enable_if<false, void> impl(...);
-
-      public:
-      using type = decltype(impl(make_set(std::index_sequence_for<Ts...>{})));
-    };
-
-    template <std::size_t I, typename... Ts>
-    using type_pack_element = typename type_pack_element_impl<I, Ts...>::type;
-
-    template <std::size_t I, typename... Ts>
-    using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
-#endif
 
   }  // namespace lib
 }  // namespace mpark
