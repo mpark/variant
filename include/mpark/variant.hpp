@@ -1501,7 +1501,7 @@ namespace std {
     using argument_type = mpark::monostate;
     using result_type = std::size_t;
 
-    inline result_type operator()(const argument_type &) const {
+    inline result_type operator()(const argument_type &) const noexcept {
       return 66740831;  // return a fundamentally attractive random value.
     }
   };
