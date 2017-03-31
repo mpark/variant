@@ -21,12 +21,12 @@ endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
-  set(MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest_download)
+  set(MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
   set(MPARK_VARIANT_GOOGLETEST_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest)
   set(MPARK_VARIANT_GOOGLETEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 
   configure_file(
-    googletest_download/CMakeLists.txt.in
+    googletest-download/CMakeLists.txt.in
     ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR}/CMakeLists.txt)
 
   execute_process(
