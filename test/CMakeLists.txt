@@ -12,18 +12,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND
-   "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
-  add_compile_options(-Qunused-arguments)
-  add_compile_options(-Wno-deprecated-declarations)
-  add_compile_options(-Wno-unknown-argument)
-endif()
-
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
-
-  set(MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-  set(MPARK_VARIANT_GOOGLETEST_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest)
-  set(MPARK_VARIANT_GOOGLETEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 
   function(add_gtest name)
     add_executable(${name} ${name}.cpp)
