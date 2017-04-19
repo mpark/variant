@@ -104,7 +104,10 @@ namespace mpark {
         using is_nothrow_swappable = detail::swappable::is_nothrow_swappable<T>;
 
         // <functional>
-  #define RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+#define RETURN(...)                                          \
+  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { \
+    return __VA_ARGS__;                                      \
+  }
 
         template <typename F, typename... As>
         inline constexpr auto invoke(F &&f, As &&... as)
@@ -126,7 +129,7 @@ namespace mpark {
         inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
             RETURN(((*std::forward<Ptr>(ptr)).*pmf)(std::forward<As>(as)...))
 
-  #undef RETURN
+#undef RETURN
 
         namespace detail {
 
