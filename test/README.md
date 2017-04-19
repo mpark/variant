@@ -1,6 +1,6 @@
 # MPark.Variant
 
-> __C++14__ implementation of __C++17__ `std::variant`
+> __C++17__ `std::variant` as a standalone __C++14__ library.
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
@@ -21,7 +21,7 @@
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE_1_0.txt
 [gitter]: https://gitter.im/mpark/variant
-[wandbox]: http://melpon.org/wandbox/permlink/pKlAz3y3jif2HCDi
+[wandbox]: https://wandbox.org/permlink/fHVxfQg3rm4YWIav
 
 ## Test
 
