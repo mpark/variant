@@ -6,8 +6,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MPARK_CONFIG_HPP
-#define MPARK_CONFIG_HPP
+#ifndef MPARK_VARIANTS_CONFIG_HPP
+#define MPARK_VARIANTS_CONFIG_HPP
 
 #ifndef __has_builtin
 #define __has_builtin(x) 0
@@ -21,4 +21,4 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
-#endif  // MPARK_CONFIG_HPP
+#endif  // MPARK_VARIANTS_CONFIG_HPP
