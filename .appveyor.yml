@@ -5,6 +5,9 @@ build:
 
 clone_depth: 1
 
+install:
+  - cmd: git submodule -q update --init
+
 platform:
   - x86
   - x64
