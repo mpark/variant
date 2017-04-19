@@ -25,25 +25,6 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
   set(MPARK_VARIANT_GOOGLETEST_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest)
   set(MPARK_VARIANT_GOOGLETEST_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/googletest-build)
 
-  configure_file(
-    googletest-download/CMakeLists.txt.in
-    ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR}/CMakeLists.txt)
-
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
-                             -T "${CMAKE_TOOLSET_GENERATOR}" .
-    WORKING_DIRECTORY ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR})
-
-  execute_process(
-    COMMAND ${CMAKE_COMMAND} --build .
-    WORKING_DIRECTORY ${MPARK_VARIANT_GOOGLETEST_DOWNLOAD_DIR})
-
-  add_subdirectory(${MPARK_VARIANT_GOOGLETEST_SOURCE_DIR}/googletest
-                   ${MPARK_VARIANT_GOOGLETEST_BINARY_DIR}/googletest
-                   EXCLUDE_FROM_ALL)
-
-  config_compiler_and_linker()
-
   function(add_gtest name)
     add_executable(${name} ${name}.cpp)
     set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
