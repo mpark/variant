@@ -205,6 +205,7 @@ namespace std {
 #include <utility>
 
 #include <mpark/in_place.hpp>
+#include <mpark/variants/config.hpp>
 #include <mpark/variants/lib.hpp>
 
 namespace mpark {
@@ -220,8 +221,10 @@ namespace mpark {
   template <typename T>
   struct variant_size;
 
+#ifdef MPARK_VARIABLE_TEMPLATES
   template <typename T>
   constexpr std::size_t variant_size_v = variant_size<T>::value;
+#endif
 
   template <typename T>
   struct variant_size<const T> : variant_size<T> {};

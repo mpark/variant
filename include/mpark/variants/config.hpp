@@ -21,4 +21,8 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
+#ifdef __cpp_variable_templates
+#define MPARK_VARIABLE_TEMPLATES
+#endif
+
 #endif  // MPARK_VARIANTS_CONFIG_HPP
