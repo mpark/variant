@@ -468,19 +468,21 @@ namespace mpark {
         };
 
         template <typename F, typename... Vs, std::size_t... Is>
-        inline static constexpr auto make_dispatch(std::index_sequence<Is...>) {
+        inline static constexpr auto make_dispatch(
+            variants::lib::index_sequence<Is...>) {
           return &dispatcher<Is...>::template dispatch<F, Vs...>;
         }
 
         template <std::size_t I, typename F, typename... Vs>
         inline static constexpr auto make_fdiagonal_impl() {
           return make_dispatch<F, Vs...>(
-              std::index_sequence<(variants::lib::identity<Vs>{}, I)...>{});
+              variants::lib::index_sequence<(variants::lib::identity<Vs>{},
+                                             I)...>{});
         }
 
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_fdiagonal_impl(
-            std::index_sequence<Is...>) {
+            variants::lib::index_sequence<Is...>) {
           return base::make_farray(make_fdiagonal_impl<Is, F, Vs...>()...);
         }
 
@@ -490,12 +492,12 @@ namespace mpark {
           static_assert(all({(N == std::decay_t<Vs>::size())...}),
                         "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
-              std::make_index_sequence<N>{});
+              variants::lib::make_index_sequence<N>{});
         }
 
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_fmatrix_impl(
-            std::index_sequence<Is...> is) {
+            variants::lib::index_sequence<Is...> is) {
           return make_dispatch<F, Vs...>(is);
         }
 
@@ -505,16 +507,19 @@ namespace mpark {
                   std::size_t... Js,
                   typename... Ls>
         inline static constexpr auto make_fmatrix_impl(
-            std::index_sequence<Is...>, std::index_sequence<Js...>, Ls... ls) {
+            variants::lib::index_sequence<Is...>,
+            variants::lib::index_sequence<Js...>,
+            Ls... ls) {
           return base::make_farray(make_fmatrix_impl<F, Vs...>(
-              std::index_sequence<Is..., Js>{}, ls...)...);
+              variants::lib::index_sequence<Is..., Js>{}, ls...)...);
         }
 
         template <typename F, typename... Vs>
         inline static constexpr auto make_fmatrix() {
           return make_fmatrix_impl<F, Vs...>(
-              std::index_sequence<>{},
-              std::make_index_sequence<std::decay_t<Vs>::size()>{}...);
+              variants::lib::index_sequence<>{},
+              variants::lib::make_index_sequence<
+                  std::decay_t<Vs>::size()>{}...);
         }
       };
 

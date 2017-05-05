@@ -22,6 +22,52 @@ namespace mpark {
       template <typename T>
       struct identity { using type = T; };
 
+      inline namespace cpp14 {
+
+#ifdef MPARK_INTEGER_SEQUENCE
+        template <std::size_t... Is>
+        using index_sequence = std::index_sequence<Is...>;
+
+        template <std::size_t N>
+        using make_index_sequence = std::make_index_sequence<N>;
+
+        template <typename... Ts>
+        using index_sequence_for = std::index_sequence_for<Ts...>;
+#else
+        template <std::size_t...>
+        struct index_sequence {};
+
+        template <typename Lhs, typename Rhs>
+        struct make_index_sequence_concat;
+
+        template <std::size_t... Lhs, std::size_t... Rhs>
+        struct make_index_sequence_concat<index_sequence<Lhs...>,
+                                          index_sequence<Rhs...>>
+            : identity<index_sequence<Lhs..., (sizeof...(Lhs) + Rhs)...>> {};
+
+        template <std::size_t N>
+        struct make_index_sequence_impl;
+
+        template <std::size_t N>
+        using make_index_sequence = typename make_index_sequence_impl<N>::type;
+
+        template <std::size_t N>
+        struct make_index_sequence_impl
+            : make_index_sequence_concat<make_index_sequence<N / 2>,
+                                         make_index_sequence<N - (N / 2)>> {};
+
+        template <>
+        struct make_index_sequence_impl<0> : identity<index_sequence<>> {};
+
+        template <>
+        struct make_index_sequence_impl<1> : identity<index_sequence<0>> {};
+
+        template <typename... Ts>
+        using index_sequence_for = make_index_sequence<sizeof...(Ts)>;
+#endif
+
+      }  // namespace cpp14
+
 #ifdef MPARK_TYPE_PACK_ELEMENT
       template <std::size_t I, typename... Ts>
       using type_pack_element_t = __type_pack_element<I, Ts...>;
@@ -33,7 +79,7 @@ namespace mpark {
         struct indexed_type : identity<T> {};
 
         template <std::size_t... Is>
-        inline static auto make_set(std::index_sequence<Is...>) {
+        inline static auto make_set(index_sequence<Is...>) {
           struct set : indexed_type<Is, Ts>... {};
           return set{};
         }
@@ -44,7 +90,7 @@ namespace mpark {
         inline static std::enable_if<false> impl(...);
 
         public:
-        using type = decltype(impl(make_set(std::index_sequence_for<Ts...>{})));
+        using type = decltype(impl(make_set(index_sequence_for<Ts...>{})));
       };
 
       template <std::size_t I, typename... Ts>

@@ -21,6 +21,10 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
+#ifdef __cpp_lib_integer_sequence
+#define MPARK_INTEGER_SEQUENCE
+#endif
+
 #ifdef __cpp_variable_templates
 #define MPARK_VARIABLE_TEMPLATES
 #endif
