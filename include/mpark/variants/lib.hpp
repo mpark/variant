@@ -23,6 +23,9 @@ namespace mpark {
       struct identity { using type = T; };
 
       inline namespace cpp14 {
+        template <typename T>
+        using add_pointer_t = typename std::add_pointer<T>::type;
+
         template <typename... Ts>
         using common_type_t = typename std::common_type<Ts...>::type;
 

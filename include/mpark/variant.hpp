@@ -1199,16 +1199,15 @@ namespace mpark {
     variant &operator=(const variant &) = default;
     variant &operator=(variant &&) = default;
 
-    template <
-        typename Arg,
-        variants::lib::enable_if_t<
-            !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
-            int> = 0,
-        typename T = detail::best_match_t<Arg, Ts...>,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        variants::lib::enable_if_t<std::is_assignable<T &, Arg>::value &&
-                                       std::is_constructible<T, Arg>::value,
-                                   int> = 0>
+    template <typename Arg,
+              variants::lib::enable_if_t<
+                  !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
+                  int> = 0,
+              typename T = detail::best_match_t<Arg, Ts...>,
+              std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+              variants::lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
+                                          std::is_constructible<T, Arg>::value),
+                                         int> = 0>
     inline variant &operator=(Arg &&arg) noexcept(
         (std::is_nothrow_assignable<T &, Arg>::value &&
          std::is_nothrow_constructible<T, Arg>::value)) {
@@ -1366,26 +1365,27 @@ namespace mpark {
   }  // namespace detail
 
   template <std::size_t I, typename... Ts>
-  inline constexpr std::add_pointer_t<variant_alternative_t<I, variant<Ts...>>>
+  inline constexpr variants::lib::add_pointer_t<
+      variant_alternative_t<I, variant<Ts...>>>
   get_if(variant<Ts...> *v) noexcept {
     return detail::generic_get_if<I>(v);
   }
 
   template <std::size_t I, typename... Ts>
-  inline constexpr std::add_pointer_t<
+  inline constexpr variants::lib::add_pointer_t<
       const variant_alternative_t<I, variant<Ts...>>>
   get_if(const variant<Ts...> *v) noexcept {
     return detail::generic_get_if<I>(v);
   }
 
   template <typename T, typename... Ts>
-  inline constexpr std::add_pointer_t<T>
+  inline constexpr variants::lib::add_pointer_t<T>
   get_if(variant<Ts...> *v) noexcept {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename T, typename... Ts>
-  inline constexpr std::add_pointer_t<const T>
+  inline constexpr variants::lib::add_pointer_t<const T>
   get_if(const variant<Ts...> *v) noexcept {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
