@@ -377,7 +377,7 @@ namespace mpark {
 
         template <typename V, std::size_t I>
         inline static constexpr auto &&get_alt(V &&v, in_place_index_t<I>) {
-          return get_alt(std::forward<V>(v).tail_, in_place_index<I - 1>);
+          return get_alt(std::forward<V>(v).tail_, in_place_index_t<I - 1>{});
         }
       };
 
@@ -385,7 +385,7 @@ namespace mpark {
         template <std::size_t I, typename V>
         inline static constexpr auto &&get_alt(V &&v) {
           return recursive_union::get_alt(std::forward<V>(v).data_,
-                                          in_place_index<I>);
+                                          in_place_index_t<I>{});
         }
       };
 
@@ -604,37 +604,37 @@ namespace mpark {
     template <Trait DestructibleTrait, std::size_t Index>
     union recursive_union<DestructibleTrait, Index> {};
 
-#define MPARK_VARIANT_RECURSIVE_UNION(destructible_trait, destructor)  \
-  template <std::size_t Index, typename T, typename... Ts>             \
-  union recursive_union<destructible_trait, Index, T, Ts...> {         \
-    public:                                                            \
-    inline explicit constexpr recursive_union(valueless_t) noexcept    \
-        : dummy_{} {}                                                  \
-                                                                       \
-    template <typename... Args>                                        \
-    inline explicit constexpr recursive_union(in_place_index_t<0>,     \
-                                              Args &&... args)         \
-        : head_(in_place, std::forward<Args>(args)...) {}              \
-                                                                       \
-    template <std::size_t I, typename... Args>                         \
-    inline explicit constexpr recursive_union(in_place_index_t<I>,     \
-                                              Args &&... args)         \
-        : tail_(in_place_index<I - 1>, std::forward<Args>(args)...) {} \
-                                                                       \
-    recursive_union(const recursive_union &) = default;                \
-    recursive_union(recursive_union &&) = default;                     \
-                                                                       \
-    destructor                                                         \
-                                                                       \
-    recursive_union &operator=(const recursive_union &) = default;     \
-    recursive_union &operator=(recursive_union &&) = default;          \
-                                                                       \
-    private:                                                           \
-    char dummy_;                                                       \
-    alt<Index, T> head_;                                               \
-    recursive_union<destructible_trait, Index + 1, Ts...> tail_;       \
-                                                                       \
-    friend struct access::recursive_union;                             \
+#define MPARK_VARIANT_RECURSIVE_UNION(destructible_trait, destructor)      \
+  template <std::size_t Index, typename T, typename... Ts>                 \
+  union recursive_union<destructible_trait, Index, T, Ts...> {             \
+    public:                                                                \
+    inline explicit constexpr recursive_union(valueless_t) noexcept        \
+        : dummy_{} {}                                                      \
+                                                                           \
+    template <typename... Args>                                            \
+    inline explicit constexpr recursive_union(in_place_index_t<0>,         \
+                                              Args &&... args)             \
+        : head_(in_place_t{}, std::forward<Args>(args)...) {}              \
+                                                                           \
+    template <std::size_t I, typename... Args>                             \
+    inline explicit constexpr recursive_union(in_place_index_t<I>,         \
+                                              Args &&... args)             \
+        : tail_(in_place_index_t<I - 1>{}, std::forward<Args>(args)...) {} \
+                                                                           \
+    recursive_union(const recursive_union &) = default;                    \
+    recursive_union(recursive_union &&) = default;                         \
+                                                                           \
+    destructor                                                             \
+                                                                           \
+    recursive_union &operator=(const recursive_union &) = default;         \
+    recursive_union &operator=(recursive_union &&) = default;              \
+                                                                           \
+    private:                                                               \
+    char dummy_;                                                           \
+    alt<Index, T> head_;                                                   \
+    recursive_union<destructible_trait, Index + 1, Ts...> tail_;           \
+                                                                           \
+    friend struct access::recursive_union;                                 \
   }
 
     MPARK_VARIANT_RECURSIVE_UNION(Trait::TriviallyAvailable,
@@ -656,7 +656,8 @@ namespace mpark {
 
       template <std::size_t I, typename... Args>
       inline explicit constexpr base(in_place_index_t<I>, Args &&... args)
-          : data_(in_place_index<I>, std::forward<Args>(args)...), index_(I) {}
+          : data_(in_place_index_t<I>{}, std::forward<Args>(args)...),
+            index_(I) {}
 
       inline constexpr bool valueless_by_exception() const noexcept {
         return index_ == static_cast<index_t>(-1);
@@ -743,7 +744,7 @@ namespace mpark {
       template <std::size_t I, typename T, typename... Args>
       inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
         ::new (static_cast<void *>(variants::lib::addressof(a)))
-            alt<I, T>(in_place, std::forward<Args>(args)...);
+            alt<I, T>(in_place_t{}, std::forward<Args>(args)...);
         return a.value();
       }
 
@@ -1073,7 +1074,7 @@ namespace mpark {
         std::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
     inline constexpr variant() noexcept(
         std::is_nothrow_default_constructible<Front>::value)
-        : impl_(in_place_index<0>) {}
+        : impl_(in_place_index_t<0>{}) {}
 
     variant(const variant &) = default;
     variant(variant &&) = default;
@@ -1086,7 +1087,7 @@ namespace mpark {
               std::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
         std::is_nothrow_constructible<T, Arg>::value)
-        : impl_(in_place_index<I>, std::forward<Arg>(arg)) {}
+        : impl_(in_place_index_t<I>{}, std::forward<Arg>(arg)) {}
 
     template <
         std::size_t I,
@@ -1097,7 +1098,7 @@ namespace mpark {
         in_place_index_t<I>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
                                                                 Args...>::value)
-        : impl_(in_place_index<I>, std::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, std::forward<Args>(args)...) {}
 
     template <
         std::size_t I,
@@ -1116,7 +1117,7 @@ namespace mpark {
                                           T,
                                           std::initializer_list<Up> &,
                                           Args...>::value)
-        : impl_(in_place_index<I>, il, std::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, il, std::forward<Args>(args)...) {}
 
     template <
         typename T,
@@ -1127,7 +1128,7 @@ namespace mpark {
         in_place_type_t<T>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
                                                                 Args...>::value)
-        : impl_(in_place_index<I>, std::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, std::forward<Args>(args)...) {}
 
     template <
         typename T,
@@ -1146,7 +1147,7 @@ namespace mpark {
                                           T,
                                           std::initializer_list<Up> &,
                                           Args...>::value)
-        : impl_(in_place_index<I>, il, std::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, il, std::forward<Args>(args)...) {}
 
     ~variant() = default;
 
