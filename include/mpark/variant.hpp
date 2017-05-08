@@ -346,45 +346,64 @@ namespace mpark {
                                          : Trait::Unavailable;
     }
 
-    inline constexpr Trait common_trait(std::initializer_list<Trait> traits) {
+#ifdef MPARK_CPP14_CONSTEXPR
+    template <typename... Traits>
+    inline constexpr Trait common_trait(Traits... traits) {
       Trait result = Trait::TriviallyAvailable;
-      for (Trait t : traits) {
+      for (Trait t : {traits...}) {
         if (static_cast<int>(t) > static_cast<int>(result)) {
           result = t;
         }
       }
       return result;
     }
+#else
+    inline constexpr Trait common_trait_impl(Trait result) { return result; }
+
+    template <typename... Traits>
+    inline constexpr Trait common_trait_impl(Trait result,
+                                             Trait t,
+                                             Traits... ts) {
+      return static_cast<int>(t) > static_cast<int>(result)
+                 ? common_trait_impl(t, ts...)
+                 : common_trait_impl(result, ts...);
+    }
+
+    template <typename... Traits>
+    inline constexpr Trait common_trait(Traits... ts) {
+      return common_trait_impl(Trait::TriviallyAvailable, ts...);
+    }
+#endif
 
     template <typename... Ts>
     struct traits {
       static constexpr Trait copy_constructible_trait =
-          common_trait({trait<Ts,
-                              std::is_trivially_copy_constructible,
-                              std::is_copy_constructible>()...});
+          common_trait(trait<Ts,
+                             std::is_trivially_copy_constructible,
+                             std::is_copy_constructible>()...);
 
       static constexpr Trait move_constructible_trait =
-          common_trait({trait<Ts,
-                              std::is_trivially_move_constructible,
-                              std::is_move_constructible>()...});
+          common_trait(trait<Ts,
+                             std::is_trivially_move_constructible,
+                             std::is_move_constructible>()...);
 
       static constexpr Trait copy_assignable_trait =
-          common_trait({copy_constructible_trait,
-                        move_constructible_trait,
-                        trait<Ts,
-                              std::is_trivially_copy_assignable,
-                              std::is_copy_assignable>()...});
+          common_trait(copy_constructible_trait,
+                       move_constructible_trait,
+                       trait<Ts,
+                             std::is_trivially_copy_assignable,
+                             std::is_copy_assignable>()...);
 
       static constexpr Trait move_assignable_trait =
-          common_trait({move_constructible_trait,
-                        trait<Ts,
-                              std::is_trivially_move_assignable,
-                              std::is_move_assignable>()...});
+          common_trait(move_constructible_trait,
+                       trait<Ts,
+                             std::is_trivially_move_assignable,
+                             std::is_move_assignable>()...);
 
       static constexpr Trait destructible_trait =
-          common_trait({trait<Ts,
-                              std::is_trivially_destructible,
-                              std::is_destructible>()...});
+          common_trait(trait<Ts,
+                             std::is_trivially_destructible,
+                             std::is_destructible>()...);
     };
 
     namespace access {
