@@ -237,7 +237,7 @@ namespace mpark {
 
   template <typename... Ts>
   struct variant_size<variant<Ts...>>
-      : std::integral_constant<std::size_t, sizeof...(Ts)> {};
+      : variants::lib::size_constant<sizeof...(Ts)> {};
 
   template <std::size_t I, typename T>
   struct variant_alternative;
@@ -268,13 +268,11 @@ namespace mpark {
 
   namespace detail {
 
-    inline constexpr bool all(std::initializer_list<bool> bs) {
-      for (bool b : bs) {
-        if (!b) {
-          return false;
-        }
-      }
-      return true;
+    inline constexpr bool all() { return true; }
+
+    template <typename... Bs>
+    inline constexpr bool all(bool b, Bs... bs) {
+      return b && all(bs...);
     }
 
     constexpr std::size_t not_found = static_cast<std::size_t>(-1);
@@ -298,13 +296,13 @@ namespace mpark {
     template <std::size_t I>
     using find_index_sfinae_impl =
         std::enable_if_t<I != not_found && I != ambiguous,
-                         std::integral_constant<std::size_t, I>>;
+                         variants::lib::size_constant<I>>;
 
     template <typename T, typename... Ts>
     using find_index_sfinae = find_index_sfinae_impl<find_index<T, Ts...>()>;
 
     template <std::size_t I>
-    struct find_index_checked_impl : std::integral_constant<std::size_t, I> {
+    struct find_index_checked_impl : variants::lib::size_constant<I> {
       static_assert(I != not_found, "the specified type is not found.");
       static_assert(I != ambiguous, "the specified type is ambiguous.");
     };
@@ -418,33 +416,26 @@ namespace mpark {
           constexpr auto fmatrix =
               make_fmatrix<Visitor &&,
                            decltype(std::forward<Vs>(vs).as_base())...>();
-          const std::size_t indices[] = {vs.index()...};
-          return at(fmatrix, indices)(std::forward<Visitor>(visitor),
-                                      std::forward<Vs>(vs).as_base()...);
+          return at(fmatrix, vs.index()...)(std::forward<Visitor>(visitor),
+                                            std::forward<Vs>(vs).as_base()...);
         }
 
         private:
         template <typename T>
-        inline static constexpr const T &at_impl(const T &elem,
-                                                 const std::size_t *) {
+        inline static constexpr const T &at(const T &elem) {
           return elem;
         }
 
-        template <typename T, std::size_t N>
-        inline static constexpr auto &&at_impl(const std::array<T, N> &elems,
-                                               const std::size_t *index) {
-          return at_impl(elems[*index], index + 1);
-        }
-
-        template <typename T, std::size_t N, std::size_t I>
+        template <typename T, std::size_t N, typename... Is>
         inline static constexpr auto &&at(const std::array<T, N> &elems,
-                                          const std::size_t (&indices)[I]) {
-          return at_impl(elems, indices);
+                                          std::size_t i,
+                                          Is... is) {
+          return at(elems[i], is...);
         }
 
         template <typename F, typename... Fs>
         inline static constexpr void visit_visitor_return_type_check() {
-          static_assert(all({std::is_same<F, Fs>::value...}),
+          static_assert(all(std::is_same<F, Fs>::value...),
                         "`mpark::visit` requires the visitor to have a single "
                         "return type.");
         }
@@ -489,7 +480,7 @@ namespace mpark {
         template <typename F, typename V, typename... Vs>
         inline static constexpr auto make_fdiagonal() {
           constexpr std::size_t N = std::decay_t<V>::size();
-          static_assert(all({(N == std::decay_t<Vs>::size())...}),
+          static_assert(all((N == std::decay_t<Vs>::size())...),
                         "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
               variants::lib::make_index_sequence<N>{});
@@ -797,7 +788,7 @@ namespace mpark {
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
         Trait::Available,
         move_constructor(move_constructor &&that) noexcept(
-            all({std::is_nothrow_move_constructible<Ts>::value...}))
+            all(std::is_nothrow_move_constructible<Ts>::value...))
             : move_constructor(valueless_t{}) {
           this->generic_construct(*this, std::move(that));
         });
@@ -933,8 +924,8 @@ namespace mpark {
         Trait::Available,
         move_assignment &
         operator=(move_assignment &&that) noexcept(
-            all({std::is_nothrow_move_constructible<Ts>::value &&
-                 std::is_nothrow_move_assignable<Ts>::value...})) {
+            all((std::is_nothrow_move_constructible<Ts>::value &&
+                 std::is_nothrow_move_assignable<Ts>::value)...)) {
           this->generic_assign(std::move(that));
           return *this;
         });
@@ -1064,13 +1055,13 @@ namespace mpark {
     static_assert(0 < sizeof...(Ts),
                   "variant must consist of at least one alternative.");
 
-    static_assert(detail::all({!std::is_array<Ts>::value...}),
+    static_assert(detail::all(!std::is_array<Ts>::value...),
                   "variant can not have an array type as an alternative.");
 
-    static_assert(detail::all({!std::is_reference<Ts>::value...}),
+    static_assert(detail::all(!std::is_reference<Ts>::value...),
                   "variant can not have a reference type as an alternative.");
 
-    static_assert(detail::all({!std::is_void<Ts>::value...}),
+    static_assert(detail::all(!std::is_void<Ts>::value...),
                   "variant can not have a void type as an alternative.");
 
     public:
@@ -1228,13 +1219,13 @@ namespace mpark {
 
     template <bool Dummy = true,
               std::enable_if_t<
-                  detail::all({Dummy,
-                               (std::is_move_constructible<Ts>::value &&
-                                variants::lib::is_swappable<Ts>::value)...}),
+                  detail::all(Dummy,
+                              (std::is_move_constructible<Ts>::value &&
+                               variants::lib::is_swappable<Ts>::value)...),
                   int> = 0>
     inline void swap(variant &that) noexcept(
-        detail::all({(std::is_nothrow_move_constructible<Ts>::value &&
-                      variants::lib::is_nothrow_swappable<Ts>::value)...})) {
+        detail::all((std::is_nothrow_move_constructible<Ts>::value &&
+                     variants::lib::is_nothrow_swappable<Ts>::value)...)) {
       impl_.swap(that.impl_);
     }
 
@@ -1413,7 +1404,7 @@ namespace mpark {
   template <typename Visitor, typename... Vs>
   inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
     using detail::visitation::variant;
-    return (detail::all({!vs.valueless_by_exception()...})
+    return (detail::all(!vs.valueless_by_exception()...)
                 ? (void)0
                 : throw bad_variant_access{}),
            variant::visit_value(std::forward<Visitor>(visitor),
@@ -1488,7 +1479,7 @@ namespace std {
   struct hash<mpark::detail::enabled_type<
       mpark::variant<Ts...>,
       std::enable_if_t<mpark::detail::all(
-          {mpark::detail::hash::is_enabled<std::remove_const_t<Ts>>()...})>>> {
+          mpark::detail::hash::is_enabled<std::remove_const_t<Ts>>()...)>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
