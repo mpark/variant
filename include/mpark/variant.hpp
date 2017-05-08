@@ -317,8 +317,8 @@ namespace mpark {
 
     template <std::size_t I>
     using find_index_sfinae_impl =
-        std::enable_if_t<I != not_found && I != ambiguous,
-                         variants::lib::size_constant<I>>;
+        variants::lib::enable_if_t<I != not_found && I != ambiguous,
+                                   variants::lib::size_constant<I>>;
 
     template <typename T, typename... Ts>
     using find_index_sfinae = find_index_sfinae_impl<find_index<T, Ts...>()>;
@@ -1108,7 +1108,8 @@ namespace mpark {
     public:
     template <
         typename Front = variants::lib::type_pack_element_t<0, Ts...>,
-        std::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
+        variants::lib::enable_if_t<std::is_default_constructible<Front>::value,
+                                   int> = 0>
     inline constexpr variant() noexcept(
         std::is_nothrow_default_constructible<Front>::value)
         : impl_(in_place_index_t<0>{}) {}
@@ -1117,11 +1118,13 @@ namespace mpark {
     variant(variant &&) = default;
 
     template <typename Arg,
-              std::enable_if_t<!std::is_same<std::decay_t<Arg>, variant>::value,
-                               int> = 0,
+              variants::lib::enable_if_t<
+                  !std::is_same<std::decay_t<Arg>, variant>::value,
+                  int> = 0,
               typename T = detail::best_match_t<Arg, Ts...>,
               std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-              std::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
+              variants::lib::enable_if_t<std::is_constructible<T, Arg>::value,
+                                         int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
         std::is_nothrow_constructible<T, Arg>::value)
         : impl_(in_place_index_t<I>{}, std::forward<Arg>(arg)) {}
@@ -1130,7 +1133,8 @@ namespace mpark {
         std::size_t I,
         typename... Args,
         typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
+        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
+                                   int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
@@ -1142,10 +1146,10 @@ namespace mpark {
         typename Up,
         typename... Args,
         typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        std::enable_if_t<std::is_constructible<T,
-                                               std::initializer_list<Up> &,
-                                               Args...>::value,
-                         int> = 0>
+        variants::lib::enable_if_t<
+            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
+                value,
+            int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
         std::initializer_list<Up> il,
@@ -1160,7 +1164,8 @@ namespace mpark {
         typename T,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
+        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
+                                   int> = 0>
     inline explicit constexpr variant(
         in_place_type_t<T>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
@@ -1172,10 +1177,10 @@ namespace mpark {
         typename Up,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        std::enable_if_t<std::is_constructible<T,
-                                               std::initializer_list<Up> &,
-                                               Args...>::value,
-                         int> = 0>
+        variants::lib::enable_if_t<
+            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
+                value,
+            int> = 0>
     inline explicit constexpr variant(
         in_place_type_t<T>,
         std::initializer_list<Up> il,
@@ -1191,14 +1196,16 @@ namespace mpark {
     variant &operator=(const variant &) = default;
     variant &operator=(variant &&) = default;
 
-    template <typename Arg,
-              std::enable_if_t<!std::is_same<std::decay_t<Arg>, variant>::value,
-                               int> = 0,
-              typename T = detail::best_match_t<Arg, Ts...>,
-              std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-              std::enable_if_t<std::is_assignable<T &, Arg>::value &&
-                                   std::is_constructible<T, Arg>::value,
-                               int> = 0>
+    template <
+        typename Arg,
+        variants::lib::enable_if_t<
+            !std::is_same<std::decay_t<Arg>, variant>::value,
+            int> = 0,
+        typename T = detail::best_match_t<Arg, Ts...>,
+        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        variants::lib::enable_if_t<std::is_assignable<T &, Arg>::value &&
+                                       std::is_constructible<T, Arg>::value,
+                                   int> = 0>
     inline variant &operator=(Arg &&arg) noexcept(
         (std::is_nothrow_assignable<T &, Arg>::value &&
          std::is_nothrow_constructible<T, Arg>::value)) {
@@ -1210,7 +1217,8 @@ namespace mpark {
         std::size_t I,
         typename... Args,
         typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
+        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
+                                   int> = 0>
     inline T &emplace(Args &&... args) {
       return impl_.template emplace<I>(std::forward<Args>(args)...);
     }
@@ -1220,10 +1228,10 @@ namespace mpark {
         typename Up,
         typename... Args,
         typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        std::enable_if_t<std::is_constructible<T,
-                                               std::initializer_list<Up> &,
-                                               Args...>::value,
-                         int> = 0>
+        variants::lib::enable_if_t<
+            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
+                value,
+            int> = 0>
     inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
       return impl_.template emplace<I>(il, std::forward<Args>(args)...);
     }
@@ -1232,7 +1240,8 @@ namespace mpark {
         typename T,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
+        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
+                                   int> = 0>
     inline T &emplace(Args &&... args) {
       return impl_.template emplace<I>(std::forward<Args>(args)...);
     }
@@ -1242,10 +1251,10 @@ namespace mpark {
         typename Up,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        std::enable_if_t<std::is_constructible<T,
-                                               std::initializer_list<Up> &,
-                                               Args...>::value,
-                         int> = 0>
+        variants::lib::enable_if_t<
+            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
+                value,
+            int> = 0>
     inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
       return impl_.template emplace<I>(il, std::forward<Args>(args)...);
     }
@@ -1259,7 +1268,7 @@ namespace mpark {
     }
 
     template <bool Dummy = true,
-              std::enable_if_t<
+              variants::lib::enable_if_t<
                   detail::all(Dummy,
                               (std::is_move_constructible<Ts>::value &&
                                variants::lib::is_swappable<Ts>::value)...),
@@ -1519,7 +1528,7 @@ namespace std {
   template <typename... Ts>
   struct hash<mpark::detail::enabled_type<
       mpark::variant<Ts...>,
-      std::enable_if_t<mpark::detail::all(
+      mpark::variants::lib::enable_if_t<mpark::detail::all(
           mpark::detail::hash::is_enabled<std::remove_const_t<Ts>>()...)>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;

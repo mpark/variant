@@ -23,6 +23,8 @@ namespace mpark {
       struct identity { using type = T; };
 
       inline namespace cpp14 {
+        template <bool B, typename T = void>
+        using enable_if_t = typename std::enable_if<B, T>::type;
 
 #ifdef MPARK_INTEGER_SEQUENCE
         template <std::size_t... Is>
@@ -223,13 +225,13 @@ namespace mpark {
         }  // namespace detail
 
         template <typename T,
-                  std::enable_if_t<detail::has_addressof<T>::value, int> = 0>
+                  lib::enable_if_t<detail::has_addressof<T>::value, int> = 0>
         inline T *addressof(T &arg) {
           return std::addressof(arg);
         }
 
         template <typename T,
-                  std::enable_if_t<!detail::has_addressof<T>::value, int> = 0>
+                  lib::enable_if_t<!detail::has_addressof<T>::value, int> = 0>
         inline constexpr T *addressof(T &arg) {
           return &arg;
         }
