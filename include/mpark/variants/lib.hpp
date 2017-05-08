@@ -23,6 +23,9 @@ namespace mpark {
       struct identity { using type = T; };
 
       inline namespace cpp14 {
+        template <typename T>
+        using decay_t = typename std::decay<T>::type;
+
         template <bool B, typename T = void>
         using enable_if_t = typename std::enable_if<B, T>::type;
 

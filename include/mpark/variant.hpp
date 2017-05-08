@@ -483,9 +483,10 @@ namespace mpark {
 
         template <typename... Fs>
         inline static constexpr auto make_farray(Fs &&... fs) {
-          visit_visitor_return_type_check<std::decay_t<Fs>...>();
-          using result = std::array<std::common_type_t<std::decay_t<Fs>...>,
-                                    sizeof...(Fs)>;
+          visit_visitor_return_type_check<variants::lib::decay_t<Fs>...>();
+          using result =
+              std::array<std::common_type_t<variants::lib::decay_t<Fs>...>,
+                         sizeof...(Fs)>;
           return result{{std::forward<Fs>(fs)...}};
         }
 
@@ -520,8 +521,8 @@ namespace mpark {
 
         template <typename F, typename V, typename... Vs>
         inline static constexpr auto make_fdiagonal() {
-          constexpr std::size_t N = std::decay_t<V>::size();
-          static_assert(all((N == std::decay_t<Vs>::size())...),
+          constexpr std::size_t N = variants::lib::decay_t<V>::size();
+          static_assert(all((N == variants::lib::decay_t<Vs>::size())...),
                         "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
               variants::lib::make_index_sequence<N>{});
@@ -551,7 +552,7 @@ namespace mpark {
           return make_fmatrix_impl<F, Vs...>(
               variants::lib::index_sequence<>{},
               variants::lib::make_index_sequence<
-                  std::decay_t<Vs>::size()>{}...);
+                  variants::lib::decay_t<Vs>::size()>{}...);
         }
       };
 
@@ -742,30 +743,32 @@ namespace mpark {
     inline destroy                                                        \
   }
 
-    MPARK_VARIANT_DESTRUCTOR(Trait::TriviallyAvailable,
-                             ~destructor() = default;,
-                             void destroy() noexcept {
-                               this->index_ = static_cast<index_t>(-1);
-                             });
+    MPARK_VARIANT_DESTRUCTOR(
+        Trait::TriviallyAvailable,
+        ~destructor() = default;,
+        void destroy() noexcept {
+          this->index_ = static_cast<index_t>(-1);
+        });
 
-    MPARK_VARIANT_DESTRUCTOR(Trait::Available,
-                             ~destructor() { destroy(); },
-                             void destroy() noexcept {
-                               if (!this->valueless_by_exception()) {
-                                 visitation::base::visit_alt(
-                                     [](auto &alt) noexcept {
-                                       using alt_type =
-                                           std::decay_t<decltype(alt)>;
-                                       alt.~alt_type();
-                                     },
-                                     *this);
-                               }
-                               this->index_ = static_cast<index_t>(-1);
-                             });
+    MPARK_VARIANT_DESTRUCTOR(
+        Trait::Available,
+        ~destructor() { destroy(); },
+        void destroy() noexcept {
+          if (!this->valueless_by_exception()) {
+            visitation::base::visit_alt(
+                [](auto &alt) noexcept {
+                  using alt_type = variants::lib::decay_t<decltype(alt)>;
+                  alt.~alt_type();
+                },
+                *this);
+          }
+          this->index_ = static_cast<index_t>(-1);
+        });
 
-    MPARK_VARIANT_DESTRUCTOR(Trait::Unavailable,
-                             ~destructor() = delete;,
-                             void destroy() noexcept = delete;);
+    MPARK_VARIANT_DESTRUCTOR(
+        Trait::Unavailable,
+        ~destructor() = delete;,
+        void destroy() noexcept = delete;);
 
 #undef MPARK_VARIANT_DESTRUCTOR
 
@@ -1119,7 +1122,7 @@ namespace mpark {
 
     template <typename Arg,
               variants::lib::enable_if_t<
-                  !std::is_same<std::decay_t<Arg>, variant>::value,
+                  !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
                   int> = 0,
               typename T = detail::best_match_t<Arg, Ts...>,
               std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
@@ -1199,7 +1202,7 @@ namespace mpark {
     template <
         typename Arg,
         variants::lib::enable_if_t<
-            !std::is_same<std::decay_t<Arg>, variant>::value,
+            !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
             int> = 0,
         typename T = detail::best_match_t<Arg, Ts...>,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
@@ -1540,7 +1543,8 @@ namespace std {
               ? 299792458  // Random value chosen by the universe upon creation
               : variant::visit_alt(
                     [](const auto &alt) {
-                      using alt_type = decay_t<decltype(alt)>;
+                      using alt_type =
+                          mpark::variants::lib::decay_t<decltype(alt)>;
                       using value_type =
                           std::remove_const_t<typename alt_type::value_type>;
                       return hash<value_type>{}(alt.value());
