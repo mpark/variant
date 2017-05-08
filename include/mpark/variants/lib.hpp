@@ -32,6 +32,9 @@ namespace mpark {
         template <bool B, typename T = void>
         using enable_if_t = typename std::enable_if<B, T>::type;
 
+        template <typename T>
+        using remove_const_t = typename std::remove_const<T>::type;
+
 #ifdef MPARK_INTEGER_SEQUENCE
         template <std::size_t... Is>
         using index_sequence = std::index_sequence<Is...>;

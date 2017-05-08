@@ -1532,7 +1532,8 @@ namespace std {
   struct hash<mpark::detail::enabled_type<
       mpark::variant<Ts...>,
       mpark::variants::lib::enable_if_t<mpark::detail::all(
-          mpark::detail::hash::is_enabled<std::remove_const_t<Ts>>()...)>>> {
+          mpark::detail::hash::is_enabled<
+              mpark::variants::lib::remove_const_t<Ts>>()...)>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
@@ -1545,8 +1546,8 @@ namespace std {
                     [](const auto &alt) {
                       using alt_type =
                           mpark::variants::lib::decay_t<decltype(alt)>;
-                      using value_type =
-                          std::remove_const_t<typename alt_type::value_type>;
+                      using value_type = mpark::variants::lib::remove_const_t<
+                          typename alt_type::value_type>;
                       return hash<value_type>{}(alt.value());
                     },
                     v);
