@@ -484,9 +484,9 @@ namespace mpark {
         template <typename... Fs>
         inline static constexpr auto make_farray(Fs &&... fs) {
           visit_visitor_return_type_check<variants::lib::decay_t<Fs>...>();
-          using result =
-              std::array<std::common_type_t<variants::lib::decay_t<Fs>...>,
-                         sizeof...(Fs)>;
+          using result = std::array<
+              variants::lib::common_type_t<variants::lib::decay_t<Fs>...>,
+              sizeof...(Fs)>;
           return result{{std::forward<Fs>(fs)...}};
         }
 

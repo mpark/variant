@@ -23,6 +23,9 @@ namespace mpark {
       struct identity { using type = T; };
 
       inline namespace cpp14 {
+        template <typename... Ts>
+        using common_type_t = typename std::common_type<Ts...>::type;
+
         template <typename T>
         using decay_t = typename std::decay<T>::type;
 
