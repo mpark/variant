@@ -29,4 +29,8 @@
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
+#if __cpp_constexpr >= 201304
+#define MPARK_CPP14_CONSTEXPR
+#endif
+
 #endif  // MPARK_VARIANTS_CONFIG_HPP

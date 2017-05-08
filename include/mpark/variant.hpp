@@ -278,6 +278,7 @@ namespace mpark {
     constexpr std::size_t not_found = static_cast<std::size_t>(-1);
     constexpr std::size_t ambiguous = static_cast<std::size_t>(-2);
 
+#ifdef MPARK_CPP14_CONSTEXPR
     template <typename T, typename... Ts>
     inline constexpr std::size_t find_index() {
       constexpr bool matches[] = {std::is_same<T, Ts>::value...};
@@ -292,6 +293,27 @@ namespace mpark {
       }
       return result;
     }
+#else
+    inline constexpr std::size_t find_index_impl(std::size_t result,
+                                                 std::size_t) {
+      return result;
+    }
+
+    template <typename... Bs>
+    inline constexpr std::size_t find_index_impl(std::size_t result,
+                                                 std::size_t idx,
+                                                 bool b,
+                                                 Bs... bs) {
+      return b ? (result != not_found ? ambiguous
+                                      : find_index_impl(idx, idx + 1, bs...))
+               : find_index_impl(result, idx + 1, bs...);
+    }
+
+    template <typename T, typename... Ts>
+    inline constexpr std::size_t find_index() {
+      return find_index_impl(not_found, 0, std::is_same<T, Ts>::value...);
+    }
+#endif
 
     template <std::size_t I>
     using find_index_sfinae_impl =
