@@ -14,6 +14,8 @@
 
 #include <gtest/gtest.h>
 
+namespace lib = mpark::variants::lib;
+
 enum Qual { LRef, ConstLRef, RRef, ConstRRef };
 
 struct get_qual {
@@ -29,7 +31,7 @@ TEST(Visit, MutVarMutType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   // Check qualifier.
   EXPECT_EQ(LRef, mpark::visit(get_qual(), v));
-  EXPECT_EQ(RRef, mpark::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(RRef, mpark::visit(get_qual(), lib::move(v)));
 }
 
 TEST(Visit, MutVarConstType) {
@@ -37,7 +39,7 @@ TEST(Visit, MutVarConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 }
 
 TEST(Visit, ConstVarMutType) {
@@ -45,14 +47,14 @@ TEST(Visit, ConstVarMutType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
   /* constexpr */ {
     constexpr mpark::variant<int> cv(42);
     static_assert(42 == mpark::get<int>(cv), "");
     // Check qualifier.
     static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
-    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(cv)), "");
+    static_assert(ConstRRef == mpark::visit(get_qual(), lib::move(cv)), "");
   }
 }
 
@@ -61,14 +63,14 @@ TEST(Visit, ConstVarConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
-  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), std::move(v)));
+  EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
   /* constexpr */ {
     constexpr mpark::variant<const int> cv(42);
     static_assert(42 == mpark::get<const int>(cv), "");
     // Check qualifier.
     static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
-    static_assert(ConstRRef == mpark::visit(get_qual(), std::move(cv)), "");
+    static_assert(ConstRRef == mpark::visit(get_qual(), lib::move(cv)), "");
   }
 }
 
@@ -77,7 +79,7 @@ struct concat {
   std::string operator()(const Args &... args) const {
     std::ostringstream strm;
     std::initializer_list<int>({(strm << args, 0)...});
-    return std::move(strm).str();
+    return lib::move(strm).str();
   }
 };
 

@@ -67,6 +67,11 @@ namespace mpark {
           return static_cast<T &&>(t);
         }
 
+        template <typename T>
+        constexpr remove_reference_t<T> &&move(T &&t) noexcept {
+          return static_cast<remove_reference_t<T> &&>(t);
+        }
+
 #ifdef MPARK_INTEGER_SEQUENCE
         template <std::size_t... Is>
         using index_sequence = std::index_sequence<Is...>;

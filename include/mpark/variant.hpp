@@ -775,9 +775,13 @@ namespace mpark {
 
       protected:
       friend inline constexpr base &as_base(base &b) { return b; }
-      friend inline constexpr base &&as_base(base &&b) { return std::move(b); }
       friend inline constexpr const base &as_base(const base &b) { return b; }
-      friend inline constexpr const base &&as_base(const base &&b) { return std::move(b); }
+      friend inline constexpr base &&as_base(base &&b) {
+        return variants::lib::move(b);
+      }
+      friend inline constexpr const base &&as_base(const base &&b) {
+        return variants::lib::move(b);
+      }
 
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
@@ -930,7 +934,7 @@ namespace mpark {
         move_constructor(move_constructor &&that) noexcept(
             all(std::is_nothrow_move_constructible<Ts>::value...))
             : move_constructor(valueless_t{}) {
-          this->generic_construct(*this, std::move(that));
+          this->generic_construct(*this, variants::lib::move(that));
         });
 
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
@@ -1087,7 +1091,7 @@ namespace mpark {
         operator=(move_assignment &&that) noexcept(
             all((std::is_nothrow_move_constructible<Ts>::value &&
                  std::is_nothrow_move_assignable<Ts>::value)...)) {
-          this->generic_assign(std::move(that));
+          this->generic_assign(variants::lib::move(that));
           return *this;
         });
 
@@ -1172,19 +1176,19 @@ namespace mpark {
           if (lhs->move_nothrow() && !rhs->move_nothrow()) {
             std::swap(lhs, rhs);
           }
-          impl tmp(std::move(*rhs));
+          impl tmp(variants::lib::move(*rhs));
           // EXTENSION: When the move construction of `lhs` into `rhs` throws
           // and `tmp` is nothrow move constructible then we move `tmp` back
           // into `rhs` and provide the strong exception safety guarentee.
           try {
-            this->generic_construct(*rhs, std::move(*lhs));
+            this->generic_construct(*rhs, variants::lib::move(*lhs));
           } catch (...) {
             if (tmp.move_nothrow()) {
-              this->generic_construct(*rhs, std::move(tmp));
+              this->generic_construct(*rhs, variants::lib::move(tmp));
             }
             throw;
           }
-          this->generic_construct(*lhs, std::move(tmp));
+          this->generic_construct(*lhs, variants::lib::move(tmp));
         }
       }
 
@@ -1454,7 +1458,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   inline constexpr variant_alternative_t<I, variant<Ts...>> &&get(
       variant<Ts...> &&v) {
-    return detail::generic_get<I>(std::move(v));
+    return detail::generic_get<I>(variants::lib::move(v));
   }
 
   template <std::size_t I, typename... Ts>
@@ -1466,7 +1470,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   inline constexpr const variant_alternative_t<I, variant<Ts...>> &&get(
       const variant<Ts...> &&v) {
-    return detail::generic_get<I>(std::move(v));
+    return detail::generic_get<I>(variants::lib::move(v));
   }
 
   template <typename T, typename... Ts>
@@ -1476,7 +1480,8 @@ namespace mpark {
 
   template <typename T, typename... Ts>
   inline constexpr T &&get(variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(std::move(v));
+    return get<detail::find_index_checked<T, Ts...>::value>(
+        variants::lib::move(v));
   }
 
   template <typename T, typename... Ts>
@@ -1486,7 +1491,8 @@ namespace mpark {
 
   template <typename T, typename... Ts>
   inline constexpr const T &&get(const variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(std::move(v));
+    return get<detail::find_index_checked<T, Ts...>::value>(
+        variants::lib::move(v));
   }
 
   namespace detail {

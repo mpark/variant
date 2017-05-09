@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+namespace lib = mpark::variants::lib;
+
 enum Qual { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 
 constexpr Qual get_qual(int *) { return Ptr; }
@@ -24,7 +26,7 @@ TEST(Access_Get, MutVarMutType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   // Check qualifier.
   EXPECT_EQ(LRef, get_qual(mpark::get<int>(v)));
-  EXPECT_EQ(RRef, get_qual(mpark::get<int>(std::move(v))));
+  EXPECT_EQ(RRef, get_qual(mpark::get<int>(lib::move(v))));
 }
 
 #if 0
@@ -35,7 +37,7 @@ TEST(Access_Get, MutVarMutTypeRef) {
   EXPECT_EQ(&expected, &mpark::get<int &>(v));
   // Check qualifier.
   EXPECT_EQ(LRef, get_qual(mpark::get<int &>(v)));
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(std::move(v))));
+  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(lib::move(v))));
 }
 #endif
 
@@ -44,7 +46,7 @@ TEST(Access_Get, MutVarConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int>(v)));
-  EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(std::move(v))));
+  EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(lib::move(v))));
 }
 
 #if 0
@@ -55,7 +57,7 @@ TEST(Access_Get, MutVarConstTypeRef) {
   EXPECT_EQ(&expected, &mpark::get<const int &>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(v)));
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(std::move(v))));
+  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(lib::move(v))));
 }
 #endif
 
@@ -64,14 +66,14 @@ TEST(Access_Get, ConstVarMutType) {
   EXPECT_EQ(42, mpark::get<int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<int>(v)));
-  EXPECT_EQ(ConstRRef, get_qual(mpark::get<int>(std::move(v))));
+  EXPECT_EQ(ConstRRef, get_qual(mpark::get<int>(lib::move(v))));
 
   /* constexpr */ {
     constexpr mpark::variant<int> cv(42);
     static_assert(42 == mpark::get<int>(cv), "");
     // Check qualifier.
     static_assert(ConstLRef == get_qual(mpark::get<int>(cv)), "");
-    static_assert(ConstRRef == get_qual(mpark::get<int>(std::move(cv))), "");
+    static_assert(ConstRRef == get_qual(mpark::get<int>(lib::move(cv))), "");
   }
 }
 
@@ -83,7 +85,7 @@ TEST(Access_Get, ConstVarMutTypeRef) {
   EXPECT_EQ(&expected, &mpark::get<int &>(v));
   // Check qualifier.
   EXPECT_EQ(LRef, get_qual(mpark::get<int &>(v)));
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(std::move(v))));
+  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(lib::move(v))));
 }
 #endif
 
@@ -92,14 +94,15 @@ TEST(Access_Get, ConstVarConstType) {
   EXPECT_EQ(42, mpark::get<const int>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int>(v)));
-  EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(std::move(v))));
+  EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(lib::move(v))));
 
   /* constexpr */ {
     constexpr mpark::variant<const int> cv(42);
     static_assert(42 == mpark::get<const int>(cv), "");
     // Check qualifier.
     static_assert(ConstLRef == get_qual(mpark::get<const int>(cv)), "");
-    static_assert(ConstRRef == get_qual(mpark::get<const int>(std::move(cv))), "");
+    static_assert(ConstRRef == get_qual(mpark::get<const int>(lib::move(cv))),
+                  "");
   }
 }
 
@@ -111,7 +114,7 @@ TEST(Access_Get, ConstVarConstTypeRef) {
   EXPECT_EQ(&expected, &mpark::get<const int &>(v));
   // Check qualifier.
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(v)));
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(std::move(v))));
+  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(lib::move(v))));
 
   /* constexpr */ {
     static constexpr int expected = 42;
@@ -119,7 +122,8 @@ TEST(Access_Get, ConstVarConstTypeRef) {
     static_assert(42 == mpark::get<const int &>(cv), "");
     // Check qualifier.
     static_assert(ConstLRef == get_qual(mpark::get<const int &>(cv)), "");
-    static_assert(ConstLRef == get_qual(mpark::get<const int &>(std::move(cv))), "");
+    static_assert(ConstLRef == get_qual(mpark::get<const int &>(lib::move(cv))),
+                  "");
   }
 }
 #endif

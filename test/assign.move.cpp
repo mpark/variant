@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+namespace lib = mpark::variants::lib;
+
 TEST(Assign_Move, SameType) {
   struct Obj {
     Obj() = default;
@@ -21,7 +23,7 @@ TEST(Assign_Move, SameType) {
   // `v`, `w`.
   mpark::variant<Obj, int> v, w;
   // move assignment.
-  v = std::move(w);
+  v = lib::move(w);
 }
 
 TEST(Assign_Move, DiffType) {
@@ -35,7 +37,7 @@ TEST(Assign_Move, DiffType) {
   // `v`, `w`.
   mpark::variant<Obj, int> v(42), w;
   // move assignment.
-  v = std::move(w);
+  v = lib::move(w);
 }
 
 TEST(Assign_Copy, ValuelessByException) {
@@ -52,6 +54,6 @@ TEST(Assign_Copy, ValuelessByException) {
   EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
   EXPECT_TRUE(v.valueless_by_exception());
   mpark::variant<int, move_thrower_t> w(42);
-  w = std::move(v);
+  w = lib::move(v);
   EXPECT_TRUE(w.valueless_by_exception());
 }
