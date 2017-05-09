@@ -52,6 +52,21 @@ namespace mpark {
         template <typename T>
         using remove_const_t = typename std::remove_const<T>::type;
 
+        template <typename T>
+        using remove_reference_t = typename std::remove_reference<T>::type;
+
+        template <typename T>
+        inline constexpr T &&forward(remove_reference_t<T> &t) noexcept {
+          return static_cast<T &&>(t);
+        }
+
+        template <typename T>
+        inline constexpr T &&forward(remove_reference_t<T> &&t) noexcept {
+          static_assert(!std::is_lvalue_reference<T>::value,
+                        "can not forward an rvalue as an lvalue");
+          return static_cast<T &&>(t);
+        }
+
 #ifdef MPARK_INTEGER_SEQUENCE
         template <std::size_t... Is>
         using index_sequence = std::index_sequence<Is...>;
@@ -101,7 +116,7 @@ namespace mpark {
         struct equal_to {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) == std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) == lib::forward<Rhs>(rhs))
         };
 #endif
 
@@ -111,7 +126,7 @@ namespace mpark {
         struct not_equal_to {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) != std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) != lib::forward<Rhs>(rhs))
         };
 #endif
 
@@ -121,7 +136,7 @@ namespace mpark {
         struct less {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) < std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) < lib::forward<Rhs>(rhs))
         };
 #endif
 
@@ -131,7 +146,7 @@ namespace mpark {
         struct greater {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) > std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) > lib::forward<Rhs>(rhs))
         };
 #endif
 
@@ -141,7 +156,7 @@ namespace mpark {
         struct less_equal {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) <= std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) <= lib::forward<Rhs>(rhs))
         };
 #endif
 
@@ -151,7 +166,7 @@ namespace mpark {
         struct greater_equal {
           template <typename Lhs, typename Rhs>
           inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-            RETURN(std::forward<Lhs>(lhs) >= std::forward<Rhs>(rhs))
+            RETURN(lib::forward<Lhs>(lhs) >= lib::forward<Rhs>(rhs))
         };
 #endif
       }  // namespace cpp14
@@ -208,23 +223,23 @@ namespace mpark {
         // <functional>
         template <typename F, typename... As>
         inline constexpr auto invoke(F &&f, As &&... as)
-            RETURN(std::forward<F>(f)(std::forward<As>(as)...))
+            RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
 
         template <typename B, typename T, typename D>
         inline constexpr auto invoke(T B::*pmv, D &&d)
-            RETURN(std::forward<D>(d).*pmv)
+            RETURN(lib::forward<D>(d).*pmv)
 
         template <typename Pmv, typename Ptr>
         inline constexpr auto invoke(Pmv pmv, Ptr &&ptr)
-            RETURN((*std::forward<Ptr>(ptr)).*pmv)
+            RETURN((*lib::forward<Ptr>(ptr)).*pmv)
 
         template <typename B, typename T, typename D, typename... As>
         inline constexpr auto invoke(T B::*pmf, D &&d, As &&... as)
-            RETURN((std::forward<D>(d).*pmf)(std::forward<As>(as)...))
+            RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
 
         template <typename Pmf, typename Ptr, typename... As>
         inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
-            RETURN(((*std::forward<Ptr>(ptr)).*pmf)(std::forward<As>(as)...))
+            RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
 
         namespace detail {
 
