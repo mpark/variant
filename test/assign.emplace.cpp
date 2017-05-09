@@ -12,12 +12,10 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Assign_Emplace, IndexDirect) {
   mpark::variant<int, std::string> v;
-  v.emplace<1>("42"s);
-  EXPECT_EQ("42"s, mpark::get<1>(v));
+  v.emplace<1>("42");
+  EXPECT_EQ("42", mpark::get<1>(v));
 }
 
 #if 0
@@ -50,7 +48,7 @@ TEST(Assign_Emplace, IndexDirectDuplicateRef) {
 TEST(Assign_Emplace, IndexConversion) {
   mpark::variant<int, std::string> v;
   v.emplace<1>("42");
-  EXPECT_EQ("42"s, mpark::get<1>(v));
+  EXPECT_EQ("42", mpark::get<1>(v));
 }
 
 #if 0
@@ -84,13 +82,13 @@ TEST(Assign_Emplace, IndexConversionDuplicateRef) {
 TEST(Assign_Emplace, IndexInitializerList) {
   mpark::variant<int, std::string> v;
   v.emplace<1>({'4', '2'});
-  EXPECT_EQ("42"s, mpark::get<1>(v));
+  EXPECT_EQ("42", mpark::get<1>(v));
 }
 
 TEST(Assign_Emplace, TypeDirect) {
   mpark::variant<int, std::string> v;
-  v.emplace<std::string>("42"s);
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  v.emplace<std::string>("42");
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 }
 
 #if 0
@@ -124,5 +122,5 @@ TEST(Assign_Emplace, TypeConversionRef) {
 TEST(Assign_Emplace, TypeInitializerList) {
   mpark::variant<int, std::string> v;
   v.emplace<std::string>({'4', '2'});
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 }

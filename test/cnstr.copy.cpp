@@ -12,17 +12,15 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Cnstr_Copy, Value) {
   // `v`
-  mpark::variant<int, std::string> v("hello"s);
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  mpark::variant<int, std::string> v("hello");
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
   // `w`
   mpark::variant<int, std::string> w(v);
-  EXPECT_EQ("hello"s, mpark::get<std::string>(w));
+  EXPECT_EQ("hello", mpark::get<std::string>(w));
   // Check `v`
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
 
   /* constexpr */ {
     // `cv`
@@ -36,17 +34,17 @@ TEST(Cnstr_Copy, Value) {
 
 #if 0
 TEST(Cnstr_Copy, Ref) {
-  std::string s = "hello"s;
+  std::string s = "hello";
   // `v`
   mpark::variant<int &, std::string &> v(s);
-  EXPECT_EQ("hello"s, mpark::get<std::string &>(v));
+  EXPECT_EQ("hello", mpark::get<std::string &>(v));
   EXPECT_EQ(&s, &mpark::get<std::string &>(v));
   // `w`
   mpark::variant<int &, std::string &> w(v);
-  EXPECT_EQ("hello"s, mpark::get<std::string &>(w));
+  EXPECT_EQ("hello", mpark::get<std::string &>(w));
   EXPECT_EQ(&s, &mpark::get<std::string &>(w));
   // Check `v`
-  EXPECT_EQ("hello"s, mpark::get<std::string &>(v));
+  EXPECT_EQ("hello", mpark::get<std::string &>(v));
   EXPECT_EQ(&s, &mpark::get<std::string &>(v));
 }
 #endif

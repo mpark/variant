@@ -21,8 +21,20 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
+#ifdef __cpp_generic_lambdas
+#define MPARK_GENERIC_LAMBDAS
+#endif
+
 #ifdef __cpp_lib_integer_sequence
 #define MPARK_INTEGER_SEQUENCE
+#endif
+
+#ifdef __cpp_lib_transparent_operators
+#define MPARK_TRANSPARENT_OPERATORS
+#endif
+
+#ifdef __cpp_return_type_deduction
+#define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
 #ifdef __cpp_variable_templates

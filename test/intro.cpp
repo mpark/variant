@@ -13,14 +13,12 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Variant, Intro) {
   // direct initialization.
-  mpark::variant<int, std::string> v("hello world!"s);
+  mpark::variant<int, std::string> v("hello world!");
 
   // direct access via reference.
-  EXPECT_EQ("hello world!"s, mpark::get<std::string>(v));
+  EXPECT_EQ("hello world!", mpark::get<std::string>(v));
 
   // bad access.
   EXPECT_THROW(mpark::get<int>(v), mpark::bad_variant_access);
@@ -44,7 +42,7 @@ TEST(Variant, Intro) {
   EXPECT_EQ(0, mpark::visit(unary{}, v));
 
   // same-type assignment.
-  w = "hello"s;
+  w = "hello";
 
   EXPECT_NE(v, w);
 

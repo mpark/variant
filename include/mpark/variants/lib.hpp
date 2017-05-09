@@ -15,6 +15,11 @@
 
 #include <mpark/variants/config.hpp>
 
+#define RETURN(...)                                          \
+  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { \
+    return __VA_ARGS__;                                      \
+  }
+
 namespace mpark {
   namespace variants {
     namespace lib {
@@ -23,6 +28,15 @@ namespace mpark {
       struct identity { using type = T; };
 
       inline namespace cpp14 {
+        template <typename T, std::size_t N>
+        struct array {
+          constexpr const T &operator[](std::size_t index) const {
+            return data[index];
+          }
+
+          T data[N > 0 ? N : 1];
+        };
+
         template <typename T>
         using add_pointer_t = typename std::add_pointer<T>::type;
 
@@ -80,6 +94,66 @@ namespace mpark {
         using index_sequence_for = make_index_sequence<sizeof...(Ts)>;
 #endif
 
+        // <functional>
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using equal_to = std::equal_to<>;
+#else
+        struct equal_to {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) == std::forward<Rhs>(rhs))
+        };
+#endif
+
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using not_equal_to = std::not_equal_to<>;
+#else
+        struct not_equal_to {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) != std::forward<Rhs>(rhs))
+        };
+#endif
+
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using less = std::less<>;
+#else
+        struct less {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) < std::forward<Rhs>(rhs))
+        };
+#endif
+
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using greater = std::greater<>;
+#else
+        struct greater {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) > std::forward<Rhs>(rhs))
+        };
+#endif
+
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using less_equal = std::less_equal<>;
+#else
+        struct less_equal {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) <= std::forward<Rhs>(rhs))
+        };
+#endif
+
+#ifdef MPARK_TRANSPARENT_OPERATORS
+        using greater_equal = std::greater_equal<>;
+#else
+        struct greater_equal {
+          template <typename Lhs, typename Rhs>
+          inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
+            RETURN(std::forward<Lhs>(lhs) >= std::forward<Rhs>(rhs))
+        };
+#endif
       }  // namespace cpp14
 
       inline namespace cpp17 {
@@ -132,11 +206,6 @@ namespace mpark {
         using is_nothrow_swappable = detail::swappable::is_nothrow_swappable<T>;
 
         // <functional>
-#define RETURN(...)                                          \
-  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { \
-    return __VA_ARGS__;                                      \
-  }
-
         template <typename F, typename... As>
         inline constexpr auto invoke(F &&f, As &&... as)
             RETURN(std::forward<F>(f)(std::forward<As>(as)...))
@@ -156,8 +225,6 @@ namespace mpark {
         template <typename Pmf, typename Ptr, typename... As>
         inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
             RETURN(((*std::forward<Ptr>(ptr)).*pmf)(std::forward<As>(as)...))
-
-#undef RETURN
 
         namespace detail {
 
@@ -254,6 +321,15 @@ namespace mpark {
 
       }  // namespace cpp17
 
+      template <typename T>
+      struct remove_all_extents : identity<T> {};
+
+      template <typename T, std::size_t N>
+      struct remove_all_extents<array<T, N>> : remove_all_extents<T> {};
+
+      template <typename T>
+      using remove_all_extents_t = typename remove_all_extents<T>::type;
+
       template <std::size_t N>
       using size_constant = std::integral_constant<std::size_t, N>;
 
@@ -267,11 +343,11 @@ namespace mpark {
         template <std::size_t, typename T>
         struct indexed_type : identity<T> {};
 
+        template <typename>
+        struct set;
+
         template <std::size_t... Is>
-        inline static auto make_set(index_sequence<Is...>) {
-          struct set : indexed_type<Is, Ts>... {};
-          return set{};
-        }
+        struct set<index_sequence<Is...>> : indexed_type<Is, Ts>... {};
 
         template <typename T>
         inline static std::enable_if<true, T> impl(indexed_type<I, T>);
@@ -279,7 +355,7 @@ namespace mpark {
         inline static std::enable_if<false> impl(...);
 
         public:
-        using type = decltype(impl(make_set(index_sequence_for<Ts...>{})));
+        using type = decltype(impl(set<index_sequence_for<Ts...>>{}));
       };
 
       template <std::size_t I, typename... Ts>
@@ -292,5 +368,7 @@ namespace mpark {
     }  // namespace lib
   }  // namespace variants
 }  // namespace mpark
+
+#undef RETURN
 
 #endif  // MPARK_VARIANTS_LIB_HPP

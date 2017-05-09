@@ -210,6 +210,18 @@ namespace std {
 
 namespace mpark {
 
+#define AUTO(...) \
+  -> mpark::variants::lib::decay_t<decltype(__VA_ARGS__)> { return __VA_ARGS__; }
+
+#define AUTO_REFREF(...)                                                  \
+  -> decltype((__VA_ARGS__)) {                                            \
+    static_assert(std::is_reference<decltype((__VA_ARGS__))>::value, ""); \
+    return __VA_ARGS__;                                                   \
+  }
+
+#define DECLTYPE_AUTO(...) \
+  -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+
   class bad_variant_access : public std::exception {
     public:
     virtual const char *what() const noexcept { return "bad_variant_access"; }
@@ -281,7 +293,9 @@ namespace mpark {
 #ifdef MPARK_CPP14_CONSTEXPR
     template <typename T, typename... Ts>
     inline constexpr std::size_t find_index() {
-      constexpr bool matches[] = {std::is_same<T, Ts>::value...};
+      constexpr variants::lib::array<bool, sizeof...(Ts)> matches = {
+          {std::is_same<T, Ts>::value...}
+      };
       std::size_t result = not_found;
       for (std::size_t i = 0; i < sizeof...(Ts); ++i) {
         if (matches[i]) {
@@ -409,6 +423,7 @@ namespace mpark {
     namespace access {
 
       struct recursive_union {
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename V>
         inline static constexpr auto &&get_alt(V &&v, in_place_index_t<0>) {
           return std::forward<V>(v).head_;
@@ -418,21 +433,38 @@ namespace mpark {
         inline static constexpr auto &&get_alt(V &&v, in_place_index_t<I>) {
           return get_alt(std::forward<V>(v).tail_, in_place_index_t<I - 1>{});
         }
+#else
+        template <std::size_t I, bool Dummy = true>
+        struct get_alt_impl {
+          template <typename V>
+          inline constexpr auto operator()(V &&v) const
+            AUTO_REFREF(get_alt_impl<I - 1>{}(std::forward<V>(v).tail_))
+        };
+
+        template <bool Dummy>
+        struct get_alt_impl<0, Dummy> {
+          template <typename V>
+          inline constexpr auto operator()(V &&v) const
+            AUTO_REFREF(std::forward<V>(v).head_)
+        };
+
+        template <typename V, std::size_t I>
+        inline static constexpr auto get_alt(V &&v, in_place_index_t<I>)
+          AUTO_REFREF(get_alt_impl<I>{}(std::forward<V>(v)))
+#endif
       };
 
       struct base {
         template <std::size_t I, typename V>
-        inline static constexpr auto &&get_alt(V &&v) {
-          return recursive_union::get_alt(std::forward<V>(v).data_,
-                                          in_place_index_t<I>{});
-        }
+        inline static constexpr auto get_alt(V &&v)
+          AUTO_REFREF(recursive_union::get_alt(std::forward<V>(v).data_,
+                                               in_place_index_t<I>{}))
       };
 
       struct variant {
         template <std::size_t I, typename V>
-        inline static constexpr auto &&get_alt(V &&v) {
-          return base::get_alt<I>(std::forward<V>(v).impl_);
-        }
+        inline static constexpr auto get_alt(V &&v)
+          AUTO_REFREF(base::get_alt<I>(std::forward<V>(v).impl_))
       };
 
     }  // namespace access
@@ -440,27 +472,6 @@ namespace mpark {
     namespace visitation {
 
       struct base {
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_alt_at(std::size_t index,
-                                                            Visitor &&visitor,
-                                                            Vs &&... vs) {
-          constexpr auto fdiagonal =
-              make_fdiagonal<Visitor &&,
-                             decltype(std::forward<Vs>(vs).as_base())...>();
-          return fdiagonal[index](std::forward<Visitor>(visitor),
-                                  std::forward<Vs>(vs).as_base()...);
-        }
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_alt(Visitor &&visitor,
-                                                         Vs &&... vs) {
-          constexpr auto fmatrix =
-              make_fmatrix<Visitor &&,
-                           decltype(std::forward<Vs>(vs).as_base())...>();
-          return at(fmatrix, vs.index()...)(std::forward<Visitor>(visitor),
-                                            std::forward<Vs>(vs).as_base()...);
-        }
-
         private:
         template <typename T>
         inline static constexpr const T &at(const T &elem) {
@@ -468,66 +479,74 @@ namespace mpark {
         }
 
         template <typename T, std::size_t N, typename... Is>
-        inline static constexpr auto &&at(const std::array<T, N> &elems,
-                                          std::size_t i,
-                                          Is... is) {
+        inline static constexpr const variants::lib::remove_all_extents_t<T> &
+        at(const variants::lib::array<T, N> &elems, std::size_t i, Is... is) {
           return at(elems[i], is...);
         }
 
         template <typename F, typename... Fs>
-        inline static constexpr void visit_visitor_return_type_check() {
+        inline static constexpr int visit_visitor_return_type_check() {
           static_assert(all(std::is_same<F, Fs>::value...),
                         "`mpark::visit` requires the visitor to have a single "
                         "return type.");
+          return 0;
         }
 
         template <typename... Fs>
-        inline static constexpr auto make_farray(Fs &&... fs) {
-          visit_visitor_return_type_check<variants::lib::decay_t<Fs>...>();
-          using result = std::array<
+        inline static constexpr variants::lib::array<
+            variants::lib::common_type_t<variants::lib::decay_t<Fs>...>,
+            sizeof...(Fs)>
+        make_farray(Fs &&... fs) {
+          using result = variants::lib::array<
               variants::lib::common_type_t<variants::lib::decay_t<Fs>...>,
               sizeof...(Fs)>;
-          return result{{std::forward<Fs>(fs)...}};
+          return visit_visitor_return_type_check<
+                     variants::lib::decay_t<Fs>...>(),
+                 result{{std::forward<Fs>(fs)...}};
         }
 
         template <std::size_t... Is>
         struct dispatcher {
           template <typename F, typename... Vs>
-          inline static constexpr decltype(auto) dispatch(F f, Vs... vs) {
-            return variants::lib::invoke(
-                static_cast<F>(f),
-                access::base::get_alt<Is>(static_cast<Vs>(vs))...);
-          }
+          struct impl {
+            inline static constexpr auto dispatch(F f, Vs... vs)
+              DECLTYPE_AUTO(variants::lib::invoke(
+                  static_cast<F>(f),
+                  access::base::get_alt<Is>(static_cast<Vs>(vs))...))
+          };
         };
 
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_dispatch(
-            variants::lib::index_sequence<Is...>) {
-          return &dispatcher<Is...>::template dispatch<F, Vs...>;
-        }
+            variants::lib::index_sequence<Is...>)
+          AUTO(variants::lib::addressof(
+              dispatcher<Is...>::template impl<F, Vs...>::dispatch))
 
         template <std::size_t I, typename F, typename... Vs>
-        inline static constexpr auto make_fdiagonal_impl() {
-          return make_dispatch<F, Vs...>(
+        inline static constexpr auto make_fdiagonal_impl()
+          AUTO(make_dispatch<F, Vs...>(
               variants::lib::index_sequence<(variants::lib::identity<Vs>{},
-                                             I)...>{});
-        }
+                                             I)...>{}))
 
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_fdiagonal_impl(
-            variants::lib::index_sequence<Is...>) {
-          return base::make_farray(make_fdiagonal_impl<Is, F, Vs...>()...);
-        }
+            variants::lib::index_sequence<Is...>)
+          AUTO(make_farray(make_fdiagonal_impl<Is, F, Vs...>()...))
 
         template <typename F, typename V, typename... Vs>
-        inline static constexpr auto make_fdiagonal() {
-          constexpr std::size_t N = variants::lib::decay_t<V>::size();
-          static_assert(all((N == variants::lib::decay_t<Vs>::size())...),
+        inline static constexpr /* auto */ auto make_fdiagonal()
+            -> decltype(make_fdiagonal_impl<F, V, Vs...>(
+                variants::lib::make_index_sequence<
+                    variants::lib::decay_t<V>::size()>{})) {
+          static_assert(all((variants::lib::decay_t<V>::size() ==
+                             variants::lib::decay_t<Vs>::size())...),
                         "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
-              variants::lib::make_index_sequence<N>{});
+              variants::lib::make_index_sequence<
+                  variants::lib::decay_t<V>::size()>{});
         }
 
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_fmatrix_impl(
             variants::lib::index_sequence<Is...> is) {
@@ -543,7 +562,7 @@ namespace mpark {
             variants::lib::index_sequence<Is...>,
             variants::lib::index_sequence<Js...>,
             Ls... ls) {
-          return base::make_farray(make_fmatrix_impl<F, Vs...>(
+          return make_farray(make_fmatrix_impl<F, Vs...>(
               variants::lib::index_sequence<Is..., Js>{}, ls...)...);
         }
 
@@ -554,67 +573,112 @@ namespace mpark {
               variants::lib::make_index_sequence<
                   variants::lib::decay_t<Vs>::size()>{}...);
         }
+#else
+        template <typename F, typename... Vs>
+        struct make_fmatrix_impl {
+          template <typename...>
+          struct impl;
+
+          template <std::size_t... Is>
+          struct impl<variants::lib::index_sequence<Is...>> {
+            inline constexpr auto operator()() const
+              AUTO(make_dispatch<F, Vs...>(
+                  variants::lib::index_sequence<Is...>{}))
+          };
+
+          template <std::size_t... Is, std::size_t... Js, typename... Ls>
+          struct impl<variants::lib::index_sequence<Is...>,
+                      variants::lib::index_sequence<Js...>,
+                      Ls...> {
+            inline constexpr auto operator()() const
+              AUTO(make_farray(impl<variants::lib::index_sequence<Is..., Js>,
+                                    Ls...>{}()...))
+          };
+        };
+
+        template <typename F, typename... Vs>
+        inline static constexpr auto make_fmatrix()
+          AUTO(typename make_fmatrix_impl<F, Vs...>::template impl<
+               variants::lib::index_sequence<>,
+               variants::lib::make_index_sequence<
+                   variants::lib::decay_t<Vs>::size()>...>{}())
+#endif
+
+        public:
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_alt_at(std::size_t index,
+                                                  Visitor &&visitor,
+                                                  Vs &&... vs)
+          DECLTYPE_AUTO(
+              at(make_fdiagonal<Visitor &&,
+                                decltype(as_base(std::forward<Vs>(vs)))...>(),
+                 index)(std::forward<Visitor>(visitor),
+                        as_base(std::forward<Vs>(vs))...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_alt(Visitor &&visitor, Vs &&... vs)
+          DECLTYPE_AUTO(
+              at(make_fmatrix<Visitor &&,
+                              decltype(as_base(std::forward<Vs>(vs)))...>(),
+                 vs.index()...)(std::forward<Visitor>(visitor),
+                                as_base(std::forward<Vs>(vs))...))
       };
 
       struct variant {
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_alt_at(std::size_t index,
-                                                            Visitor &&visitor,
-                                                            Vs &&... vs) {
-          return base::visit_alt_at(index,
-                                    std::forward<Visitor>(visitor),
-                                    std::forward<Vs>(vs).impl_...);
-        }
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_alt(Visitor &&visitor,
-                                                         Vs &&... vs) {
-          return base::visit_alt(std::forward<Visitor>(visitor),
-                                 std::forward<Vs>(vs).impl_...);
-        }
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_value_at(std::size_t index,
-                                                              Visitor &&visitor,
-                                                              Vs &&... vs) {
-          return visit_alt_at(
-              index,
-              make_value_visitor(std::forward<Visitor>(visitor)),
-              std::forward<Vs>(vs)...);
-        }
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr decltype(auto) visit_value(Visitor &&visitor,
-                                                           Vs &&... vs) {
-          return visit_alt(make_value_visitor(std::forward<Visitor>(visitor)),
-                           std::forward<Vs>(vs)...);
-        }
-
         private:
         template <typename Visitor, typename... Values>
-        inline static constexpr void visit_exhaustive_visitor_check() {
+        inline static constexpr int visit_exhaustive_visitor_check() {
           static_assert(
               variants::lib::is_invocable<Visitor, Values...>::value,
               "`mpark::visit` requires the visitor to be exhaustive.");
+          return 0;
         }
 
         template <typename Visitor>
         struct value_visitor {
-          template <typename... Alts>
-          inline constexpr decltype(auto) operator()(Alts &&... alts) const {
-            visit_exhaustive_visitor_check<
-                Visitor,
-                decltype(std::forward<Alts>(alts).value())...>();
-            return variants::lib::invoke(std::forward<Visitor>(visitor_),
-                                         std::forward<Alts>(alts).value()...);
-          }
           Visitor &&visitor_;
+
+          template <typename... Alts>
+          inline constexpr auto operator()(Alts &&... alts) const
+            DECLTYPE_AUTO(visit_exhaustive_visitor_check<
+                Visitor,
+                decltype((std::forward<Alts>(alts).value))...>(),
+                variants::lib::invoke(std::forward<Visitor>(visitor_),
+                                      std::forward<Alts>(alts).value...))
         };
 
         template <typename Visitor>
-        inline static constexpr auto make_value_visitor(Visitor &&visitor) {
-          return value_visitor<Visitor>{std::forward<Visitor>(visitor)};
-        }
+        inline static constexpr auto make_value_visitor(Visitor &&visitor)
+            AUTO(value_visitor<Visitor>{std::forward<Visitor>(visitor)})
+
+        public:
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_alt_at(std::size_t index,
+                                                  Visitor &&visitor,
+                                                  Vs &&... vs)
+          DECLTYPE_AUTO(base::visit_alt_at(index,
+                                           std::forward<Visitor>(visitor),
+                                           std::forward<Vs>(vs).impl_...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_alt(Visitor &&visitor, Vs &&... vs)
+          DECLTYPE_AUTO(base::visit_alt(std::forward<Visitor>(visitor),
+                                        std::forward<Vs>(vs).impl_...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_value_at(std::size_t index,
+                                                    Visitor &&visitor,
+                                                    Vs &&... vs)
+          DECLTYPE_AUTO(
+              visit_alt_at(index,
+                           make_value_visitor(std::forward<Visitor>(visitor)),
+                           std::forward<Vs>(vs)...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr auto visit_value(Visitor &&visitor, Vs &&... vs)
+          DECLTYPE_AUTO(
+              visit_alt(make_value_visitor(std::forward<Visitor>(visitor)),
+                        std::forward<Vs>(vs)...))
       };
 
     }  // namespace visitation
@@ -625,15 +689,9 @@ namespace mpark {
 
       template <typename... Args>
       inline explicit constexpr alt(in_place_t, Args &&... args)
-          : value_(std::forward<Args>(args)...) {}
+          : value(std::forward<Args>(args)...) {}
 
-      constexpr T &value() & { return value_; }
-      constexpr const T &value() const & { return value_; }
-      constexpr T &&value() && { return std::move(value_); }
-      constexpr const T &&value() const && { return std::move(value_); }
-
-      private:
-      T value_;
+      T value;
     };
 
     template <Trait DestructibleTrait, std::size_t Index, typename... Ts>
@@ -706,10 +764,10 @@ namespace mpark {
       }
 
       protected:
-      inline constexpr base &as_base() & { return *this; }
-      inline constexpr base &&as_base() && { return std::move(*this); }
-      inline constexpr const base &as_base() const & { return *this; }
-      inline constexpr const base &&as_base() const && { return std::move(*this); }
+      friend inline constexpr base &as_base(base &b) { return b; }
+      friend inline constexpr base &&as_base(base &&b) { return std::move(b); }
+      friend inline constexpr const base &as_base(const base &b) { return b; }
+      friend inline constexpr const base &&as_base(const base &&b) { return std::move(b); }
 
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
@@ -719,6 +777,13 @@ namespace mpark {
       friend struct access::base;
       friend struct visitation::base;
     };
+
+#ifndef MPARK_GENERIC_LAMBDAS
+    struct dtor {
+      template <typename Alt>
+      inline void operator()(Alt &alt) const noexcept { alt.~Alt(); }
+    };
+#endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
     class destructor;
@@ -740,26 +805,31 @@ namespace mpark {
     destructor &operator=(destructor &&) = default;                       \
                                                                           \
     protected:                                                            \
-    inline destroy                                                        \
+    destroy                                                               \
   }
 
     MPARK_VARIANT_DESTRUCTOR(
         Trait::TriviallyAvailable,
         ~destructor() = default;,
-        void destroy() noexcept {
+        inline void destroy() noexcept {
           this->index_ = static_cast<index_t>(-1);
         });
 
     MPARK_VARIANT_DESTRUCTOR(
         Trait::Available,
         ~destructor() { destroy(); },
-        void destroy() noexcept {
+        inline void destroy() noexcept {
           if (!this->valueless_by_exception()) {
             visitation::base::visit_alt(
+#ifdef MPARK_GENERIC_LAMBDAS
                 [](auto &alt) noexcept {
                   using alt_type = variants::lib::decay_t<decltype(alt)>;
                   alt.~alt_type();
-                },
+                }
+#else
+                dtor{}
+#endif
+                ,
                 *this);
           }
           this->index_ = static_cast<index_t>(-1);
@@ -768,7 +838,7 @@ namespace mpark {
     MPARK_VARIANT_DESTRUCTOR(
         Trait::Unavailable,
         ~destructor() = delete;,
-        void destroy() noexcept = delete;);
+        inline void destroy() noexcept = delete;);
 
 #undef MPARK_VARIANT_DESTRUCTOR
 
@@ -781,11 +851,21 @@ namespace mpark {
       using super::operator=;
 
       protected:
+#ifndef MPARK_GENERIC_LAMBDAS
+      struct ctor {
+        template <typename LhsAlt, typename RhsAlt>
+        inline void operator()(LhsAlt &lhs_alt, RhsAlt &&rhs_alt) const {
+          constructor::construct_alt(lhs_alt,
+                                     std::forward<RhsAlt>(rhs_alt).value);
+        }
+      };
+#endif
+
       template <std::size_t I, typename T, typename... Args>
       inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
         ::new (static_cast<void *>(variants::lib::addressof(a)))
             alt<I, T>(in_place_t{}, std::forward<Args>(args)...);
-        return a.value();
+        return a.value;
       }
 
       template <typename Rhs>
@@ -794,10 +874,15 @@ namespace mpark {
         if (!rhs.valueless_by_exception()) {
           visitation::base::visit_alt_at(
               rhs.index(),
+#ifdef MPARK_GENERIC_LAMBDAS
               [](auto &lhs_alt, auto &&rhs_alt) {
                 constructor::construct_alt(
-                    lhs_alt, std::forward<decltype(rhs_alt)>(rhs_alt).value());
-              },
+                    lhs_alt, std::forward<decltype(rhs_alt)>(rhs_alt).value);
+              }
+#else
+              ctor{}
+#endif
+              ,
               lhs,
               std::forward<Rhs>(rhs));
           lhs.index_ = rhs.index_;
@@ -889,7 +974,9 @@ namespace mpark {
       using super::operator=;
 
       template <std::size_t I, typename... Args>
-      inline auto &emplace(Args &&... args) {
+      inline /* auto & */ auto emplace(Args &&... args)
+          -> decltype(this->construct_alt(access::base::get_alt<I>(*this),
+                                          std::forward<Args>(args)...)) {
         this->destroy();
         auto &result = this->construct_alt(access::base::get_alt<I>(*this),
                                            std::forward<Args>(args)...);
@@ -898,12 +985,25 @@ namespace mpark {
       }
 
       protected:
+#ifndef MPARK_GENERIC_LAMBDAS
+      template <typename That>
+      struct assigner {
+        template <typename ThisAlt, typename ThatAlt>
+        inline void operator()(ThisAlt &this_alt, ThatAlt &&that_alt) const {
+          self->assign_alt(this_alt,
+                           std::forward<ThatAlt>(that_alt).value,
+                           std::is_lvalue_reference<That>{});
+        }
+        assignment *self;
+      };
+#endif
+
       template <bool CopyAssign, std::size_t I, typename T, typename Arg>
       inline void assign_alt(alt<I, T> &a,
                              Arg &&arg,
                              variants::lib::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
-          a.value() = std::forward<Arg>(arg);
+          a.value = std::forward<Arg>(arg);
         } else {
           struct {
             void operator()(std::true_type) const {
@@ -928,12 +1028,17 @@ namespace mpark {
         } else {
           visitation::base::visit_alt_at(
               that.index(),
+#ifdef MPARK_GENERIC_LAMBDAS
               [this](auto &this_alt, auto &&that_alt) {
                 this->assign_alt(
                     this_alt,
-                    std::forward<decltype(that_alt)>(that_alt).value(),
+                    std::forward<decltype(that_alt)>(that_alt).value,
                     std::is_lvalue_reference<That>{});
-              },
+              }
+#else
+              assigner<That>{this}
+#endif
+              ,
               *this,
               std::forward<That>(that));
         }
@@ -1037,11 +1142,16 @@ namespace mpark {
           // do nothing.
         } else if (this->index() == that.index()) {
           visitation::base::visit_alt_at(this->index(),
+#ifdef MPARK_GENERIC_LAMBDAS
                                          [](auto &this_alt, auto &that_alt) {
                                            using std::swap;
-                                           swap(this_alt.value(),
-                                                that_alt.value());
-                                         },
+                                           swap(this_alt.value,
+                                                that_alt.value);
+                                         }
+#else
+                                         swapper{}
+#endif
+                                         ,
                                          *this,
                                          that);
         } else {
@@ -1067,10 +1177,21 @@ namespace mpark {
       }
 
       private:
+#ifndef MPARK_GENERIC_LAMBDAS
+      struct swapper {
+        template <typename ThisAlt, typename ThatAlt>
+        inline void operator()(ThisAlt &this_alt, ThatAlt &that_alt) const {
+          using std::swap;
+          swap(this_alt.value, that_alt.value);
+        }
+      };
+#endif
+
       inline constexpr bool move_nothrow() const {
-        constexpr bool results[] = {
-            std::is_nothrow_move_constructible<Ts>::value...};
-        return this->valueless_by_exception() || results[this->index()];
+        return this->valueless_by_exception() ||
+               variants::lib::array<bool, sizeof...(Ts)>{
+                   {std::is_nothrow_move_constructible<Ts>::value...}
+               }[this->index()];
       }
     };
 
@@ -1078,9 +1199,7 @@ namespace mpark {
     struct overload;
 
     template <>
-    struct overload<> {
-      void operator()() const;
-    };
+    struct overload<> { void operator()() const; };
 
     template <typename T, typename... Ts>
     struct overload<T, Ts...> : overload<Ts...> {
@@ -1301,10 +1420,9 @@ namespace mpark {
   namespace detail {
 
     template <std::size_t I, typename V>
-    inline constexpr auto &&generic_get(V &&v) {
-      return (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
-             access::variant::get_alt<I>(std::forward<V>(v)).value();
-    }
+    inline constexpr auto generic_get(V &&v)
+      AUTO_REFREF((holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
+                  access::variant::get_alt<I>(std::forward<V>(v)).value)
 
   }  // namespace detail
 
@@ -1355,12 +1473,11 @@ namespace mpark {
   namespace detail {
 
     template <std::size_t I, typename V>
-    inline constexpr auto *generic_get_if(V *v) noexcept {
-      return v && holds_alternative<I>(*v)
-                 ? variants::lib::addressof(
-                       access::variant::get_alt<I>(*v).value())
-                 : nullptr;
-    }
+    inline constexpr /* auto * */ auto generic_get_if(V *v) noexcept
+      AUTO(v && holds_alternative<I>(*v)
+               ? variants::lib::addressof(
+                     access::variant::get_alt<I>(*v).value)
+               : nullptr)
 
   }  // namespace detail
 
@@ -1394,75 +1511,120 @@ namespace mpark {
   inline constexpr bool operator==(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::equal_to;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return false;
     if (lhs.valueless_by_exception()) return true;
-    return variant::visit_value_at(lhs.index(), std::equal_to<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), equal_to{}, lhs, rhs);
+#else
+    return lhs.index() == rhs.index() &&
+           (lhs.valueless_by_exception() ||
+            variant::visit_value_at(lhs.index(), equal_to{}, lhs, rhs));
+#endif
   }
 
   template <typename... Ts>
   inline constexpr bool operator!=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::not_equal_to;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return true;
     if (lhs.valueless_by_exception()) return false;
-    return variant::visit_value_at(
-        lhs.index(), std::not_equal_to<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), not_equal_to{}, lhs, rhs);
+#else
+    return lhs.index() != rhs.index() ||
+           (!lhs.valueless_by_exception() &&
+            variant::visit_value_at(lhs.index(), not_equal_to{}, lhs, rhs));
+#endif
   }
 
   template <typename... Ts>
   inline constexpr bool operator<(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::less;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return false;
     if (lhs.valueless_by_exception()) return true;
     if (lhs.index() < rhs.index()) return true;
     if (lhs.index() > rhs.index()) return false;
-    return variant::visit_value_at(lhs.index(), std::less<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), less{}, lhs, rhs);
+#else
+    return !rhs.valueless_by_exception() &&
+           (lhs.valueless_by_exception() || lhs.index() < rhs.index() ||
+            (lhs.index() == rhs.index() &&
+             variant::visit_value_at(lhs.index(), less{}, lhs, rhs)));
+#endif
   }
 
   template <typename... Ts>
   inline constexpr bool operator>(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::greater;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return false;
     if (rhs.valueless_by_exception()) return true;
     if (lhs.index() > rhs.index()) return true;
     if (lhs.index() < rhs.index()) return false;
-    return variant::visit_value_at(lhs.index(), std::greater<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), greater{}, lhs, rhs);
+#else
+    return !lhs.valueless_by_exception() &&
+           (rhs.valueless_by_exception() || lhs.index() > rhs.index() ||
+            (lhs.index() == rhs.index() &&
+             variant::visit_value_at(lhs.index(), greater{}, lhs, rhs)));
+#endif
   }
 
   template <typename... Ts>
   inline constexpr bool operator<=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::less_equal;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return true;
     if (rhs.valueless_by_exception()) return false;
     if (lhs.index() < rhs.index()) return true;
     if (lhs.index() > rhs.index()) return false;
-    return variant::visit_value_at(lhs.index(), std::less_equal<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), less_equal{}, lhs, rhs);
+#else
+    return lhs.valueless_by_exception() ||
+           (!rhs.valueless_by_exception() &&
+            (lhs.index() < rhs.index() ||
+             (lhs.index() == rhs.index() &&
+              variant::visit_value_at(lhs.index(), less_equal{}, lhs, rhs))));
+#endif
   }
 
   template <typename... Ts>
   inline constexpr bool operator>=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
+    using variants::lib::greater_equal;
+#ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return true;
     if (lhs.valueless_by_exception()) return false;
     if (lhs.index() > rhs.index()) return true;
     if (lhs.index() < rhs.index()) return false;
-    return variant::visit_value_at(
-        lhs.index(), std::greater_equal<>{}, lhs, rhs);
+    return variant::visit_value_at(lhs.index(), greater_equal{}, lhs, rhs);
+#else
+    return rhs.valueless_by_exception() ||
+           (!lhs.valueless_by_exception() &&
+            (lhs.index() > rhs.index() ||
+             (lhs.index() == rhs.index() &&
+              variant::visit_value_at(
+                  lhs.index(), greater_equal{}, lhs, rhs))));
+#endif
   }
 
   template <typename Visitor, typename... Vs>
-  inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
-    using detail::visitation::variant;
-    return (detail::all(!vs.valueless_by_exception()...)
-                ? (void)0
-                : throw bad_variant_access{}),
-           variant::visit_value(std::forward<Visitor>(visitor),
-                                std::forward<Vs>(vs)...);
-  }
+  inline constexpr auto visit(Visitor &&visitor, Vs &&... vs)
+    DECLTYPE_AUTO((detail::all(!vs.valueless_by_exception()...)
+                       ? (void)0
+                       : throw bad_variant_access{}),
+                  detail::visitation::variant::visit_value(
+                      std::forward<Visitor>(visitor), std::forward<Vs>(vs)...))
 
   struct monostate {};
 
@@ -1524,6 +1686,10 @@ namespace mpark {
 
   }  // namespace detail
 
+#undef AUTO
+#undef AUTO_REFREF
+#undef DECLTYPE_AUTO
+
 }  // namespace mpark
 
 namespace std {
@@ -1543,18 +1709,35 @@ namespace std {
           v.valueless_by_exception()
               ? 299792458  // Random value chosen by the universe upon creation
               : variant::visit_alt(
+#ifdef MPARK_GENERIC_LAMBDAS
                     [](const auto &alt) {
                       using alt_type =
                           mpark::variants::lib::decay_t<decltype(alt)>;
                       using value_type = mpark::variants::lib::remove_const_t<
                           typename alt_type::value_type>;
-                      return hash<value_type>{}(alt.value());
-                    },
+                      return hash<value_type>{}(alt.value);
+                    }
+#else
+                    hasher{}
+#endif
+                    ,
                     v);
       return hash_combine(result, hash<std::size_t>{}(v.index()));
     }
 
     private:
+#ifndef MPARK_GENERIC_LAMBDAS
+    struct hasher {
+      template <typename Alt>
+      inline std::size_t operator()(const Alt &alt) const {
+        using alt_type = mpark::variants::lib::decay_t<Alt>;
+        using value_type =
+            mpark::variants::lib::remove_const_t<typename alt_type::value_type>;
+        return hash<value_type>{}(alt.value);
+      }
+    };
+#endif
+
     static std::size_t hash_combine(std::size_t lhs, std::size_t rhs) {
       return lhs ^= rhs + 0x9e3779b9 + (lhs << 6) + (lhs >> 2);
     }

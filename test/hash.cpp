@@ -12,8 +12,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Hash, Monostate) {
   mpark::variant<int, mpark::monostate, std::string> v(mpark::monostate{});
   // Construct hash function objects.
@@ -24,11 +22,11 @@ TEST(Hash, Monostate) {
 }
 
 TEST(Hash, String) {
-  mpark::variant<int, std::string> v("hello"s);
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  mpark::variant<int, std::string> v("hello");
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
   // Construct hash function objects.
   std::hash<std::string> string_hash;
   std::hash<mpark::variant<int, std::string>> variant_hash;
   // Check the hash.
-  EXPECT_NE(string_hash("hello"s), variant_hash(v));
+  EXPECT_NE(string_hash("hello"), variant_hash(v));
 }

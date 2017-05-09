@@ -12,36 +12,34 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Swap, Same) {
-  mpark::variant<int, std::string> v("hello"s);
-  mpark::variant<int, std::string> w("world"s);
+  mpark::variant<int, std::string> v("hello");
+  mpark::variant<int, std::string> w("world");
   // Check `v`.
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
   // Check `w`.
-  EXPECT_EQ("world"s, mpark::get<std::string>(w));
+  EXPECT_EQ("world", mpark::get<std::string>(w));
   // Swap.
   using std::swap;
   swap(v, w);
   // Check `v`.
-  EXPECT_EQ("world"s, mpark::get<std::string>(v));
+  EXPECT_EQ("world", mpark::get<std::string>(v));
   // Check `w`.
-  EXPECT_EQ("hello"s, mpark::get<std::string>(w));
+  EXPECT_EQ("hello", mpark::get<std::string>(w));
 }
 
 TEST(Swap, Different) {
   mpark::variant<int, std::string> v(42);
-  mpark::variant<int, std::string> w("hello"s);
+  mpark::variant<int, std::string> w("hello");
   // Check `v`.
   EXPECT_EQ(42, mpark::get<int>(v));
   // Check `w`.
-  EXPECT_EQ("hello"s, mpark::get<std::string>(w));
+  EXPECT_EQ("hello", mpark::get<std::string>(w));
   // Swap.
   using std::swap;
   swap(v, w);
   // Check `v`.
-  EXPECT_EQ("hello"s, mpark::get<std::string>(v));
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
   // Check `w`.
   EXPECT_EQ(42, mpark::get<int>(w));
 }
@@ -169,7 +167,8 @@ TEST(Swap, DtorsDifferent) {
   size_t v_count = 0;
   size_t w_count = 0;
   {
-    mpark::variant<V, W> v{mpark::in_place_type<V>, &v_count}, w{mpark::in_place_type<W>, &w_count};
+    mpark::variant<V, W> v{mpark::in_place_type_t<V>{}, &v_count};
+    mpark::variant<V, W> w{mpark::in_place_type_t<W>{}, &w_count};
     using std::swap;
     swap(v, w);
     EXPECT_EQ(1u, v_count);

@@ -14,8 +14,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 enum Qual { LRef, ConstLRef, RRef, ConstRRef };
 
 struct get_qual {
@@ -74,14 +72,20 @@ TEST(Visit, ConstVarConstType) {
   }
 }
 
+struct concat {
+  template <typename... Args>
+  std::string operator()(const Args &... args) const {
+    std::ostringstream strm;
+    std::initializer_list<int>({(strm << args, 0)...});
+    return std::move(strm).str();
+  }
+};
+
+TEST(Visit, Zero) { EXPECT_EQ("", mpark::visit(concat{})); }
+
 TEST(Visit_Homogeneous, Double) {
-  mpark::variant<int, std::string> v("hello"s), w("world!"s);
-  EXPECT_EQ("hello world!"s,
-            mpark::visit([](const auto &lhs, const auto &rhs) {
-              std::ostringstream strm;
-              strm << lhs << ' ' << rhs;
-              return strm.str();
-            }, v, w));
+  mpark::variant<int, std::string> v("hello"), w("world!");
+  EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(101), cw(202), cx("helllo");
@@ -99,24 +103,14 @@ TEST(Visit_Homogeneous, Double) {
 }
 
 TEST(Visit_Homogeneous, Quintuple) {
-  mpark::variant<int, std::string> v(101), w("+"s), x(202), y("="s), z(303);
-  EXPECT_EQ("101+202=303"s,
-            mpark::visit([](const auto &... elems) {
-              std::ostringstream strm;
-              std::initializer_list<int>({(strm << elems, 0)...});
-              return std::move(strm).str();
-            }, v, w, x, y, z));
+  mpark::variant<int, std::string> v(101), w("+"), x(202), y("="), z(303);
+  EXPECT_EQ("101+202=303", mpark::visit(concat{}, v, w, x, y, z));
 }
 
 TEST(Visit_Heterogeneous, Double) {
-  mpark::variant<int, std::string> v("hello"s);
+  mpark::variant<int, std::string> v("hello");
   mpark::variant<double, const char *> w("world!");
-  EXPECT_EQ("hello world!"s,
-            mpark::visit([](const auto &lhs, const auto &rhs) {
-              std::ostringstream strm;
-              strm << lhs << ' ' << rhs;
-              return strm.str();
-            }, v, w));
+  EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 }
 
 TEST(Visit_Heterogenous, Quintuple) {
@@ -125,10 +119,5 @@ TEST(Visit_Heterogenous, Quintuple) {
   mpark::variant<bool, std::string, int> x(202);
   mpark::variant<char, std::string, const char *> y('=');
   mpark::variant<long, short> z(303L);
-  EXPECT_EQ("101+202=303"s,
-            mpark::visit([](const auto &... elems) {
-              std::ostringstream strm;
-              std::initializer_list<int>({(strm << elems, 0)...});
-              return std::move(strm).str();
-            }, v, w, x, y, z));
+  EXPECT_EQ("101+202=303", mpark::visit(concat{}, v, w, x, y, z));
 }

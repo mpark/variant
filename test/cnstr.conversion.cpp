@@ -12,8 +12,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Cnstr_Conversion, Direct) {
   mpark::variant<int, std::string> v(42);
   EXPECT_EQ(42, mpark::get<int>(v));
@@ -42,7 +40,7 @@ TEST(Cnstr_Conversion, DirectRef) {
 
 TEST(Cnstr_Conversion, DirectConversion) {
   mpark::variant<int, std::string> v("42");
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(1.1);
@@ -79,7 +77,7 @@ TEST(Cnstr_Conversion, CopyInitializationRef) {
 
 TEST(Cnstr_Conversion, CopyInitializationConversion) {
   mpark::variant<int, std::string> v = "42";
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv = 1.1;

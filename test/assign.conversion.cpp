@@ -13,8 +13,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std::string_literals;
-
 TEST(Assign_Conversion, SameType) {
   mpark::variant<int, std::string> v(101);
   EXPECT_EQ(101, mpark::get<int>(v));
@@ -32,15 +30,15 @@ TEST(Assign_Conversion, SameTypeConversion) {
 TEST(Assign_Conversion, DiffType) {
   mpark::variant<int, std::string> v(42);
   EXPECT_EQ(42, mpark::get<int>(v));
-  v = "42"s;
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  v = "42";
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 }
 
 TEST(Assign_Conversion, DiffTypeConversion) {
   mpark::variant<int, std::string> v(42);
   EXPECT_EQ(42, mpark::get<int>(v));
   v = "42";
-  EXPECT_EQ("42"s, mpark::get<std::string>(v));
+  EXPECT_EQ("42", mpark::get<std::string>(v));
 }
 
 TEST(Assign_Conversion, ExactMatch) {
@@ -65,17 +63,17 @@ TEST(Assign_Conversion, Ambiguous) {
 }
 
 TEST(Assign_Conversion, SameTypeOptimization) {
-  mpark::variant<int, std::string> v("hello world!"s);
+  mpark::variant<int, std::string> v("hello world!");
   // Check `v`.
   const std::string &x = mpark::get<std::string>(v);
-  EXPECT_EQ("hello world!"s, x);
+  EXPECT_EQ("hello world!", x);
   // Save the "hello world!"'s capacity.
   auto capacity = x.capacity();
   // Use `std::string::operator=(const char *)` to assign into `v`.
   v = "hello";
   // Check `v`.
   const std::string &y = mpark::get<std::string>(v);
-  EXPECT_EQ("hello"s, y);
+  EXPECT_EQ("hello", y);
   // Since "hello" is shorter than "hello world!", we should have preserved the
   // existing capacity of the string!.
   EXPECT_EQ(capacity, y.capacity());
@@ -105,7 +103,8 @@ struct move_thrower_t {
 };  // move_thrower_t
 
 TEST(Assign_Conversion, ThrowOnAssignment) {
-  mpark::variant<int, move_thrower_t> v(mpark::in_place_type<move_thrower_t>);
+  mpark::variant<int, move_thrower_t> v(
+      mpark::in_place_type_t<move_thrower_t>{});
   // Since `variant` is already in `move_thrower_t`, assignment optimization
   // kicks and we simply invoke
   // `move_thrower_t &operator=(move_thrower_t &&);` which throws.
