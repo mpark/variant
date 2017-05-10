@@ -9,6 +9,10 @@
 #ifndef MPARK_VARIANTS_CONFIG_HPP
 #define MPARK_VARIANTS_CONFIG_HPP
 
+#if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_VER < 1900)
+#error "MPark.Variant requires C++11 support."
+#endif
+
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
