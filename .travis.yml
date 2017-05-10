@@ -5,8 +5,8 @@ git:
 
 matrix:
   include:
-    # ubuntu 14.04, gcc-5, debug
-    - env: VERSION=5 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-5, c++11, debug
+    - env: VERSION=5 STD=11 BUILD_TYPE=Debug
       compiler: gcc
       os: linux
       dist: trusty
@@ -17,15 +17,29 @@ matrix:
             - g++-5
           sources:
             - ubuntu-toolchain-r-test
-    # ubuntu 14.04, gcc-5, release
-    - env: VERSION=5 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-5, c++11, release
+    - env: VERSION=5 STD=11 BUILD_TYPE=Release
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc5
-    # ubuntu 14.04, gcc-6, debug
-    - env: VERSION=6 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-5, c++14, debug
+    - env: VERSION=5 STD=14 BUILD_TYPE=Debug
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+    # ubuntu 14.04, gcc-5, c++14, release
+    - env: VERSION=5 STD=14 BUILD_TYPE=Release
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+    # ubuntu 14.04, gcc-6, c++11 debug
+    - env: VERSION=6 STD=11 BUILD_TYPE=Debug
       compiler: gcc
       os: linux
       dist: trusty
@@ -36,15 +50,29 @@ matrix:
             - g++-6
           sources:
             - ubuntu-toolchain-r-test
-    # ubuntu 14.04, gcc-6, release
-    - env: VERSION=6 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-6, c++11, release
+    - env: VERSION=6 STD=11 BUILD_TYPE=Release
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc6
-    # ubuntu 14.04, clang-3.5, debug
-    - env: VERSION=3.5 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-6, c++14, release
+    - env: VERSION=6 STD=14 BUILD_TYPE=Release
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+    # ubuntu 14.04, gcc-6, c++14, release
+    - env: VERSION=6 STD=14 BUILD_TYPE=Release
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+    # ubuntu 14.04, clang-3.5, c++11, debug
+    - env: VERSION=3.5 STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: linux
       dist: trusty
@@ -53,96 +81,196 @@ matrix:
         apt:
           packages:
             - libc++-dev
-    # ubuntu 14.04, clang-3.5, release
-    - env: VERSION=3.5 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++11, release
+    - env: VERSION=3.5 STD=11 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, debug
-    - env: VERSION=3.6 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.5, c++14, release
+    - env: VERSION=3.5 STD=14 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, release
-    - env: VERSION=3.6 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++14, release
+    - env: VERSION=3.5 STD=14 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, debug
-    - env: VERSION=3.7 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.6, c++11, debug
+    - env: VERSION=3.6 STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, release
-    - env: VERSION=3.7 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++11, release
+    - env: VERSION=3.6 STD=11 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, debug
-    - env: VERSION=3.8 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.6, c++14, release
+    - env: VERSION=3.6 STD=14 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, release
-    - env: VERSION=3.8 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++14, release
+    - env: VERSION=3.6 STD=14 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, debug
-    - env: VERSION=3.9 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.7, c++11, debug
+    - env: VERSION=3.7 STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, release
-    - env: VERSION=3.9 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.7, c++11, release
+    - env: VERSION=3.7 STD=11 BUILD_TYPE=Release
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # OS X Yosemite 10.10, Apple Clang, debug
-    - env: BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.7, c++14, debug
+    - env: VERSION=3.7 STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.7, c++14, release
+    - env: VERSION=3.7 STD=14 BUILD_TYPE=Release
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++11, debug
+    - env: VERSION=3.8 STD=11 BUILD_TYPE=Debug
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++11, release
+    - env: VERSION=3.8 STD=11 BUILD_TYPE=Release
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, debug
+    - env: VERSION=3.8 STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, release
+    - env: VERSION=3.8 STD=14 BUILD_TYPE=Release
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++11, debug
+    - env: VERSION=3.9 STD=11 BUILD_TYPE=Debug
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++11, release
+    - env: VERSION=3.9 STD=11 BUILD_TYPE=Release
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, debug
+    - env: VERSION=3.9 STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, release
+    - env: VERSION=3.9 STD=14 BUILD_TYPE=Release
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # OS X Yosemite 10.10, Apple Clang, c++11, debug
+    - env: STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, release
-    - env: BUILD_TYPE=Release
+    # OS X Yosemite 10.10, Apple Clang, c++11, release
+    - env: STD=11 BUILD_TYPE=Release
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X El Capitan 10.11, Apple Clang, debug
-    - env: BUILD_TYPE=Debug
+    # OS X Yosemite 10.10, Apple Clang, c++14, debug
+    - env: STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+    # OS X Yosemite 10.10, Apple Clang, c++14, release
+    - env: STD=14 BUILD_TYPE=Release
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+    # OS X El Capitan 10.11, apple-clang-8, c++11, debug
+    - env: STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, release
-    - env: BUILD_TYPE=Release
+    # OS X El Capitan 10.11, apple-clang-8, c++11, release
+    - env: STD=11 BUILD_TYPE=Release
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X Sierra 10.12, apple-clang-8, debug
-    - env: BUILD_TYPE=Debug
+    # OS X El Capitan 10.11, apple-clang-8, c++14, debug
+    - env: STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+    # OS X El Capitan 10.11, apple-clang-8, c++14, release
+    - env: STD=14 BUILD_TYPE=Release
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+    # OS X Sierra 10.12, apple-clang-8, c++11, debug
+    - env: STD=11 BUILD_TYPE=Debug
       compiler: clang
       os: osx
       osx_image: xcode8.2
-    # OS X Sierra 10.12, apple-clang-8, release
-    - env: BUILD_TYPE=Release
+    # OS X Sierra 10.12, apple-clang-8, c++11, release
+    - env: STD=11 BUILD_TYPE=Release
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, debug
+    - env: STD=14 BUILD_TYPE=Debug
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, release
+    - env: STD=14 BUILD_TYPE=Release
       compiler: clang
       os: osx
       osx_image: xcode8.2
@@ -180,6 +308,7 @@ install:
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+          -DMPARK_VARIANT_CXX_STANDARD=${STD}
           -DMPARK_VARIANT_INCLUDE_TESTS="mpark;libc++" ..
   - cmake --build .
 
