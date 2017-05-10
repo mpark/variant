@@ -1,4 +1,3 @@
-image: Visual Studio 2015
 
 build:
   verbosity: detailed
@@ -8,23 +7,39 @@ clone_depth: 1
 install:
   - cmd: git submodule -q update --init
 
+environment:
+  matrix:
+    # MSVC 2015
+    - GENERATOR: Visual Studio 14 2015
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    # MSVC 2017
+    - GENERATOR: Visual Studio 15 2017
+      CXXFLAGS: /std:c++14 /permissive-
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    # Clang/LLVM 2015
+    - GENERATOR: Visual Studio 14 2015
+      TOOLSET: LLVM-vs2014
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
 platform:
-  - x86
+  # - x86
   - x64
 
 configuration:
   - Debug
-  - Release
+  # - Release
 
 build_script:
   - mkdir build
   - cd build
-  - set GENERATOR=Visual Studio 14 2015
   - if "%PLATFORM%" == "x64" set GENERATOR=%GENERATOR% Win64
-  - cmake -G "%GENERATOR%"
-          -T "LLVM-vs2014"
-          -DCMAKE_C_COMPILER=clang-cl
-          -DCMAKE_CXX_COMPILER=clang-cl
-          -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+  - ps: |
+      if (Test-Path env:TOOLSET) {
+        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+      } else {
+        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+      }
   - cmake --build . --config %CONFIGURATION%
   - ctest -V
