@@ -25,19 +25,19 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
-#if __cpp_generic_lambdas || defined(_MSC_VER)
+#if defined(__cpp_generic_lambdas) || defined(_MSC_VER)
 #define MPARK_GENERIC_LAMBDAS
 #endif
 
-#ifdef __cpp_lib_integer_sequence
+#if defined(__cpp_lib_integer_sequence)
 #define MPARK_INTEGER_SEQUENCE
 #endif
 
-#ifdef __cpp_lib_transparent_operators
+#if defined(__cpp_lib_transparent_operators)
 #define MPARK_TRANSPARENT_OPERATORS
 #endif
 
-#ifdef __cpp_return_type_deduction || defined(_MSC_VER)
+#if defined(__cpp_return_type_deduction) || defined(_MSC_VER)
 #define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
@@ -45,7 +45,7 @@
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
-#if __cpp_constexpr >= 201304
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
