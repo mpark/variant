@@ -662,12 +662,16 @@ namespace mpark {
     struct alt {
       using value_type = T;
 
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
+#endif
       template <typename... Args>
       inline explicit constexpr alt(in_place_t, Args &&... args)
           : value(variants::lib::forward<Args>(args)...) {}
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 
       T value;
     };
@@ -978,10 +982,14 @@ namespace mpark {
                              Arg &&arg,
                              variants::lib::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
+#endif
           a.value = variants::lib::forward<Arg>(arg);
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
         } else {
           struct {
             void operator()(std::true_type) const {
