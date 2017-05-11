@@ -334,7 +334,7 @@ namespace mpark {
 
         template <typename T,
                   lib::enable_if_t<detail::has_addressof<T>::value, int> = 0>
-        inline T *addressof(T &arg) {
+        inline constexpr T *addressof(T &arg) {
           return std::addressof(arg);
         }
 
@@ -346,7 +346,7 @@ namespace mpark {
 #endif
 
         template <typename T>
-        inline const T *addressof(const T &&) = delete;
+        inline constexpr T *addressof(const T &&) = delete;
 
       }  // namespace cpp17
 
