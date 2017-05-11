@@ -1224,13 +1224,13 @@ namespace mpark {
     static_assert(0 < sizeof...(Ts),
                   "variant must consist of at least one alternative.");
 
-    static_assert(detail::all(!std::is_array<Ts>::value...),
+    static_assert(variants::lib::all<!std::is_array<Ts>::value...>::value,
                   "variant can not have an array type as an alternative.");
 
-    static_assert(detail::all(!std::is_reference<Ts>::value...),
+    static_assert(variants::lib::all<!std::is_reference<Ts>::value...>::value,
                   "variant can not have a reference type as an alternative.");
 
-    static_assert(detail::all(!std::is_void<Ts>::value...),
+    static_assert(variants::lib::all<!std::is_void<Ts>::value...>::value,
                   "variant can not have a void type as an alternative.");
 
     public:
@@ -1402,13 +1402,15 @@ namespace mpark {
 
     template <bool Dummy = true,
               variants::lib::enable_if_t<
-                  detail::all(Dummy,
-                              (std::is_move_constructible<Ts>::value &&
-                               variants::lib::is_swappable<Ts>::value)...),
+                  variants::lib::all<
+                      Dummy,
+                      (std::is_move_constructible<Ts>::value &&
+                       variants::lib::is_swappable<Ts>::value)...>::value,
                   int> = 0>
     inline void swap(variant &that) noexcept(
-        detail::all((std::is_nothrow_move_constructible<Ts>::value &&
-                     variants::lib::is_nothrow_swappable<Ts>::value)...)) {
+        variants::lib::all<
+            (std::is_nothrow_move_constructible<Ts>::value &&
+             variants::lib::is_nothrow_swappable<Ts>::value)...>::value) {
       impl_.swap(that.impl_);
     }
 
@@ -1713,9 +1715,9 @@ namespace std {
   template <typename... Ts>
   struct hash<mpark::detail::enabled_type<
       mpark::variant<Ts...>,
-      mpark::variants::lib::enable_if_t<mpark::detail::all(
-          mpark::detail::hash::is_enabled<
-              mpark::variants::lib::remove_const_t<Ts>>()...)>>> {
+      mpark::variants::lib::enable_if_t<
+          mpark::variants::lib::all<mpark::detail::hash::is_enabled<
+              mpark::variants::lib::remove_const_t<Ts>>()...>::value>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 

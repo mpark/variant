@@ -73,6 +73,9 @@ namespace mpark {
         }
 
 #ifdef MPARK_INTEGER_SEQUENCE
+        template <typename T, T... Is>
+        using integer_sequence = std::integer_sequence<T, Is...>;
+
         template <std::size_t... Is>
         using index_sequence = std::index_sequence<Is...>;
 
@@ -82,8 +85,14 @@ namespace mpark {
         template <typename... Ts>
         using index_sequence_for = std::index_sequence_for<Ts...>;
 #else
-        template <std::size_t...>
-        struct index_sequence {};
+        template <typename T, T... Is>
+        struct integer_sequence {
+          using value_type = T;
+          static constexpr std::size_t size() noexcept { return sizeof...(Is); }
+        };
+
+        template <std::size_t... Is>
+        using index_sequence = integer_sequence<std::size_t, Is...>;
 
         template <typename Lhs, typename Rhs>
         struct make_index_sequence_concat;
@@ -352,6 +361,13 @@ namespace mpark {
 
       template <std::size_t N>
       using size_constant = std::integral_constant<std::size_t, N>;
+
+      template <bool... Bs>
+      using bool_sequence = integer_sequence<bool, Bs...>;
+
+      template <bool... Bs>
+      using all =
+          std::is_same<bool_sequence<true, Bs...>, bool_sequence<Bs..., true>>;
 
 #ifdef MPARK_TYPE_PACK_ELEMENT
       template <std::size_t I, typename... Ts>
