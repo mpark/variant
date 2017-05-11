@@ -25,7 +25,7 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
-#ifdef __cpp_generic_lambdas
+#if __cpp_generic_lambdas || defined(_MSC_VER)
 #define MPARK_GENERIC_LAMBDAS
 #endif
 
@@ -41,7 +41,7 @@
 #define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
-#ifdef __cpp_variable_templates
+#if defined(__cpp_variable_templates) || (defined(_MSC_VER) && _MSC_VER >= 1910)
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
