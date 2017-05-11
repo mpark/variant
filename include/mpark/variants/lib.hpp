@@ -330,18 +330,21 @@ namespace mpark {
           template <typename T>
           using has_addressof = bool_constant<has_addressof_impl::impl<T>()>;
 
+          template <typename T>
+          inline constexpr T *addressof(T &arg, std::true_type) {
+            return std::addressof(arg);
+          }
+
+          template <typename T>
+          inline constexpr T *addressof(T &arg, std::false_type) {
+            return &arg;
+          }
+
         }  // namespace detail
 
-        template <typename T,
-                  lib::enable_if_t<detail::has_addressof<T>::value, int> = 0>
+        template <typename T>
         inline constexpr T *addressof(T &arg) {
-          return std::addressof(arg);
-        }
-
-        template <typename T,
-                  lib::enable_if_t<!detail::has_addressof<T>::value, int> = 0>
-        inline constexpr T *addressof(T &arg) {
-          return &arg;
+          return detail::addressof(arg, detail::has_addressof<T>{});
         }
 #endif
 
