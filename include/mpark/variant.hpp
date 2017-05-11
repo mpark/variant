@@ -1433,11 +1433,14 @@ namespace mpark {
 
   namespace detail {
 
+#pragma warning(push)
+#pragma warning(disable : 4172)
     template <std::size_t I, typename V>
-    inline constexpr auto generic_get(V &&v)
-      AUTO_REFREF(
-          (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
-          access::variant::get_alt<I>(variants::lib::forward<V>(v)).value)
+    inline constexpr auto &&generic_get(V &&v) {
+      return (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
+             access::variant::get_alt<I>(variants::lib::forward<V>(v)).value;
+    }
+#pragma warning(pop)
 
   }  // namespace detail
 
