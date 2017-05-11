@@ -43,8 +43,8 @@ TEST(Assign_Conversion, DiffTypeConversion) {
 
 TEST(Assign_Conversion, ExactMatch) {
   mpark::variant<const char *, std::string> v;
-  v = "hello";
-  EXPECT_EQ("hello", mpark::get<const char *>(v));
+  v = std::string("hello");
+  EXPECT_EQ("hello", mpark::get<std::string>(v));
 }
 
 TEST(Assign_Conversion, BetterMatch) {
