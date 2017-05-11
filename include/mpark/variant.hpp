@@ -792,12 +792,12 @@ namespace mpark {
       friend struct visitation::base;
     };
 
-#ifndef MPARK_GENERIC_LAMBDAS
     struct dtor {
       template <typename Alt>
-      inline void operator()(Alt &alt) const noexcept { alt.~Alt(); }
+      inline void operator()(Alt &alt) const noexcept {
+        alt.~Alt();
+      }
     };
-#endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
     class destructor;
@@ -834,17 +834,7 @@ namespace mpark {
         ~destructor() { destroy(); },
         inline void destroy() noexcept {
           if (!this->valueless_by_exception()) {
-            visitation::base::visit_alt(
-#ifdef MPARK_GENERIC_LAMBDAS
-                [](auto &alt) noexcept {
-                  using alt_type = variants::lib::decay_t<decltype(alt)>;
-                  alt.~alt_type();
-                }
-#else
-                dtor{}
-#endif
-                ,
-                *this);
+            visitation::base::visit_alt(dtor{}, *this);
           }
           this->index_ = static_cast<index_t>(-1);
         });
