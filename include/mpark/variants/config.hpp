@@ -37,7 +37,7 @@
 #define MPARK_TRANSPARENT_OPERATORS
 #endif
 
-#ifdef __cpp_return_type_deduction
+#ifdef __cpp_return_type_deduction || defined(_MSC_VER)
 #define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
