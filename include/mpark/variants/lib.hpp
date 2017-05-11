@@ -218,9 +218,10 @@ namespace mpark {
             using is_swappable = typename is_swappable_impl<T>::type;
 
             template <typename T, bool = is_swappable<T>::value>
-            struct is_nothrow_swappable
-                : bool_constant<noexcept(
-                      swap(std::declval<T &>(), std::declval<T &>()))> {};
+            struct is_nothrow_swappable {
+              static constexpr bool value =
+                  noexcept(swap(std::declval<T &>(), std::declval<T &>()));
+            };
 
             template <typename T>
             struct is_nothrow_swappable<T, false> : std::false_type {};
