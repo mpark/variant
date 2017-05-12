@@ -90,17 +90,17 @@ TEST(Visit_Homogeneous, Double) {
   EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> cv(101), cw(202), cx("hello");
-    struct add {
+    constexpr mpark::variant<int, double> cv(101), cw(202), cx(3.3);
+    struct add_ints {
       constexpr int operator()(int lhs, int rhs) const { return lhs + rhs; }
-      constexpr int operator()(int lhs, const char *) const { return lhs; }
-      constexpr int operator()(const char *, int rhs) const { return rhs; }
-      constexpr int operator()(const char *, const char *) const { return 0; }
+      constexpr int operator()(int lhs, double) const { return lhs; }
+      constexpr int operator()(double, int rhs) const { return rhs; }
+      constexpr int operator()(double, double) const { return 0; }
     };  // add
-    static_assert(303 == mpark::visit(add{}, cv, cw), "");
-    static_assert(202 == mpark::visit(add{}, cw, cx), "");
-    static_assert(101 == mpark::visit(add{}, cx, cv), "");
-    static_assert(0 == mpark::visit(add{}, cx, cx), "");
+    static_assert(303 == mpark::visit(add_ints{}, cv, cw), "");
+    static_assert(202 == mpark::visit(add_ints{}, cw, cx), "");
+    static_assert(101 == mpark::visit(add_ints{}, cx, cv), "");
+    static_assert(0 == mpark::visit(add_ints{}, cx, cx), "");
   }
 }
 
