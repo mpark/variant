@@ -440,15 +440,15 @@ namespace mpark {
         }
 
         template <typename F, typename... Fs>
-        inline static constexpr void std_visit_visitor_return_type_check() {
+        inline static constexpr void visit_visitor_return_type_check() {
           static_assert(all({std::is_same<F, Fs>::value...}),
-                        "`std::visit` requires the visitor to have a single "
+                        "`mpark::visit` requires the visitor to have a single "
                         "return type.");
         }
 
         template <typename... Fs>
         inline static constexpr auto make_farray(Fs &&... fs) {
-          std_visit_visitor_return_type_check<std::decay_t<Fs>...>();
+          visit_visitor_return_type_check<std::decay_t<Fs>...>();
           using result = std::array<std::common_type_t<std::decay_t<Fs>...>,
                                     sizeof...(Fs)>;
           return result{{std::forward<Fs>(fs)...}};
@@ -551,18 +551,19 @@ namespace mpark {
 
         private:
         template <typename Visitor, typename... Values>
-        inline static constexpr void std_visit_exhaustive_visitor_check() {
-          static_assert(lib::is_callable<Visitor(Values...)>::value,
-                        "`std::visit` requires the visitor to be exhaustive.");
+        inline static constexpr void visit_exhaustive_visitor_check() {
+          static_assert(
+              lib::is_callable<Visitor(Values...)>::value,
+              "`mpark::visit` requires the visitor to be exhaustive.");
         }
 
         template <typename Visitor>
         struct value_visitor {
           template <typename... Alts>
           inline constexpr decltype(auto) operator()(Alts &&... alts) const {
-            std_visit_exhaustive_visitor_check<
+            visit_exhaustive_visitor_check<
                 Visitor,
-                decltype(std::forward<Alts>(alts).value_)...>();
+                decltype((std::forward<Alts>(alts).value_))...>();
             return lib::invoke(std::forward<Visitor>(visitor_),
                                std::forward<Alts>(alts).value_...);
           }
