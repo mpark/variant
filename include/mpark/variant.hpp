@@ -1495,20 +1495,20 @@ namespace mpark {
   }
 
   namespace detail {
+    template <std::size_t I, typename V>
+    struct generic_get_impl {
+      constexpr generic_get_impl(int) {}
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4172)
-#endif
+      constexpr AUTO_REFREF operator()(V &&v) const
+        AUTO_REFREF_RETURN(
+            access::variant::get_alt<I>(variants::lib::forward<V>(v)).value)
+    };
+
     template <std::size_t I, typename V>
     inline constexpr AUTO_REFREF generic_get(V &&v)
-      AUTO_REFREF_RETURN(
-          (holds_alternative<I>(v) ? (void)0 : throw bad_variant_access{}),
-          access::variant::get_alt<I>(variants::lib::forward<V>(v)).value)
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
+      AUTO_REFREF_RETURN(generic_get_impl<I, V>(
+          holds_alternative<I>(v) ? 0 : throw bad_variant_access{})(
+          variants::lib::forward<V>(v)))
   }  // namespace detail
 
   template <std::size_t I, typename... Ts>
