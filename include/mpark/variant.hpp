@@ -658,11 +658,18 @@ namespace mpark {
               variants::lib::is_invocable<Visitor, Values...>::value,
               "`mpark::visit` requires the visitor to be exhaustive.");
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4100)
+#endif
           inline constexpr DECLTYPE_AUTO operator()(Visitor &&visitor,
                                                     Values &&... values) const
             DECLTYPE_AUTO_RETURN(variants::lib::invoke(
                 variants::lib::forward<Visitor>(visitor),
                 variants::lib::forward<Values>(values)...))
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
         };
 
         template <typename Visitor>

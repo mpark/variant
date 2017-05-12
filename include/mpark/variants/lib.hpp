@@ -237,9 +237,16 @@ namespace mpark {
         using is_nothrow_swappable = detail::swappable::is_nothrow_swappable<T>;
 
         // <functional>
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4100)
+#endif
         template <typename F, typename... As>
         inline constexpr auto invoke(F &&f, As &&... as)
             RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
         template <typename B, typename T, typename D>
         inline constexpr auto invoke(T B::*pmv, D &&d)
