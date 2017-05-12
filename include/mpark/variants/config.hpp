@@ -17,7 +17,7 @@
 #define __has_builtin(x) 0
 #endif
 
-#if __has_builtin(__builtin_addressof) || __GNUC__ >= 7
+#if __has_builtin(__builtin_addressof) || __GNUC__ >= 7 || defined(_MSC_VER)
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
 
