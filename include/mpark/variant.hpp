@@ -51,16 +51,16 @@ namespace std {
 
     // 20.7.2.4, modifiers
     template <class T, class... Args>
-    void emplace(Args&&...);
+    T& emplace(Args&&...);
 
     template <class T, class U, class... Args>
-    void emplace(initializer_list<U>, Args&&...);
+    T& emplace(initializer_list<U>, Args&&...);
 
     template <size_t I, class... Args>
-    void emplace(Args&&...);
+    variant_alternative<I, variant>& emplace(Args&&...);
 
     template <size_t I, class U, class...  Args>
-    void emplace(initializer_list<U>, Args&&...);
+    variant_alternative<I, variant>& emplace(initializer_list<U>, Args&&...);
 
     // 20.7.2.5, value status
     constexpr bool valueless_by_exception() const noexcept;
@@ -732,9 +732,10 @@ namespace mpark {
 
       protected:
       template <std::size_t I, typename T, typename... Args>
-      inline static void construct_alt(alt<I, T> &a, Args &&... args) {
+      inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
         ::new (static_cast<void *>(lib::addressof(a)))
             alt<I, T>(in_place, std::forward<Args>(args)...);
+        return a.value_;
       }
 
       template <typename Rhs>
@@ -838,11 +839,12 @@ namespace mpark {
       using super::operator=;
 
       template <std::size_t I, typename... Args>
-      inline void emplace(Args &&... args) {
+      inline auto &emplace(Args &&... args) {
         this->destroy();
-        this->construct_alt(access::base::get_alt<I>(*this),
-                            std::forward<Args>(args)...);
+        auto &result = this->construct_alt(access::base::get_alt<I>(*this),
+                                           std::forward<Args>(args)...);
         this->index_ = I;
+        return result;
       }
 
       protected:
@@ -1162,8 +1164,8 @@ namespace mpark {
         typename... Args,
         typename T = lib::type_pack_element_t<I, Ts...>,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
-    inline void emplace(Args &&... args) {
-      impl_.template emplace<I>(std::forward<Args>(args)...);
+    inline T &emplace(Args &&... args) {
+      return impl_.template emplace<I>(std::forward<Args>(args)...);
     }
 
     template <
@@ -1175,8 +1177,8 @@ namespace mpark {
                                                std::initializer_list<Up> &,
                                                Args...>::value,
                          int> = 0>
-    inline void emplace(std::initializer_list<Up> il, Args &&... args) {
-      impl_.template emplace<I>(il, std::forward<Args>(args)...);
+    inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
+      return impl_.template emplace<I>(il, std::forward<Args>(args)...);
     }
 
     template <
@@ -1184,8 +1186,8 @@ namespace mpark {
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
         std::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
-    inline void emplace(Args &&... args) {
-      impl_.template emplace<I>(std::forward<Args>(args)...);
+    inline T &emplace(Args &&... args) {
+      return impl_.template emplace<I>(std::forward<Args>(args)...);
     }
 
     template <
@@ -1197,8 +1199,8 @@ namespace mpark {
                                                std::initializer_list<Up> &,
                                                Args...>::value,
                          int> = 0>
-    inline void emplace(std::initializer_list<Up> il, Args &&... args) {
-      impl_.template emplace<I>(il, std::forward<Args>(args)...);
+    inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
+      return impl_.template emplace<I>(il, std::forward<Args>(args)...);
     }
 
     inline constexpr bool valueless_by_exception() const noexcept {
