@@ -130,7 +130,7 @@ TEST(Access_Get, ConstVarConstTypeRef) {
 
 TEST(Access_Get, ValuelessByException) {
   struct move_thrower_t {
-    move_thrower_t() = default;
+    constexpr move_thrower_t() {}
     move_thrower_t(const move_thrower_t &) = default;
     [[noreturn]] move_thrower_t(move_thrower_t &&) {
       throw std::runtime_error("");

@@ -85,7 +85,7 @@ struct MoveConstruction : std::exception {};
 struct MoveAssignment : std::exception {};
 
 struct copy_thrower_t {
-  copy_thrower_t() = default;
+  constexpr copy_thrower_t() {}
   [[noreturn]] copy_thrower_t(const copy_thrower_t &) {
     throw CopyConstruction{};
   }
@@ -95,7 +95,7 @@ struct copy_thrower_t {
 };  // copy_thrower_t
 
 struct move_thrower_t {
-  move_thrower_t() = default;
+  constexpr move_thrower_t() {}
   move_thrower_t(const move_thrower_t &) = default;
   [[noreturn]] move_thrower_t(move_thrower_t &&) { throw MoveConstruction{}; }
   move_thrower_t &operator=(const move_thrower_t &) = default;

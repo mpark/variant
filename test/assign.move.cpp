@@ -14,7 +14,7 @@ namespace lib = mpark::variants::lib;
 
 TEST(Assign_Move, SameType) {
   struct Obj {
-    Obj() = default;
+    constexpr Obj() {}
     Obj(const Obj &) = delete;
     Obj(Obj &&) noexcept { EXPECT_TRUE(false); }
     Obj &operator=(const Obj &) = delete;
@@ -28,7 +28,7 @@ TEST(Assign_Move, SameType) {
 
 TEST(Assign_Move, DiffType) {
   struct Obj {
-    Obj() = default;
+    constexpr Obj() {}
     Obj(const Obj &) = delete;
     Obj(Obj &&) noexcept { EXPECT_TRUE(true); }
     Obj &operator=(const Obj &) = delete;
@@ -42,7 +42,7 @@ TEST(Assign_Move, DiffType) {
 
 TEST(Assign_Copy, ValuelessByException) {
   struct move_thrower_t {
-    move_thrower_t() = default;
+    constexpr move_thrower_t() {}
     move_thrower_t(const move_thrower_t &) = default;
     [[noreturn]] move_thrower_t(move_thrower_t &&) {
       throw std::runtime_error("");

@@ -12,7 +12,7 @@
 
 TEST(Assign_Copy, SameType) {
   struct Obj {
-    Obj() = default;
+    constexpr Obj() {}
     Obj(const Obj &) noexcept { EXPECT_TRUE(false); }
     Obj(Obj &&) = default;
     Obj &operator=(const Obj &) noexcept { EXPECT_TRUE(true); return *this; }
@@ -26,7 +26,7 @@ TEST(Assign_Copy, SameType) {
 
 TEST(Assign_Copy, DiffType) {
   struct Obj {
-    Obj() = default;
+    constexpr Obj() {}
     Obj(const Obj &) noexcept { EXPECT_TRUE(true); }
     Obj(Obj &&) = default;
     Obj &operator=(const Obj &) noexcept { EXPECT_TRUE(false); return *this; }
@@ -40,7 +40,7 @@ TEST(Assign_Copy, DiffType) {
 
 TEST(Assign_Copy, ValuelessByException) {
   struct move_thrower_t {
-    move_thrower_t() = default;
+    constexpr move_thrower_t() {}
     move_thrower_t(const move_thrower_t &) = default;
     move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
     move_thrower_t &operator=(const move_thrower_t &) = default;
