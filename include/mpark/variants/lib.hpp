@@ -34,7 +34,7 @@ namespace mpark {
             return data[index];
           }
 
-          T data[N > 0 ? N : 1];
+          T data[N == 0 ? 1 : N];
         };
 
         template <typename T>
