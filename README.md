@@ -1,6 +1,6 @@
 # MPark.Variant
 
-> __C++17__ `std::variant` as a standalone __C++14__ library.
+> __C++17__ `std::variant` implementation for __C++11__/__14__/__17__.
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
@@ -25,10 +25,9 @@
 
 ## Introduction
 
-__MPark.Variant__ provides an implementation of __C++17__ `std::variant` as a standalone __C++14__ library.
+__MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C++11__/__14__/__17__.
 
-The implementation is based on my [implementation of `std::variant` for __libc++__][libcxx-impl]
-and is continously tested against __libc++__ `std::variant` test suite.
+The implementation is based on [my implementation of `std::variant` for __libc++__][libcxx-impl] and is continously tested against __libc++__'s `std::variant` test suite.
 
 ## Documentation
 
@@ -47,7 +46,7 @@ components of __MPark.Variant__.
 
 ## Requirements
 
-This library requires a standard conformant __C++14__ compiler.
+This library requires a standard conformant __C++11__ compiler.
 The following compilers are continously tested:
 
 | Compiler                               | Operating System                            | Version String                                                                          |
@@ -62,7 +61,9 @@ The following compilers are continously tested:
 | Clang Xcode 6.4                        | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                      |
 | Clang Xcode 7.3                        | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                               |
 | Clang Xcode 8.2                        | Darwin Kernel Version 16.1.0 (OS X 10.12.1) | Apple LLVM version 8.0.0 (clang-800.0.42.1)                                             |
-| Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio Community 2015 with Update 3  | Microsoft (R) Build Engine version 14.0.25420.1                                         |
+| Visual Studio 14 2015                  | Visual Studio 2015 with Update 3            | MSVC 19.00.24215.1 | Microsoft (R) Build Engine version 14.0.25420.1                    |
+| Visual Studio 14 2017                  | Visual Studio 2017                          | MSVC 19.10.25019.0 | Microsoft (R) Build Engine version 15.1.1012.6693                  |
+| Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio 2015 with Update 3            | Clang 4.0.0        | Microsoft (R) Build Engine version 14.0.25420.1                    |
 
 __NOTE__: Enabling __libc++__ `std::variant` tests require `-std=c++1z` support.
 

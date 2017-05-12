@@ -1,6 +1,6 @@
 # MPark.Variant
 
-> __C++17__ `std::variant` as a standalone __C++14__ library.
+> __C++17__ `std::variant` implementation for __C++11__/__14__/__17__.
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
