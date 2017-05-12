@@ -415,28 +415,21 @@ namespace mpark {
           constexpr auto fmatrix =
               make_fmatrix<Visitor &&,
                            decltype(std::forward<Vs>(vs).as_base())...>();
-          const std::size_t indices[] = {vs.index()...};
-          return at(fmatrix, indices)(std::forward<Visitor>(visitor),
-                                      std::forward<Vs>(vs).as_base()...);
+          return at(fmatrix, vs.index()...)(std::forward<Visitor>(visitor),
+                                            std::forward<Vs>(vs).as_base()...);
         }
 
         private:
         template <typename T>
-        inline static constexpr const T &at_impl(const T &elem,
-                                                 const std::size_t *) {
+        inline static constexpr const T &at(const T &elem) {
           return elem;
         }
 
-        template <typename T, std::size_t N>
-        inline static constexpr auto &&at_impl(const std::array<T, N> &elems,
-                                               const std::size_t *index) {
-          return at_impl(elems[*index], index + 1);
-        }
-
-        template <typename T, std::size_t N, std::size_t I>
+        template <typename T, std::size_t N, typename... Is>
         inline static constexpr auto &&at(const std::array<T, N> &elems,
-                                          const std::size_t (&indices)[I]) {
-          return at_impl(elems, indices);
+                                          std::size_t i,
+                                          Is... is) {
+          return at(elems[i], is...);
         }
 
         template <typename F, typename... Fs>
