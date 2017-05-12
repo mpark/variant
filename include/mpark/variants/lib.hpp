@@ -369,6 +369,9 @@ namespace mpark {
       template <bool... Bs>
       using bool_sequence = integer_sequence<bool, Bs...>;
 
+      template <std::size_t I, typename T>
+      struct indexed_type : size_constant<I>, identity<T> {};
+
       template <bool... Bs>
       using all =
           std::is_same<bool_sequence<true, Bs...>, bool_sequence<Bs..., true>>;
@@ -380,9 +383,6 @@ namespace mpark {
       template <std::size_t I, typename... Ts>
       struct type_pack_element_impl {
         private:
-        template <std::size_t, typename T>
-        struct indexed_type : identity<T> {};
-
         template <typename>
         struct set;
 
