@@ -653,12 +653,17 @@ namespace mpark {
       struct variant {
         private:
         template <typename Visitor, typename... Values>
-        inline static constexpr int visit_exhaustive_visitor_check() {
+        struct visit_exhaustive_visitor_check {
           static_assert(
               variants::lib::is_invocable<Visitor, Values...>::value,
               "`mpark::visit` requires the visitor to be exhaustive.");
-          return 0;
-        }
+
+          inline constexpr DECLTYPE_AUTO operator()(Visitor &&visitor,
+                                                    Values &&... values) const
+            DECLTYPE_AUTO_RETURN(variants::lib::invoke(
+                variants::lib::forward<Visitor>(visitor),
+                variants::lib::forward<Values>(values)...))
+        };
 
         template <typename Visitor>
         struct value_visitor {
@@ -669,8 +674,7 @@ namespace mpark {
             DECLTYPE_AUTO_RETURN(
                 visit_exhaustive_visitor_check<
                     Visitor,
-                    decltype((variants::lib::forward<Alts>(alts).value))...>(),
-                variants::lib::invoke(
+                    decltype((variants::lib::forward<Alts>(alts).value))...>{}(
                     variants::lib::forward<Visitor>(visitor_),
                     variants::lib::forward<Alts>(alts).value...))
         };
