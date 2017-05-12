@@ -542,8 +542,7 @@ namespace mpark {
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr AUTO make_dispatch(
             variants::lib::index_sequence<Is...>)
-          AUTO_RETURN(variants::lib::addressof(
-              dispatcher<Is...>::template impl<F, Vs...>::dispatch))
+          AUTO_RETURN(&dispatcher<Is...>::template impl<F, Vs...>::dispatch)
 
         template <std::size_t I, typename F, typename... Vs>
         inline static constexpr AUTO make_fdiagonal_impl()
