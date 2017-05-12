@@ -765,10 +765,15 @@ namespace mpark {
     };
 
     struct dtor {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4100)
+#endif
       template <typename Alt>
-      inline void operator()(Alt &alt) const noexcept {
-        alt.~Alt();
-      }
+      inline void operator()(Alt &alt) const noexcept { alt.~Alt(); }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
     };
 
 #if defined(_MSC_VER) && _MSC_VER < 1910
