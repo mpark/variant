@@ -10,6 +10,7 @@
 #define MPARK_VARIANTS_LIB_HPP
 
 #include <memory>
+#include <functional>
 #include <type_traits>
 #include <utility>
 
