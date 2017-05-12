@@ -195,7 +195,6 @@ namespace std {
 
 */
 
-#include <array>
 #include <cstddef>
 #include <exception>
 #include <functional>
