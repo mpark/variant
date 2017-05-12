@@ -545,29 +545,64 @@ namespace mpark {
                   variants::lib::decay_t<V>::size()>{});
         }
 
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename F, typename... Vs, std::size_t... Is>
-        inline static constexpr AUTO make_fmatrix_impl(
-            variants::lib::index_sequence<Is...> is)
-          AUTO_RETURN(make_dispatch<F, Vs...>(is))
+        inline static constexpr auto make_fmatrix_impl(
+            variants::lib::index_sequence<Is...> is) {
+          return make_dispatch<F, Vs...>(is);
+        }
 
         template <typename F,
                   typename... Vs,
                   std::size_t... Is,
                   std::size_t... Js,
                   typename... Ls>
-        inline static constexpr AUTO make_fmatrix_impl(
+        inline static constexpr auto make_fmatrix_impl(
             variants::lib::index_sequence<Is...>,
             variants::lib::index_sequence<Js...>,
-            Ls... ls)
-          AUTO_RETURN(make_farray(make_fmatrix_impl<F, Vs...>(
-              variants::lib::index_sequence<Is..., Js>{}, ls...)...))
+            Ls... ls) {
+          return make_farray(make_fmatrix_impl<F, Vs...>(
+              variants::lib::index_sequence<Is..., Js>{}, ls...)...);
+        }
+
+        template <typename F, typename... Vs>
+        inline static constexpr auto make_fmatrix() {
+          return make_fmatrix_impl<F, Vs...>(
+              variants::lib::index_sequence<>{},
+              variants::lib::make_index_sequence<
+                  variants::lib::decay_t<Vs>::size()>{}...);
+        }
+#else
+        template <typename F, typename... Vs>
+        struct make_fmatrix_impl {
+          template <typename...>
+          struct impl;
+
+          template <std::size_t... Is>
+          struct impl<variants::lib::index_sequence<Is...>> {
+            inline constexpr AUTO operator()() const
+              AUTO_RETURN(make_dispatch<F, Vs...>(
+                  variants::lib::index_sequence<Is...>{}))
+          };
+
+          template <std::size_t... Is, std::size_t... Js, typename... Ls>
+          struct impl<variants::lib::index_sequence<Is...>,
+                      variants::lib::index_sequence<Js...>,
+                      Ls...> {
+            inline constexpr AUTO operator()() const
+              AUTO_RETURN(
+                  make_farray(impl<variants::lib::index_sequence<Is..., Js>,
+                                   Ls...>{}()...))
+          };
+        };
 
         template <typename F, typename... Vs>
         inline static constexpr AUTO make_fmatrix()
-          AUTO_RETURN(make_fmatrix_impl<F, Vs...>(
-              variants::lib::index_sequence<>{},
-              variants::lib::make_index_sequence<
-                  variants::lib::decay_t<Vs>::size()>{}...))
+          AUTO_RETURN(typename make_fmatrix_impl<F, Vs...>::template impl<
+                      variants::lib::index_sequence<>,
+                      variants::lib::make_index_sequence<
+                          variants::lib::decay_t<Vs>::size()>...>{}())
+#endif
 
         public:
         template <typename Visitor, typename... Vs>
