@@ -1234,12 +1234,12 @@ namespace mpark {
     struct overload;
 
     template <>
-    struct overload<> { void operator()() const; };
+    struct overload<> { void operator()() const {} };
 
     template <typename T, typename... Ts>
     struct overload<T, Ts...> : overload<Ts...> {
       using overload<Ts...>::operator();
-      variants::lib::identity<T> operator()(T) const;
+      variants::lib::identity<T> operator()(T) const { return {}; }
     };
 
     template <typename T, typename... Ts>
