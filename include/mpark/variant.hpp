@@ -572,8 +572,8 @@ namespace mpark {
         public:
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
-                                                  Visitor &&visitor,
-                                                  Vs &&... vs)
+                                                           Visitor &&visitor,
+                                                           Vs &&... vs)
           DECLTYPE_AUTO_RETURN(at(
               make_fdiagonal<Visitor &&,
                              decltype(
@@ -582,7 +582,8 @@ namespace mpark {
                      as_base(variants::lib::forward<Vs>(vs))...))
 
         template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor, Vs &&... vs)
+        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
+                                                        Vs &&... vs)
           DECLTYPE_AUTO_RETURN(at(
               make_fmatrix<Visitor &&,
                            decltype(
