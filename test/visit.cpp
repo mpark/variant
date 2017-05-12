@@ -90,7 +90,7 @@ TEST(Visit_Homogeneous, Double) {
   EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> cv(101), cw(202), cx("helllo");
+    constexpr mpark::variant<int, const char *> cv(101), cw(202), cx("hello");
     struct add {
       constexpr int operator()(int lhs, int rhs) const { return lhs + rhs; }
       constexpr int operator()(int lhs, const char *) const { return lhs; }
