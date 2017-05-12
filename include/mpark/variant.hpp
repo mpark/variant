@@ -442,14 +442,38 @@ namespace mpark {
     namespace access {
 
       struct recursive_union {
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename V>
-        inline static constexpr AUTO_REFREF get_alt(V &&v, in_place_index_t<0>)
-          AUTO_REFREF_RETURN(variants::lib::forward<V>(v).head_)
+        inline static constexpr auto &&get_alt(V &&v, in_place_index_t<0>) {
+          return variants::lib::forward<V>(v).head_;
+        }
 
         template <typename V, std::size_t I>
-        inline static constexpr AUTO_REFREF get_alt(V &&v, in_place_index_t<I>)
-          AUTO_REFREF_RETURN(get_alt(variants::lib::forward<V>(v).tail_,
-                                     in_place_index_t<I - 1>{}))
+        inline static constexpr auto &&get_alt(V &&v, in_place_index_t<I>) {
+          return get_alt(variants::lib::forward<V>(v).tail_,
+                         in_place_index_t<I - 1>{});
+        }
+#else
+        template <std::size_t I, bool Dummy = true>
+        struct get_alt_impl {
+          template <typename V>
+          inline constexpr AUTO_REFREF operator()(V &&v) const
+            AUTO_REFREF_RETURN(
+                get_alt_impl<I - 1>{}(variants::lib::forward<V>(v).tail_))
+        };
+
+        template <bool Dummy>
+        struct get_alt_impl<0, Dummy> {
+          template <typename V>
+          inline constexpr AUTO_REFREF operator()(V &&v) const
+            AUTO_REFREF_RETURN(variants::lib::forward<V>(v).head_)
+        };
+
+        template <typename V, std::size_t I>
+        inline static constexpr AUTO_REFREF get_alt(V &&v,
+                                                    in_place_index_t<I>)
+          AUTO_REFREF_RETURN(get_alt_impl<I>{}(variants::lib::forward<V>(v)))
+#endif
       };
 
       struct base {
