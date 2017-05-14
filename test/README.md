@@ -1,6 +1,6 @@
 # MPark.Variant
 
-> __C++17__ `std::variant` implementation for __C++11__/__14__/__17__.
+> __C++17__ `std::variant` for __C++11__/__14__/__17__
 
 [![stability][badge.stability]][stability]
 [![travis][badge.travis]][travis]
