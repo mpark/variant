@@ -9,6 +9,7 @@
 cmake_minimum_required(VERSION 3.6.3)
 
 set(MPARK_VARIANT_CXX_STANDARD 14 CACHE STRING "C++ Standard")
+set(MPARK_VARIANT_EXCEPTIONS ON CACHE STRING "Enable exceptions.")
 
 set(CMAKE_CXX_STANDARD ${MPARK_VARIANT_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -21,6 +22,9 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
   add_compile_options(-Werror)
   add_compile_options(-Wextra)
   add_compile_options(-pedantic)
+  if(NOT ${MPARK_VARIANT_EXCEPTIONS})
+    add_compile_options(-fno-exceptions)
+  endif()
 endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
@@ -65,6 +69,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
     GIT_SHALLOW       1
     CMAKE_ARGS        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
                       "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
+                      "-DLIBCXX_ENABLE_EXCEPTIONS=${MPARK_VARIANT_EXCEPTIONS}"
     SOURCE_DIR        ${MPARK_VARIANT_LLVM_SOURCE_DIR}
     BINARY_DIR        ${MPARK_VARIANT_LLVM_BINARY_DIR}
     BUILD_COMMAND     ${CMAKE_COMMAND} --build . --target cxx

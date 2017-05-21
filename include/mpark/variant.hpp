@@ -196,7 +196,11 @@ namespace std {
 */
 
 #include <cstddef>
+#ifdef MPARK_EXCEPTIONS
 #include <exception>
+#else
+#include <cstdlib>
+#endif
 #include <functional>
 #include <initializer_list>
 #include <new>
@@ -245,6 +249,14 @@ namespace mpark {
     public:
     virtual const char *what() const noexcept { return "bad_variant_access"; }
   };
+
+  [[noreturn]] inline void throw_bad_variant_access() {
+#ifdef MPARK_EXCEPTIONS
+    throw bad_variant_access{};
+#else
+    std::abort();
+#endif
+  }
 
   template <typename... Ts>
   class variant;
@@ -1230,9 +1242,10 @@ namespace mpark {
             std::swap(lhs, rhs);
           }
           impl tmp(variants::lib::move(*rhs));
+#ifdef MPARK_EXCEPTIONS
           // EXTENSION: When the move construction of `lhs` into `rhs` throws
           // and `tmp` is nothrow move constructible then we move `tmp` back
-          // into `rhs` and provide the strong exception safety guarentee.
+          // into `rhs` and provide the strong exception safety guarantee.
           try {
             this->generic_construct(*rhs, variants::lib::move(*lhs));
           } catch (...) {
@@ -1241,6 +1254,9 @@ namespace mpark {
             }
             throw;
           }
+#else
+          this->generic_construct(*rhs, variants::lib::move(*lhs));
+#endif
           this->generic_construct(*lhs, variants::lib::move(tmp));
         }
       }
@@ -1507,7 +1523,7 @@ namespace mpark {
     template <std::size_t I, typename V>
     inline constexpr AUTO_REFREF generic_get(V &&v)
       AUTO_REFREF_RETURN(generic_get_impl<I, V>(
-          holds_alternative<I>(v) ? 0 : throw bad_variant_access{})(
+          holds_alternative<I>(v) ? 0 : (throw_bad_variant_access(), 0))(
           variants::lib::forward<V>(v)))
   }  // namespace detail
 
@@ -1709,7 +1725,7 @@ namespace mpark {
   inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
     DECLTYPE_AUTO_RETURN((detail::all(!vs.valueless_by_exception()...)
                               ? (void)0
-                              : throw bad_variant_access{}),
+                              : throw_bad_variant_access()),
                          detail::visitation::variant::visit_value(
                              variants::lib::forward<Visitor>(visitor),
                              variants::lib::forward<Vs>(vs)...))

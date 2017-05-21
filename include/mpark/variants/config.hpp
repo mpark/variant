@@ -18,6 +18,10 @@
 #define __has_builtin(x) 0
 #endif
 
+#ifndef __has_feature
+#define __has_feature(x) 0
+#endif
+
 #if __has_builtin(__builtin_addressof) || __GNUC__ >= 7 || defined(_MSC_VER)
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
@@ -28,6 +32,10 @@
 
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define MPARK_CPP14_CONSTEXPR
+#endif
+
+#if __has_feature(cxx_exceptions) || defined(__cpp_exceptions)
+#define MPARK_EXCEPTIONS
 #endif
 
 #if defined(__cpp_generic_lambdas) || defined(_MSC_VER)
