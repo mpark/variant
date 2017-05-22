@@ -14,6 +14,15 @@ set(CMAKE_CXX_STANDARD ${MPARK_VARIANT_CXX_STANDARD})
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
+   "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
+   "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  add_compile_options(-Wall)
+  add_compile_options(-Werror)
+  add_compile_options(-Wextra)
+  add_compile_options(-pedantic)
+endif()
+
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
   function(add_gtest name)
