@@ -718,7 +718,7 @@ namespace mpark {
                                                         Vs &&... vs)
           DECLTYPE_AUTO_RETURN(
               base::visit_alt(variants::lib::forward<Visitor>(visitor),
-                              variants::lib::forward<Vs>(vs).impl_...));
+                              variants::lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value_at(std::size_t index,
