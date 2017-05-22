@@ -5,8 +5,8 @@ git:
 
 matrix:
   include:
-    # ubuntu 14.04, gcc-5, c++11, debug
-    - env: VERSION=5 STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-5, c++11, debug, exceptions
+    - env: VER=5 STD=11 BUILD=Debug EX=ON
       compiler: gcc
       os: linux
       dist: trusty
@@ -17,29 +17,58 @@ matrix:
             - g++-5
           sources:
             - ubuntu-toolchain-r-test
-    # ubuntu 14.04, gcc-5, c++11, release
-    - env: VERSION=5 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-5, c++11, debug, no exceptions
+    - env: VER=5 STD=11 BUILD=Debug EX=OFF
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc5
-    # ubuntu 14.04, gcc-5, c++14, debug
-    - env: VERSION=5 STD=14 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-5, c++11, release, exceptions
+    - env: VER=5 STD=11 BUILD=Release EX=ON
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc5
-    # ubuntu 14.04, gcc-5, c++14, release
-    - env: VERSION=5 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-5, c++11, release, no-exceptions
+    - env: VER=5 STD=11 BUILD=Release EX=OFF
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc5
-    # ubuntu 14.04, gcc-6, c++11 debug
-    - env: VERSION=6 STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-5, c++14, debug, exceptions
+    - env: VER=5 STD=14 BUILD=Debug EX=ON
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+    # ubuntu 14.04, gcc-5, c++14, debug, no-exceptions
+    - env: VER=5 STD=14 BUILD=Debug EX=OFF
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+    # ubuntu 14.04, gcc-5, c++14, release, exceptions
+    - env: VER=5 STD=14 BUILD=Release EX=ON
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+    # ubuntu 14.04, gcc-5, c++14, release, no-exceptions
+    - env: VER=5 STD=14 BUILD=Release EX=OFF
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc5
+
+    # ubuntu 14.04, gcc-6, c++11, debug, exceptions
+    - env: VER=6 STD=11 BUILD=Debug EX=ON
       compiler: gcc
       os: linux
       dist: trusty
@@ -50,29 +79,58 @@ matrix:
             - g++-6
           sources:
             - ubuntu-toolchain-r-test
-    # ubuntu 14.04, gcc-6, c++11, release
-    - env: VERSION=6 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-6, c++11 debug, no-exceptions
+    - env: VER=6 STD=11 BUILD=Debug EX=OFF
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc6
-    # ubuntu 14.04, gcc-6, c++14, release
-    - env: VERSION=6 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-6, c++11, release, exceptions
+    - env: VER=6 STD=11 BUILD=Release EX=ON
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc6
-    # ubuntu 14.04, gcc-6, c++14, release
-    - env: VERSION=6 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, gcc-6, c++11, release, no-exceptions
+    - env: VER=6 STD=11 BUILD=Release EX=OFF
       compiler: gcc
       os: linux
       dist: trusty
       sudo: required
       addons: *gcc6
-    # ubuntu 14.04, clang-3.5, c++11, debug
-    - env: VERSION=3.5 STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, gcc-6, c++14, debug, exceptions
+    - env: VER=6 STD=14 BUILD=Debug EX=ON
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+    # ubuntu 14.04, gcc-6, c++14, debug, no-exceptions
+    - env: VER=6 STD=14 BUILD=Debug EX=OFF
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+    # ubuntu 14.04, gcc-6, c++14, release, exceptions
+    - env: VER=6 STD=14 BUILD=Release EX=ON
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+    # ubuntu 14.04, gcc-6, c++14, release, no-exceptions
+    - env: VER=6 STD=14 BUILD=Release EX=OFF
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc6
+
+    # ubuntu 14.04, clang-3.5, c++11, debug, exceptions
+    - env: VER=3.5 STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: linux
       dist: trusty
@@ -81,196 +139,403 @@ matrix:
         apt:
           packages:
             - libc++-dev
-    # ubuntu 14.04, clang-3.5, c++11, release
-    - env: VERSION=3.5 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++11, debug, no-exceptions
+    - env: VER=3.5 STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.5, c++14, release
-    - env: VERSION=3.5 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++11, release, exceptions
+    - env: VER=3.5 STD=11 BUILD=Release EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.5, c++14, release
-    - env: VERSION=3.5 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++11, release, no-exceptions
+    - env: VER=3.5 STD=11 BUILD=Release EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, c++11, debug
-    - env: VERSION=3.6 STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.5, c++14, debug, exceptions
+    - env: VER=3.5 STD=14 BUILD=Debug EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, c++11, release
-    - env: VERSION=3.6 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++14, debug, no-exceptions
+    - env: VER=3.5 STD=14 BUILD=Debug EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, c++14, release
-    - env: VERSION=3.6 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++14, release, exceptions
+    - env: VER=3.5 STD=14 BUILD=Release EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.6, c++14, release
-    - env: VERSION=3.6 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.5, c++14, release, no-exceptions
+    - env: VER=3.5 STD=14 BUILD=Release EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, c++11, debug
-    - env: VERSION=3.7 STD=11 BUILD_TYPE=Debug
+
+    # ubuntu 14.04, clang-3.6, c++11, debug, exceptions
+    - env: VER=3.6 STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, c++11, release
-    - env: VERSION=3.7 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++11, debug, no-exceptions
+    - env: VER=3.6 STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, c++14, debug
-    - env: VERSION=3.7 STD=14 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.6, c++11, release, exceptions
+    - env: VER=3.6 STD=11 BUILD=Release EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.7, c++14, release
-    - env: VERSION=3.7 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++11, release, no-exceptions
+    - env: VER=3.6 STD=11 BUILD=Release EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, c++11, debug
-    - env: VERSION=3.8 STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.6, c++14, debug, exceptions
+    - env: VER=3.6 STD=14 BUILD=Debug EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, c++11, release
-    - env: VERSION=3.8 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++14, debug, no-exceptions
+    - env: VER=3.6 STD=14 BUILD=Debug EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, c++14, debug
-    - env: VERSION=3.8 STD=14 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.6, c++14, release, exceptions
+    - env: VER=3.6 STD=14 BUILD=Release EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.8, c++14, release
-    - env: VERSION=3.8 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.6, c++14, release, no-exceptions
+    - env: VER=3.6 STD=14 BUILD=Release EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, c++11, debug
-    - env: VERSION=3.9 STD=11 BUILD_TYPE=Debug
+
+    # ubuntu 14.04, clang-3.7, c++11, debug, exceptions
+    - env: VER=3.7 STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, c++11, release
-    - env: VERSION=3.9 STD=11 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.7, c++11, debug, no-exceptions
+    - env: VER=3.7 STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, c++14, debug
-    - env: VERSION=3.9 STD=14 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.7, c++11, release, exceptions
+    - env: VER=3.7 STD=11 BUILD=Release EX=ON
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # ubuntu 14.04, clang-3.9, c++14, release
-    - env: VERSION=3.9 STD=14 BUILD_TYPE=Release
+    # ubuntu 14.04, clang-3.7, c++11, release, no-exceptions
+    - env: VER=3.7 STD=11 BUILD=Release EX=OFF
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
       addons: *libcxx
-    # OS X Yosemite 10.10, Apple Clang, c++11, debug
-    - env: STD=11 BUILD_TYPE=Debug
+    # ubuntu 14.04, clang-3.7, c++14, debug, exceptions
+    - env: VER=3.7 STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.7, c++14, debug, no-exceptions
+    - env: VER=3.7 STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.7, c++14, release, exceptions
+    - env: VER=3.7 STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.7, c++14, release, no-exceptions
+    - env: VER=3.7 STD=14 BUILD=Release EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+
+    # ubuntu 14.04, clang-3.8, c++11, debug, exceptions
+    - env: VER=3.8 STD=11 BUILD=Debug EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++11, debug, no-exceptions
+    - env: VER=3.8 STD=11 BUILD=Debug EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++11, release, exceptions
+    - env: VER=3.8 STD=11 BUILD=Release EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++11, release, no-exceptions
+    - env: VER=3.8 STD=11 BUILD=Release EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, debug, exceptions
+    - env: VER=3.8 STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, debug, no-exceptions
+    - env: VER=3.8 STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, release, exceptions
+    - env: VER=3.8 STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8, c++14, release, no-exceptions
+    - env: VER=3.8 STD=14 BUILD=Release EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+
+    # ubuntu 14.04, clang-3.9, c++11, debug, exceptions
+    - env: VER=3.9 STD=11 BUILD=Debug EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++11, debug, no-exceptions
+    - env: VER=3.9 STD=11 BUILD=Debug EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++11, release, exceptions
+    - env: VER=3.9 STD=11 BUILD=Release EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++11, release, no-exceptions
+    - env: VER=3.9 STD=11 BUILD=Release EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, debug, exceptions
+    - env: VER=3.9 STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, debug, no-exceptions
+    - env: VER=3.9 STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, release, exceptions
+    - env: VER=3.9 STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9, c++14, release, no-exceptions
+    - env: VER=3.9 STD=14 BUILD=Release EX=OFF
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+
+    # OS X Yosemite 10.10, Apple Clang, c++11, debug, exceptions
+    - env: STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++11, release
-    - env: STD=11 BUILD_TYPE=Release
+    # OS X Yosemite 10.10, Apple Clang, c++11, debug, no-exceptions
+    - env: STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++14, debug
-    - env: STD=14 BUILD_TYPE=Debug
+    # OS X Yosemite 10.10, Apple Clang, c++11, release, exceptions
+    - env: STD=11 BUILD=Release EX=ON
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++14, release
-    - env: STD=14 BUILD_TYPE=Release
+    # OS X Yosemite 10.10, Apple Clang, c++11, release, no-exceptions
+    - env: STD=11 BUILD=Release EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X El Capitan 10.11, apple-clang-8, c++11, debug
-    - env: STD=11 BUILD_TYPE=Debug
+    # OS X Yosemite 10.10, Apple Clang, c++14, debug, exceptions
+    - env: STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+    # OS X Yosemite 10.10, Apple Clang, c++14, debug, no-exceptions
+    - env: STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+    # OS X Yosemite 10.10, Apple Clang, c++14, release, exceptions
+    - env: STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+    # OS X Yosemite 10.10, Apple Clang, c++14, release, no-exceptions
+    - env: STD=14 BUILD=Release EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode6.4
+
+    # OS X El Capitan 10.11, apple-clang-8, c++11, debug, exceptions
+    - env: STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++11, release
-    - env: STD=11 BUILD_TYPE=Release
+    # OS X El Capitan 10.11, apple-clang-8, c++11, debug, no-exceptions
+    - env: STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++14, debug
-    - env: STD=14 BUILD_TYPE=Debug
+    # OS X El Capitan 10.11, apple-clang-8, c++11, release, exceptions
+    - env: STD=11 BUILD=Release EX=ON
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++14, release
-    - env: STD=14 BUILD_TYPE=Release
+    # OS X El Capitan 10.11, apple-clang-8, c++11, release, no-exceptions
+    - env: STD=11 BUILD=Release EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X Sierra 10.12, apple-clang-8, c++11, debug
-    - env: STD=11 BUILD_TYPE=Debug
+    # OS X El Capitan 10.11, apple-clang-8, c++14, debug, exceptions
+    - env: STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+    # OS X El Capitan 10.11, apple-clang-8, c++14, debug, no-exceptions
+    - env: STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+    # OS X El Capitan 10.11, apple-clang-8, c++14, release, exceptions
+    - env: STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+    # OS X El Capitan 10.11, apple-clang-8, c++14, release, no-exceptions
+    - env: STD=14 BUILD=Release EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode7.3
+
+    # OS X Sierra 10.12, apple-clang-8, c++11, debug, exceptions
+    - env: STD=11 BUILD=Debug EX=ON
       compiler: clang
       os: osx
       osx_image: xcode8.2
-    # OS X Sierra 10.12, apple-clang-8, c++11, release
-    - env: STD=11 BUILD_TYPE=Release
+    # OS X Sierra 10.12, apple-clang-8, c++11, debug, no-exceptions
+    - env: STD=11 BUILD=Debug EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode8.2
-    # OS X Sierra 10.12, apple-clang-8, c++14, debug
-    - env: STD=14 BUILD_TYPE=Debug
+    # OS X Sierra 10.12, apple-clang-8, c++11, release, exceptions
+    - env: STD=11 BUILD=Release EX=ON
       compiler: clang
       os: osx
       osx_image: xcode8.2
-    # OS X Sierra 10.12, apple-clang-8, c++14, release
-    - env: STD=14 BUILD_TYPE=Release
+    # OS X Sierra 10.12, apple-clang-8, c++11, release, no-exceptions
+    - env: STD=11 BUILD=Release EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, debug, exceptions
+    - env: STD=14 BUILD=Debug EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, debug, no-exceptions
+    - env: STD=14 BUILD=Debug EX=OFF
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, release, exceptions
+    - env: STD=14 BUILD=Release EX=ON
+      compiler: clang
+      os: osx
+      osx_image: xcode8.2
+    # OS X Sierra 10.12, apple-clang-8, c++14, release, no-exceptions
+    - env: STD=14 BUILD=Release EX=OFF
       compiler: clang
       os: osx
       osx_image: xcode8.2
@@ -287,28 +552,29 @@ before_install:
       sudo ./cmake-3.7.1-Linux-x86_64.sh --skip-license --prefix=/usr/local;
     fi
   # Install a specific clang version.
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VERSION}" ]; then
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
       wget -nv -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -;
-      sudo apt-add-repository -y "deb http://llvm.org/apt/trusty llvm-toolchain-trusty-${VERSION} main";
+      sudo apt-add-repository -y "deb http://llvm.org/apt/trusty llvm-toolchain-trusty-${VER} main";
       sudo apt-get update -qq;
-      sudo apt-get install -qq -y "clang-${VERSION}";
+      sudo apt-get install -qq -y "clang-${VER}";
     fi
   # Set the correct `CXXFLAGS` environment variable.
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ]; then
       export CXXFLAGS="${CXXFLAGS} -stdlib=libc++";
     fi
   # Set the correct `CC` and `CXX` environment variables.
-  - if [ -n "${VERSION}" ]; then
-      export CC="${CC}-${VERSION}";
-      export CXX="${CXX}-${VERSION}";
+  - if [ -n "${VER}" ]; then
+      export CC="${CC}-${VER}";
+      export CXX="${CXX}-${VER}";
     fi
   - ${CXX} --version
 
 install:
   - mkdir build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+  - cmake -DCMAKE_BUILD_TYPE=${BUILD}
           -DMPARK_VARIANT_CXX_STANDARD=${STD}
+          -DMPARK_VARIANT_EXCEPTIONS=${EX}
           -DMPARK_VARIANT_INCLUDE_TESTS="mpark;libc++" ..
   - cmake --build .
 
