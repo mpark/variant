@@ -14,7 +14,7 @@
 #include <type_traits>
 #include <utility>
 
-#include <mpark/variants/config.hpp>
+#include "config.hpp"
 
 #define RETURN(...)                                          \
   noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { \
