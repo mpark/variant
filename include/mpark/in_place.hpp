@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-#include "variants/config.hpp"
+#include "config.hpp"
 
 namespace mpark {
 

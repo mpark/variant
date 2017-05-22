@@ -14,7 +14,7 @@
 
 #include "util.hpp"
 
-namespace lib = mpark::variants::lib;
+namespace lib = mpark::lib;
 
 TEST(Ctor_Move, Value) {
   // `v`

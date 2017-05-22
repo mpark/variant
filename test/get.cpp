@@ -12,7 +12,7 @@
 
 #include "util.hpp"
 
-namespace lib = mpark::variants::lib;
+namespace lib = mpark::lib;
 
 TEST(Get, HoldsAlternative) {
   mpark::variant<int, std::string> v(42);

@@ -6,7 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <mpark/variants/config.hpp>
+#include <mpark/config.hpp>
 
 enum Qual { Ptr, ConstPtr, LRef, ConstLRef, RRef, ConstRRef };
 

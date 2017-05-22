@@ -207,9 +207,9 @@ namespace std {
 #include <type_traits>
 #include <utility>
 
+#include "config.hpp"
 #include "in_place.hpp"
-#include "variants/config.hpp"
-#include "variants/lib.hpp"
+#include "lib.hpp"
 
 namespace mpark {
 
@@ -227,10 +227,8 @@ namespace mpark {
 #else
 
 #define AUTO auto
-#define AUTO_RETURN(...)                                    \
-  -> mpark::variants::lib::decay_t<decltype(__VA_ARGS__)> { \
-    return __VA_ARGS__;                                     \
-  }
+#define AUTO_RETURN(...) \
+  -> lib::decay_t<decltype(__VA_ARGS__)> { return __VA_ARGS__; }
 
 #define AUTO_REFREF auto
 #define AUTO_REFREF_RETURN(...)                                           \
@@ -279,8 +277,7 @@ namespace mpark {
   struct variant_size<const volatile T> : variant_size<T> {};
 
   template <typename... Ts>
-  struct variant_size<variant<Ts...>>
-      : variants::lib::size_constant<sizeof...(Ts)> {};
+  struct variant_size<variant<Ts...>> : lib::size_constant<sizeof...(Ts)> {};
 
   template <std::size_t I, typename T>
   struct variant_alternative;
@@ -302,7 +299,7 @@ namespace mpark {
 
   template <std::size_t I, typename... Ts>
   struct variant_alternative<I, variant<Ts...>>
-      : variants::lib::identity<variants::lib::type_pack_element_t<I, Ts...>> {
+      : lib::identity<lib::type_pack_element_t<I, Ts...>> {
     static_assert(I < sizeof...(Ts),
                   "`variant_alternative` index out of range.");
   };
@@ -324,7 +321,7 @@ namespace mpark {
 #ifdef MPARK_CPP14_CONSTEXPR
     template <typename T, typename... Ts>
     inline constexpr std::size_t find_index() {
-      constexpr variants::lib::array<bool, sizeof...(Ts)> matches = {
+      constexpr lib::array<bool, sizeof...(Ts)> matches = {
           {std::is_same<T, Ts>::value...}
       };
       std::size_t result = not_found;
@@ -362,14 +359,14 @@ namespace mpark {
 
     template <std::size_t I>
     using find_index_sfinae_impl =
-        variants::lib::enable_if_t<I != not_found && I != ambiguous,
-                                   variants::lib::size_constant<I>>;
+        lib::enable_if_t<I != not_found && I != ambiguous,
+                         lib::size_constant<I>>;
 
     template <typename T, typename... Ts>
     using find_index_sfinae = find_index_sfinae_impl<find_index<T, Ts...>()>;
 
     template <std::size_t I>
-    struct find_index_checked_impl : variants::lib::size_constant<I> {
+    struct find_index_checked_impl : lib::size_constant<I> {
       static_assert(I != not_found, "the specified type is not found.");
       static_assert(I != ambiguous, "the specified type is ambiguous.");
     };
@@ -457,34 +454,31 @@ namespace mpark {
 #ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename V>
         inline static constexpr auto &&get_alt(V &&v, in_place_index_t<0>) {
-          return variants::lib::forward<V>(v).head_;
+          return lib::forward<V>(v).head_;
         }
 
         template <typename V, std::size_t I>
         inline static constexpr auto &&get_alt(V &&v, in_place_index_t<I>) {
-          return get_alt(variants::lib::forward<V>(v).tail_,
-                         in_place_index_t<I - 1>{});
+          return get_alt(lib::forward<V>(v).tail_, in_place_index_t<I - 1>{});
         }
 #else
         template <std::size_t I, bool Dummy = true>
         struct get_alt_impl {
           template <typename V>
           inline constexpr AUTO_REFREF operator()(V &&v) const
-            AUTO_REFREF_RETURN(
-                get_alt_impl<I - 1>{}(variants::lib::forward<V>(v).tail_))
+            AUTO_REFREF_RETURN(get_alt_impl<I - 1>{}(lib::forward<V>(v).tail_))
         };
 
         template <bool Dummy>
         struct get_alt_impl<0, Dummy> {
           template <typename V>
           inline constexpr AUTO_REFREF operator()(V &&v) const
-            AUTO_REFREF_RETURN(variants::lib::forward<V>(v).head_)
+            AUTO_REFREF_RETURN(lib::forward<V>(v).head_)
         };
 
         template <typename V, std::size_t I>
-        inline static constexpr AUTO_REFREF get_alt(V &&v,
-                                                    in_place_index_t<I>)
-          AUTO_REFREF_RETURN(get_alt_impl<I>{}(variants::lib::forward<V>(v)))
+        inline static constexpr AUTO_REFREF get_alt(V &&v, in_place_index_t<I>)
+          AUTO_REFREF_RETURN(get_alt_impl<I>{}(lib::forward<V>(v)))
 #endif
       };
 
@@ -492,14 +486,13 @@ namespace mpark {
         template <std::size_t I, typename V>
         inline static constexpr AUTO_REFREF get_alt(V &&v)
           AUTO_REFREF_RETURN(recursive_union::get_alt(
-              variants::lib::forward<V>(v).data_, in_place_index_t<I>{}))
+              lib::forward<V>(v).data_, in_place_index_t<I>{}))
       };
 
       struct variant {
         template <std::size_t I, typename V>
         inline static constexpr AUTO_REFREF get_alt(V &&v)
-          AUTO_REFREF_RETURN(
-              base::get_alt<I>(variants::lib::forward<V>(v).impl_))
+          AUTO_REFREF_RETURN(base::get_alt<I>(lib::forward<V>(v).impl_))
       };
 
     }  // namespace access
@@ -514,8 +507,8 @@ namespace mpark {
         }
 
         template <typename T, std::size_t N, typename... Is>
-        inline static constexpr const variants::lib::remove_all_extents_t<T> &
-        at(const variants::lib::array<T, N> &elems, std::size_t i, Is... is) {
+        inline static constexpr const lib::remove_all_extents_t<T> &at(
+            const lib::array<T, N> &elems, std::size_t i, Is... is) {
           return at(elems[i], is...);
         }
 
@@ -528,16 +521,13 @@ namespace mpark {
         }
 
         template <typename... Fs>
-        inline static constexpr variants::lib::array<
-            variants::lib::common_type_t<variants::lib::decay_t<Fs>...>,
-            sizeof...(Fs)>
-        make_farray(Fs &&... fs) {
-          using result = variants::lib::array<
-              variants::lib::common_type_t<variants::lib::decay_t<Fs>...>,
-              sizeof...(Fs)>;
-          return visit_visitor_return_type_check<
-                     variants::lib::decay_t<Fs>...>(),
-                 result{{variants::lib::forward<Fs>(fs)...}};
+        inline static constexpr lib::
+            array<lib::common_type_t<lib::decay_t<Fs>...>, sizeof...(Fs)>
+            make_farray(Fs &&... fs) {
+          using result = lib::array<lib::common_type_t<lib::decay_t<Fs>...>,
+                                    sizeof...(Fs)>;
+          return visit_visitor_return_type_check<lib::decay_t<Fs>...>(),
+                 result{{lib::forward<Fs>(fs)...}};
         }
 
         template <std::size_t... Is>
@@ -545,45 +535,41 @@ namespace mpark {
           template <typename F, typename... Vs>
           struct impl {
             inline static constexpr DECLTYPE_AUTO dispatch(F f, Vs... vs)
-              DECLTYPE_AUTO_RETURN(variants::lib::invoke(
+              DECLTYPE_AUTO_RETURN(lib::invoke(
                   static_cast<F>(f),
                   access::base::get_alt<Is>(static_cast<Vs>(vs))...))
           };
         };
 
         template <typename F, typename... Vs, std::size_t... Is>
-        inline static constexpr AUTO make_dispatch(
-            variants::lib::index_sequence<Is...>)
+        inline static constexpr AUTO make_dispatch(lib::index_sequence<Is...>)
           AUTO_RETURN(&dispatcher<Is...>::template impl<F, Vs...>::dispatch)
 
         template <std::size_t I, typename F, typename... Vs>
         inline static constexpr AUTO make_fdiagonal_impl()
           AUTO_RETURN(make_dispatch<F, Vs...>(
-              variants::lib::index_sequence<
-                  variants::lib::indexed_type<I, Vs>::value...>{}))
+              lib::index_sequence<lib::indexed_type<I, Vs>::value...>{}))
 
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr AUTO make_fdiagonal_impl(
-            variants::lib::index_sequence<Is...>)
+            lib::index_sequence<Is...>)
           AUTO_RETURN(make_farray(make_fdiagonal_impl<Is, F, Vs...>()...))
 
         template <typename F, typename V, typename... Vs>
         inline static constexpr /* auto * */ auto make_fdiagonal()
             -> decltype(make_fdiagonal_impl<F, V, Vs...>(
-                variants::lib::make_index_sequence<
-                    variants::lib::decay_t<V>::size()>{})) {
-          static_assert(all((variants::lib::decay_t<V>::size() ==
-                             variants::lib::decay_t<Vs>::size())...),
-                        "all of the variants must be the same size.");
+                lib::make_index_sequence<lib::decay_t<V>::size()>{})) {
+          static_assert(
+              all((lib::decay_t<V>::size() == lib::decay_t<Vs>::size())...),
+              "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
-              variants::lib::make_index_sequence<
-                  variants::lib::decay_t<V>::size()>{});
+              lib::make_index_sequence<lib::decay_t<V>::size()>{});
         }
 
 #ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename F, typename... Vs, std::size_t... Is>
         inline static constexpr auto make_fmatrix_impl(
-            variants::lib::index_sequence<Is...> is) {
+            lib::index_sequence<Is...> is) {
           return make_dispatch<F, Vs...>(is);
         }
 
@@ -593,19 +579,16 @@ namespace mpark {
                   std::size_t... Js,
                   typename... Ls>
         inline static constexpr auto make_fmatrix_impl(
-            variants::lib::index_sequence<Is...>,
-            variants::lib::index_sequence<Js...>,
-            Ls... ls) {
+            lib::index_sequence<Is...>, lib::index_sequence<Js...>, Ls... ls) {
           return make_farray(make_fmatrix_impl<F, Vs...>(
-              variants::lib::index_sequence<Is..., Js>{}, ls...)...);
+              lib::index_sequence<Is..., Js>{}, ls...)...);
         }
 
         template <typename F, typename... Vs>
         inline static constexpr auto make_fmatrix() {
           return make_fmatrix_impl<F, Vs...>(
-              variants::lib::index_sequence<>{},
-              variants::lib::make_index_sequence<
-                  variants::lib::decay_t<Vs>::size()>{}...);
+              lib::index_sequence<>{},
+              lib::make_index_sequence<lib::decay_t<Vs>::size()>{}...);
         }
 #else
         template <typename F, typename... Vs>
@@ -614,29 +597,28 @@ namespace mpark {
           struct impl;
 
           template <std::size_t... Is>
-          struct impl<variants::lib::index_sequence<Is...>> {
+          struct impl<lib::index_sequence<Is...>> {
             inline constexpr AUTO operator()() const
-              AUTO_RETURN(make_dispatch<F, Vs...>(
-                  variants::lib::index_sequence<Is...>{}))
+              AUTO_RETURN(
+                  make_dispatch<F, Vs...>(lib::index_sequence<Is...>{}))
           };
 
           template <std::size_t... Is, std::size_t... Js, typename... Ls>
-          struct impl<variants::lib::index_sequence<Is...>,
-                      variants::lib::index_sequence<Js...>,
+          struct impl<lib::index_sequence<Is...>,
+                      lib::index_sequence<Js...>,
                       Ls...> {
             inline constexpr AUTO operator()() const
-              AUTO_RETURN(
-                  make_farray(impl<variants::lib::index_sequence<Is..., Js>,
-                                   Ls...>{}()...))
+              AUTO_RETURN(make_farray(
+                  impl<lib::index_sequence<Is..., Js>, Ls...>{}()...))
           };
         };
 
         template <typename F, typename... Vs>
         inline static constexpr AUTO make_fmatrix()
-          AUTO_RETURN(typename make_fmatrix_impl<F, Vs...>::template impl<
-                      variants::lib::index_sequence<>,
-                      variants::lib::make_index_sequence<
-                          variants::lib::decay_t<Vs>::size()>...>{}())
+          AUTO_RETURN(
+              typename make_fmatrix_impl<F, Vs...>::template impl<
+                  lib::index_sequence<>,
+                  lib::make_index_sequence<lib::decay_t<Vs>::size()>...>{}())
 #endif
 
         public:
@@ -644,22 +626,20 @@ namespace mpark {
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(at(
-              make_fdiagonal<Visitor &&,
-                             decltype(
-                                 as_base(variants::lib::forward<Vs>(vs)))...>(),
-              index)(variants::lib::forward<Visitor>(visitor),
-                     as_base(variants::lib::forward<Vs>(vs))...))
+          DECLTYPE_AUTO_RETURN(
+              at(make_fdiagonal<Visitor &&,
+                                decltype(as_base(lib::forward<Vs>(vs)))...>(),
+                 index)(lib::forward<Visitor>(visitor),
+                        as_base(lib::forward<Vs>(vs))...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(at(
-              make_fmatrix<Visitor &&,
-                           decltype(
-                               as_base(variants::lib::forward<Vs>(vs)))...>(),
-              vs.index()...)(variants::lib::forward<Visitor>(visitor),
-                             as_base(variants::lib::forward<Vs>(vs))...))
+          DECLTYPE_AUTO_RETURN(
+              at(make_fmatrix<Visitor &&,
+                              decltype(as_base(lib::forward<Vs>(vs)))...>(),
+                 vs.index()...)(lib::forward<Visitor>(visitor),
+                                as_base(lib::forward<Vs>(vs))...))
       };
 
       struct variant {
@@ -667,7 +647,7 @@ namespace mpark {
         template <typename Visitor, typename... Values>
         struct visit_exhaustive_visitor_check {
           static_assert(
-              variants::lib::is_invocable<Visitor, Values...>::value,
+              lib::is_invocable<Visitor, Values...>::value,
               "`mpark::visit` requires the visitor to be exhaustive.");
 
 #ifdef _MSC_VER
@@ -676,9 +656,8 @@ namespace mpark {
 #endif
           inline constexpr DECLTYPE_AUTO operator()(Visitor &&visitor,
                                                     Values &&... values) const
-            DECLTYPE_AUTO_RETURN(variants::lib::invoke(
-                variants::lib::forward<Visitor>(visitor),
-                variants::lib::forward<Values>(values)...))
+            DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
+                                             lib::forward<Values>(values)...))
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -693,15 +672,14 @@ namespace mpark {
             DECLTYPE_AUTO_RETURN(
                 visit_exhaustive_visitor_check<
                     Visitor,
-                    decltype((variants::lib::forward<Alts>(alts).value))...>{}(
-                    variants::lib::forward<Visitor>(visitor_),
-                    variants::lib::forward<Alts>(alts).value...))
+                    decltype((lib::forward<Alts>(alts).value))...>{}(
+                    lib::forward<Visitor>(visitor_),
+                    lib::forward<Alts>(alts).value...))
         };
 
         template <typename Visitor>
         inline static constexpr AUTO make_value_visitor(Visitor &&visitor)
-          AUTO_RETURN(
-              value_visitor<Visitor>{variants::lib::forward<Visitor>(visitor)})
+          AUTO_RETURN(value_visitor<Visitor>{lib::forward<Visitor>(visitor)})
 
         public:
         template <typename Visitor, typename... Vs>
@@ -710,31 +688,30 @@ namespace mpark {
                                                            Vs &&... vs)
           DECLTYPE_AUTO_RETURN(
               base::visit_alt_at(index,
-                                 variants::lib::forward<Visitor>(visitor),
-                                 variants::lib::forward<Vs>(vs).impl_...))
+                                 lib::forward<Visitor>(visitor),
+                                 lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              base::visit_alt(variants::lib::forward<Visitor>(visitor),
-                              variants::lib::forward<Vs>(vs).impl_...))
+          DECLTYPE_AUTO_RETURN(base::visit_alt(lib::forward<Visitor>(visitor),
+                                               lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value_at(std::size_t index,
                                                              Visitor &&visitor,
                                                              Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(visit_alt_at(
-              index,
-              make_value_visitor(variants::lib::forward<Visitor>(visitor)),
-              variants::lib::forward<Vs>(vs)...))
+          DECLTYPE_AUTO_RETURN(
+              visit_alt_at(index,
+                           make_value_visitor(lib::forward<Visitor>(visitor)),
+                           lib::forward<Vs>(vs)...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value(Visitor &&visitor,
                                                           Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(visit_alt(
-              make_value_visitor(variants::lib::forward<Visitor>(visitor)),
-              variants::lib::forward<Vs>(vs)...))
+          DECLTYPE_AUTO_RETURN(
+              visit_alt(make_value_visitor(lib::forward<Visitor>(visitor)),
+                        lib::forward<Vs>(vs)...))
       };
 
     }  // namespace visitation
@@ -749,7 +726,7 @@ namespace mpark {
 #endif
       template <typename... Args>
       inline explicit constexpr alt(in_place_t, Args &&... args)
-          : value(variants::lib::forward<Args>(args)...) {}
+          : value(lib::forward<Args>(args)...) {}
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -763,38 +740,37 @@ namespace mpark {
     template <Trait DestructibleTrait, std::size_t Index>
     union recursive_union<DestructibleTrait, Index> {};
 
-#define MPARK_VARIANT_RECURSIVE_UNION(destructible_trait, destructor)   \
-  template <std::size_t Index, typename T, typename... Ts>              \
-  union recursive_union<destructible_trait, Index, T, Ts...> {          \
-    public:                                                             \
-    inline explicit constexpr recursive_union(valueless_t) noexcept     \
-        : dummy_{} {}                                                   \
-                                                                        \
-    template <typename... Args>                                         \
-    inline explicit constexpr recursive_union(in_place_index_t<0>,      \
-                                              Args &&... args)          \
-        : head_(in_place_t{}, variants::lib::forward<Args>(args)...) {} \
-                                                                        \
-    template <std::size_t I, typename... Args>                          \
-    inline explicit constexpr recursive_union(in_place_index_t<I>,      \
-                                              Args &&... args)          \
-        : tail_(in_place_index_t<I - 1>{},                              \
-                variants::lib::forward<Args>(args)...) {}               \
-                                                                        \
-    recursive_union(const recursive_union &) = default;                 \
-    recursive_union(recursive_union &&) = default;                      \
-                                                                        \
-    destructor                                                          \
-                                                                        \
-    recursive_union &operator=(const recursive_union &) = default;      \
-    recursive_union &operator=(recursive_union &&) = default;           \
-                                                                        \
-    private:                                                            \
-    char dummy_;                                                        \
-    alt<Index, T> head_;                                                \
-    recursive_union<destructible_trait, Index + 1, Ts...> tail_;        \
-                                                                        \
-    friend struct access::recursive_union;                              \
+#define MPARK_VARIANT_RECURSIVE_UNION(destructible_trait, destructor)      \
+  template <std::size_t Index, typename T, typename... Ts>                 \
+  union recursive_union<destructible_trait, Index, T, Ts...> {             \
+    public:                                                                \
+    inline explicit constexpr recursive_union(valueless_t) noexcept        \
+        : dummy_{} {}                                                      \
+                                                                           \
+    template <typename... Args>                                            \
+    inline explicit constexpr recursive_union(in_place_index_t<0>,         \
+                                              Args &&... args)             \
+        : head_(in_place_t{}, lib::forward<Args>(args)...) {}              \
+                                                                           \
+    template <std::size_t I, typename... Args>                             \
+    inline explicit constexpr recursive_union(in_place_index_t<I>,         \
+                                              Args &&... args)             \
+        : tail_(in_place_index_t<I - 1>{}, lib::forward<Args>(args)...) {} \
+                                                                           \
+    recursive_union(const recursive_union &) = default;                    \
+    recursive_union(recursive_union &&) = default;                         \
+                                                                           \
+    destructor                                                             \
+                                                                           \
+    recursive_union &operator=(const recursive_union &) = default;         \
+    recursive_union &operator=(recursive_union &&) = default;              \
+                                                                           \
+    private:                                                               \
+    char dummy_;                                                           \
+    alt<Index, T> head_;                                                   \
+    recursive_union<destructible_trait, Index + 1, Ts...> tail_;           \
+                                                                           \
+    friend struct access::recursive_union;                                 \
   }
 
     MPARK_VARIANT_RECURSIVE_UNION(Trait::TriviallyAvailable,
@@ -816,7 +792,7 @@ namespace mpark {
 
       template <std::size_t I, typename... Args>
       inline explicit constexpr base(in_place_index_t<I>, Args &&... args)
-          : data_(in_place_index_t<I>{}, variants::lib::forward<Args>(args)...),
+          : data_(in_place_index_t<I>{}, lib::forward<Args>(args)...),
             index_(I) {}
 
       inline constexpr bool valueless_by_exception() const noexcept {
@@ -830,12 +806,8 @@ namespace mpark {
       protected:
       friend inline constexpr base &as_base(base &b) { return b; }
       friend inline constexpr const base &as_base(const base &b) { return b; }
-      friend inline constexpr base &&as_base(base &&b) {
-        return variants::lib::move(b);
-      }
-      friend inline constexpr const base &&as_base(const base &&b) {
-        return variants::lib::move(b);
-      }
+      friend inline constexpr base &&as_base(base &&b) { return lib::move(b); }
+      friend inline constexpr const base &&as_base(const base &&b) { return lib::move(b); }
 
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
@@ -862,7 +834,7 @@ namespace mpark {
 #define INHERITING_CTOR(type, base)               \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
-      : base(variants::lib::forward<Args>(args)...) {}
+      : base(lib::forward<Args>(args)...) {}
 #else
 #define INHERITING_CTOR(type, base) using base::base;
 #endif
@@ -927,16 +899,16 @@ namespace mpark {
       struct ctor {
         template <typename LhsAlt, typename RhsAlt>
         inline void operator()(LhsAlt &lhs_alt, RhsAlt &&rhs_alt) const {
-          constructor::construct_alt(
-              lhs_alt, variants::lib::forward<RhsAlt>(rhs_alt).value);
+          constructor::construct_alt(lhs_alt,
+                                     lib::forward<RhsAlt>(rhs_alt).value);
         }
       };
 #endif
 
       template <std::size_t I, typename T, typename... Args>
       inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
-        ::new (static_cast<void *>(variants::lib::addressof(a)))
-            alt<I, T>(in_place_t{}, variants::lib::forward<Args>(args)...);
+        ::new (static_cast<void *>(lib::addressof(a)))
+            alt<I, T>(in_place_t{}, lib::forward<Args>(args)...);
         return a.value;
       }
 
@@ -949,15 +921,14 @@ namespace mpark {
 #ifdef MPARK_GENERIC_LAMBDAS
               [](auto &lhs_alt, auto &&rhs_alt) {
                 constructor::construct_alt(
-                    lhs_alt,
-                    variants::lib::forward<decltype(rhs_alt)>(rhs_alt).value);
+                    lhs_alt, lib::forward<decltype(rhs_alt)>(rhs_alt).value);
               }
 #else
               ctor{}
 #endif
               ,
               lhs,
-              variants::lib::forward<Rhs>(rhs));
+              lib::forward<Rhs>(rhs));
           lhs.index_ = rhs.index_;
         }
       }
@@ -992,7 +963,7 @@ namespace mpark {
         move_constructor(move_constructor &&that) noexcept(
             all(std::is_nothrow_move_constructible<Ts>::value...))
             : move_constructor(valueless_t{}) {
-          this->generic_construct(*this, variants::lib::move(that));
+          this->generic_construct(*this, lib::move(that));
         });
 
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
@@ -1047,13 +1018,12 @@ namespace mpark {
       using super::operator=;
 
       template <std::size_t I, typename... Args>
-      inline /* auto & */ auto emplace(Args &&... args) -> decltype(
-          this->construct_alt(access::base::get_alt<I>(*this),
-                              variants::lib::forward<Args>(args)...)) {
+      inline /* auto & */ auto emplace(Args &&... args)
+          -> decltype(this->construct_alt(access::base::get_alt<I>(*this),
+                                          lib::forward<Args>(args)...)) {
         this->destroy();
-        auto &result =
-            this->construct_alt(access::base::get_alt<I>(*this),
-                                variants::lib::forward<Args>(args)...);
+        auto &result = this->construct_alt(access::base::get_alt<I>(*this),
+                                           lib::forward<Args>(args)...);
         this->index_ = I;
         return result;
       }
@@ -1065,7 +1035,7 @@ namespace mpark {
         template <typename ThisAlt, typename ThatAlt>
         inline void operator()(ThisAlt &this_alt, ThatAlt &&that_alt) const {
           self->assign_alt(this_alt,
-                           variants::lib::forward<ThatAlt>(that_alt).value,
+                           lib::forward<ThatAlt>(that_alt).value,
                            std::is_lvalue_reference<That>{});
         }
         assignment *self;
@@ -1075,27 +1045,27 @@ namespace mpark {
       template <bool CopyAssign, std::size_t I, typename T, typename Arg>
       inline void assign_alt(alt<I, T> &a,
                              Arg &&arg,
-                             variants::lib::bool_constant<CopyAssign> tag) {
+                             lib::bool_constant<CopyAssign> tag) {
         if (this->index() == I) {
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #endif
-          a.value = variants::lib::forward<Arg>(arg);
+          a.value = lib::forward<Arg>(arg);
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
         } else {
           struct {
             void operator()(std::true_type) const {
-              this_->emplace<I>(T(variants::lib::forward<Arg>(arg_)));
+              this_->emplace<I>(T(lib::forward<Arg>(arg_)));
             }
             void operator()(std::false_type) const {
-              this_->emplace<I>(variants::lib::forward<Arg>(arg_));
+              this_->emplace<I>(lib::forward<Arg>(arg_));
             }
             assignment *this_;
             Arg &&arg_;
-          } impl{this, variants::lib::forward<Arg>(arg)};
+          } impl{this, lib::forward<Arg>(arg)};
           impl(tag);
         }
       }
@@ -1113,7 +1083,7 @@ namespace mpark {
               [this](auto &this_alt, auto &&that_alt) {
                 this->assign_alt(
                     this_alt,
-                    variants::lib::forward<decltype(that_alt)>(that_alt).value,
+                    lib::forward<decltype(that_alt)>(that_alt).value,
                     std::is_lvalue_reference<That>{});
               }
 #else
@@ -1121,7 +1091,7 @@ namespace mpark {
 #endif
               ,
               *this,
-              variants::lib::forward<That>(that));
+              lib::forward<That>(that));
         }
       }
     };
@@ -1156,7 +1126,7 @@ namespace mpark {
         operator=(move_assignment &&that) noexcept(
             all((std::is_nothrow_move_constructible<Ts>::value &&
                  std::is_nothrow_move_assignable<Ts>::value)...)) {
-          this->generic_assign(variants::lib::move(that));
+          this->generic_assign(lib::move(that));
           return *this;
         });
 
@@ -1214,7 +1184,7 @@ namespace mpark {
       template <std::size_t I, typename Arg>
       inline void assign(Arg &&arg) {
         this->assign_alt(access::base::get_alt<I>(*this),
-                         variants::lib::forward<Arg>(arg),
+                         lib::forward<Arg>(arg),
                          std::false_type{});
       }
 
@@ -1237,27 +1207,27 @@ namespace mpark {
                                          that);
         } else {
           impl *lhs = this;
-          impl *rhs = variants::lib::addressof(that);
+          impl *rhs = lib::addressof(that);
           if (lhs->move_nothrow() && !rhs->move_nothrow()) {
             std::swap(lhs, rhs);
           }
-          impl tmp(variants::lib::move(*rhs));
+          impl tmp(lib::move(*rhs));
 #ifdef MPARK_EXCEPTIONS
           // EXTENSION: When the move construction of `lhs` into `rhs` throws
           // and `tmp` is nothrow move constructible then we move `tmp` back
           // into `rhs` and provide the strong exception safety guarantee.
           try {
-            this->generic_construct(*rhs, variants::lib::move(*lhs));
+            this->generic_construct(*rhs, lib::move(*lhs));
           } catch (...) {
             if (tmp.move_nothrow()) {
-              this->generic_construct(*rhs, variants::lib::move(tmp));
+              this->generic_construct(*rhs, lib::move(tmp));
             }
             throw;
           }
 #else
-          this->generic_construct(*rhs, variants::lib::move(*lhs));
+          this->generic_construct(*rhs, lib::move(*lhs));
 #endif
-          this->generic_construct(*lhs, variants::lib::move(tmp));
+          this->generic_construct(*lhs, lib::move(tmp));
         }
       }
 
@@ -1274,7 +1244,7 @@ namespace mpark {
 
       inline constexpr bool move_nothrow() const {
         return this->valueless_by_exception() ||
-               variants::lib::array<bool, sizeof...(Ts)>{
+               lib::array<bool, sizeof...(Ts)>{
                    {std::is_nothrow_move_constructible<Ts>::value...}
                }[this->index()];
       }
@@ -1289,12 +1259,12 @@ namespace mpark {
     template <typename T, typename... Ts>
     struct overload<T, Ts...> : overload<Ts...> {
       using overload<Ts...>::operator();
-      variants::lib::identity<T> operator()(T) const { return {}; }
+      lib::identity<T> operator()(T) const { return {}; }
     };
 
     template <typename T, typename... Ts>
     using best_match_t =
-        typename variants::lib::invoke_result_t<overload<Ts...>, T &&>::type;
+        typename lib::invoke_result_t<overload<Ts...>, T &&>::type;
 
   }  // detail
 
@@ -1303,20 +1273,19 @@ namespace mpark {
     static_assert(0 < sizeof...(Ts),
                   "variant must consist of at least one alternative.");
 
-    static_assert(variants::lib::all<!std::is_array<Ts>::value...>::value,
+    static_assert(lib::all<!std::is_array<Ts>::value...>::value,
                   "variant can not have an array type as an alternative.");
 
-    static_assert(variants::lib::all<!std::is_reference<Ts>::value...>::value,
+    static_assert(lib::all<!std::is_reference<Ts>::value...>::value,
                   "variant can not have a reference type as an alternative.");
 
-    static_assert(variants::lib::all<!std::is_void<Ts>::value...>::value,
+    static_assert(lib::all<!std::is_void<Ts>::value...>::value,
                   "variant can not have a void type as an alternative.");
 
     public:
     template <
-        typename Front = variants::lib::type_pack_element_t<0, Ts...>,
-        variants::lib::enable_if_t<std::is_default_constructible<Front>::value,
-                                   int> = 0>
+        typename Front = lib::type_pack_element_t<0, Ts...>,
+        lib::enable_if_t<std::is_default_constructible<Front>::value, int> = 0>
     inline constexpr variant() noexcept(
         std::is_nothrow_default_constructible<Front>::value)
         : impl_(in_place_index_t<0>{}) {}
@@ -1325,38 +1294,35 @@ namespace mpark {
     variant(variant &&) = default;
 
     template <typename Arg,
-              variants::lib::enable_if_t<
-                  !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
-                  int> = 0,
+              lib::enable_if_t<!std::is_same<lib::decay_t<Arg>, variant>::value,
+                               int> = 0,
               typename T = detail::best_match_t<Arg, Ts...>,
               std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-              variants::lib::enable_if_t<std::is_constructible<T, Arg>::value,
-                                         int> = 0>
+              lib::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
         std::is_nothrow_constructible<T, Arg>::value)
-        : impl_(in_place_index_t<I>{}, variants::lib::forward<Arg>(arg)) {}
+        : impl_(in_place_index_t<I>{}, lib::forward<Arg>(arg)) {}
 
     template <
         std::size_t I,
         typename... Args,
-        typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
-                                   int> = 0>
+        typename T = lib::type_pack_element_t<I, Ts...>,
+        lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
                                                                 Args...>::value)
-        : impl_(in_place_index_t<I>{}, variants::lib::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, lib::forward<Args>(args)...) {}
 
     template <
         std::size_t I,
         typename Up,
         typename... Args,
-        typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        variants::lib::enable_if_t<
-            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
-                value,
-            int> = 0>
+        typename T = lib::type_pack_element_t<I, Ts...>,
+        lib::enable_if_t<std::is_constructible<T,
+                                               std::initializer_list<Up> &,
+                                               Args...>::value,
+                         int> = 0>
     inline explicit constexpr variant(
         in_place_index_t<I>,
         std::initializer_list<Up> il,
@@ -1365,31 +1331,28 @@ namespace mpark {
                                           T,
                                           std::initializer_list<Up> &,
                                           Args...>::value)
-        : impl_(in_place_index_t<I>{},
-                il,
-                variants::lib::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, il, lib::forward<Args>(args)...) {}
 
     template <
         typename T,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
-                                   int> = 0>
+        lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline explicit constexpr variant(
         in_place_type_t<T>,
         Args &&... args) noexcept(std::is_nothrow_constructible<T,
                                                                 Args...>::value)
-        : impl_(in_place_index_t<I>{}, variants::lib::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, lib::forward<Args>(args)...) {}
 
     template <
         typename T,
         typename Up,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        variants::lib::enable_if_t<
-            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
-                value,
-            int> = 0>
+        lib::enable_if_t<std::is_constructible<T,
+                                               std::initializer_list<Up> &,
+                                               Args...>::value,
+                         int> = 0>
     inline explicit constexpr variant(
         in_place_type_t<T>,
         std::initializer_list<Up> il,
@@ -1398,9 +1361,7 @@ namespace mpark {
                                           T,
                                           std::initializer_list<Up> &,
                                           Args...>::value)
-        : impl_(in_place_index_t<I>{},
-                il,
-                variants::lib::forward<Args>(args)...) {}
+        : impl_(in_place_index_t<I>{}, il, lib::forward<Args>(args)...) {}
 
     ~variant() = default;
 
@@ -1408,53 +1369,49 @@ namespace mpark {
     variant &operator=(variant &&) = default;
 
     template <typename Arg,
-              variants::lib::enable_if_t<
-                  !std::is_same<variants::lib::decay_t<Arg>, variant>::value,
-                  int> = 0,
+              lib::enable_if_t<!std::is_same<lib::decay_t<Arg>, variant>::value,
+                               int> = 0,
               typename T = detail::best_match_t<Arg, Ts...>,
               std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-              variants::lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
-                                          std::is_constructible<T, Arg>::value),
-                                         int> = 0>
+              lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
+                                std::is_constructible<T, Arg>::value),
+                               int> = 0>
     inline variant &operator=(Arg &&arg) noexcept(
         (std::is_nothrow_assignable<T &, Arg>::value &&
          std::is_nothrow_constructible<T, Arg>::value)) {
-      impl_.template assign<I>(variants::lib::forward<Arg>(arg));
+      impl_.template assign<I>(lib::forward<Arg>(arg));
       return *this;
     }
 
     template <
         std::size_t I,
         typename... Args,
-        typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
-                                   int> = 0>
+        typename T = lib::type_pack_element_t<I, Ts...>,
+        lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline T &emplace(Args &&... args) {
-      return impl_.template emplace<I>(variants::lib::forward<Args>(args)...);
+      return impl_.template emplace<I>(lib::forward<Args>(args)...);
     }
 
     template <
         std::size_t I,
         typename Up,
         typename... Args,
-        typename T = variants::lib::type_pack_element_t<I, Ts...>,
-        variants::lib::enable_if_t<
-            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
-                value,
-            int> = 0>
+        typename T = lib::type_pack_element_t<I, Ts...>,
+        lib::enable_if_t<std::is_constructible<T,
+                                               std::initializer_list<Up> &,
+                                               Args...>::value,
+                         int> = 0>
     inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
-      return impl_.template emplace<I>(il,
-                                       variants::lib::forward<Args>(args)...);
+      return impl_.template emplace<I>(il, lib::forward<Args>(args)...);
     }
 
     template <
         typename T,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        variants::lib::enable_if_t<std::is_constructible<T, Args...>::value,
-                                   int> = 0>
+        lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
     inline T &emplace(Args &&... args) {
-      return impl_.template emplace<I>(variants::lib::forward<Args>(args)...);
+      return impl_.template emplace<I>(lib::forward<Args>(args)...);
     }
 
     template <
@@ -1462,13 +1419,12 @@ namespace mpark {
         typename Up,
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-        variants::lib::enable_if_t<
-            std::is_constructible<T, std::initializer_list<Up> &, Args...>::
-                value,
-            int> = 0>
+        lib::enable_if_t<std::is_constructible<T,
+                                               std::initializer_list<Up> &,
+                                               Args...>::value,
+                         int> = 0>
     inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
-      return impl_.template emplace<I>(il,
-                                       variants::lib::forward<Args>(args)...);
+      return impl_.template emplace<I>(il, lib::forward<Args>(args)...);
     }
 
     inline constexpr bool valueless_by_exception() const noexcept {
@@ -1479,17 +1435,15 @@ namespace mpark {
       return impl_.index();
     }
 
-    template <bool Dummy = true,
-              variants::lib::enable_if_t<
-                  variants::lib::all<
-                      Dummy,
-                      (std::is_move_constructible<Ts>::value &&
-                       variants::lib::is_swappable<Ts>::value)...>::value,
-                  int> = 0>
+    template <
+        bool Dummy = true,
+        lib::enable_if_t<lib::all<Dummy,
+                                  (std::is_move_constructible<Ts>::value &&
+                                   lib::is_swappable<Ts>::value)...>::value,
+                         int> = 0>
     inline void swap(variant &that) noexcept(
-        variants::lib::all<
-            (std::is_nothrow_move_constructible<Ts>::value &&
-             variants::lib::is_nothrow_swappable<Ts>::value)...>::value) {
+        lib::all<(std::is_nothrow_move_constructible<Ts>::value &&
+                  lib::is_nothrow_swappable<Ts>::value)...>::value) {
       impl_.swap(that.impl_);
     }
 
@@ -1517,14 +1471,14 @@ namespace mpark {
 
       constexpr AUTO_REFREF operator()(V &&v) const
         AUTO_REFREF_RETURN(
-            access::variant::get_alt<I>(variants::lib::forward<V>(v)).value)
+            access::variant::get_alt<I>(lib::forward<V>(v)).value)
     };
 
     template <std::size_t I, typename V>
     inline constexpr AUTO_REFREF generic_get(V &&v)
       AUTO_REFREF_RETURN(generic_get_impl<I, V>(
           holds_alternative<I>(v) ? 0 : (throw_bad_variant_access(), 0))(
-          variants::lib::forward<V>(v)))
+          lib::forward<V>(v)))
   }  // namespace detail
 
   template <std::size_t I, typename... Ts>
@@ -1536,7 +1490,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   inline constexpr variant_alternative_t<I, variant<Ts...>> &&get(
       variant<Ts...> &&v) {
-    return detail::generic_get<I>(variants::lib::move(v));
+    return detail::generic_get<I>(lib::move(v));
   }
 
   template <std::size_t I, typename... Ts>
@@ -1548,7 +1502,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   inline constexpr const variant_alternative_t<I, variant<Ts...>> &&get(
       const variant<Ts...> &&v) {
-    return detail::generic_get<I>(variants::lib::move(v));
+    return detail::generic_get<I>(lib::move(v));
   }
 
   template <typename T, typename... Ts>
@@ -1558,8 +1512,7 @@ namespace mpark {
 
   template <typename T, typename... Ts>
   inline constexpr T &&get(variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(
-        variants::lib::move(v));
+    return get<detail::find_index_checked<T, Ts...>::value>(lib::move(v));
   }
 
   template <typename T, typename... Ts>
@@ -1569,43 +1522,40 @@ namespace mpark {
 
   template <typename T, typename... Ts>
   inline constexpr const T &&get(const variant<Ts...> &&v) {
-    return get<detail::find_index_checked<T, Ts...>::value>(
-        variants::lib::move(v));
+    return get<detail::find_index_checked<T, Ts...>::value>(lib::move(v));
   }
 
   namespace detail {
 
     template <std::size_t I, typename V>
     inline constexpr /* auto * */ AUTO generic_get_if(V *v) noexcept
-      AUTO_RETURN(
-          v && holds_alternative<I>(*v)
-              ? variants::lib::addressof(access::variant::get_alt<I>(*v).value)
-              : nullptr)
+      AUTO_RETURN(v && holds_alternative<I>(*v)
+                      ? lib::addressof(access::variant::get_alt<I>(*v).value)
+                      : nullptr)
 
   }  // namespace detail
 
   template <std::size_t I, typename... Ts>
-  inline constexpr variants::lib::add_pointer_t<
-      variant_alternative_t<I, variant<Ts...>>>
+  inline constexpr lib::add_pointer_t<variant_alternative_t<I, variant<Ts...>>>
   get_if(variant<Ts...> *v) noexcept {
     return detail::generic_get_if<I>(v);
   }
 
   template <std::size_t I, typename... Ts>
-  inline constexpr variants::lib::add_pointer_t<
+  inline constexpr lib::add_pointer_t<
       const variant_alternative_t<I, variant<Ts...>>>
   get_if(const variant<Ts...> *v) noexcept {
     return detail::generic_get_if<I>(v);
   }
 
   template <typename T, typename... Ts>
-  inline constexpr variants::lib::add_pointer_t<T>
+  inline constexpr lib::add_pointer_t<T>
   get_if(variant<Ts...> *v) noexcept {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
 
   template <typename T, typename... Ts>
-  inline constexpr variants::lib::add_pointer_t<const T>
+  inline constexpr lib::add_pointer_t<const T>
   get_if(const variant<Ts...> *v) noexcept {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
@@ -1614,7 +1564,7 @@ namespace mpark {
   inline constexpr bool operator==(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::equal_to;
+    using lib::equal_to;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -1630,7 +1580,7 @@ namespace mpark {
   inline constexpr bool operator!=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::not_equal_to;
+    using lib::not_equal_to;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return true;
     if (lhs.valueless_by_exception()) return false;
@@ -1646,7 +1596,7 @@ namespace mpark {
   inline constexpr bool operator<(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::less;
+    using lib::less;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -1665,7 +1615,7 @@ namespace mpark {
   inline constexpr bool operator>(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::greater;
+    using lib::greater;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return false;
     if (rhs.valueless_by_exception()) return true;
@@ -1684,7 +1634,7 @@ namespace mpark {
   inline constexpr bool operator<=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::less_equal;
+    using lib::less_equal;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return true;
     if (rhs.valueless_by_exception()) return false;
@@ -1704,7 +1654,7 @@ namespace mpark {
   inline constexpr bool operator>=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using variants::lib::greater_equal;
+    using lib::greater_equal;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return true;
     if (lhs.valueless_by_exception()) return false;
@@ -1723,12 +1673,12 @@ namespace mpark {
 
   template <typename Visitor, typename... Vs>
   inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
-    DECLTYPE_AUTO_RETURN((detail::all(!vs.valueless_by_exception()...)
-                              ? (void)0
-                              : throw_bad_variant_access()),
-                         detail::visitation::variant::visit_value(
-                             variants::lib::forward<Visitor>(visitor),
-                             variants::lib::forward<Vs>(vs)...))
+    DECLTYPE_AUTO_RETURN(
+        (detail::all(!vs.valueless_by_exception()...)
+             ? (void)0
+             : throw_bad_variant_access()),
+        detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
+                                                 lib::forward<Vs>(vs)...))
 
   struct monostate {};
 
@@ -1774,7 +1724,7 @@ namespace mpark {
       constexpr bool meets_requirements() {
         return std::is_copy_constructible<H>::value &&
                std::is_move_constructible<H>::value &&
-               variants::lib::is_invocable_r<std::size_t, H, const K &>::value;
+               lib::is_invocable_r<std::size_t, H, const K &>::value;
       }
 
       template <typename K>
@@ -1806,9 +1756,8 @@ namespace std {
   template <typename... Ts>
   struct hash<mpark::detail::enabled_type<
       mpark::variant<Ts...>,
-      mpark::variants::lib::enable_if_t<
-          mpark::variants::lib::all<mpark::detail::hash::is_enabled<
-              mpark::variants::lib::remove_const_t<Ts>>()...>::value>>> {
+      mpark::lib::enable_if_t<mpark::lib::all<mpark::detail::hash::is_enabled<
+          mpark::lib::remove_const_t<Ts>>()...>::value>>> {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
@@ -1820,9 +1769,8 @@ namespace std {
               : variant::visit_alt(
 #ifdef MPARK_GENERIC_LAMBDAS
                     [](const auto &alt) {
-                      using alt_type =
-                          mpark::variants::lib::decay_t<decltype(alt)>;
-                      using value_type = mpark::variants::lib::remove_const_t<
+                      using alt_type = mpark::lib::decay_t<decltype(alt)>;
+                      using value_type = mpark::lib::remove_const_t<
                           typename alt_type::value_type>;
                       return hash<value_type>{}(alt.value);
                     }
@@ -1839,9 +1787,9 @@ namespace std {
     struct hasher {
       template <typename Alt>
       inline std::size_t operator()(const Alt &alt) const {
-        using alt_type = mpark::variants::lib::decay_t<Alt>;
+        using alt_type = mpark::lib::decay_t<Alt>;
         using value_type =
-            mpark::variants::lib::remove_const_t<typename alt_type::value_type>;
+            mpark::lib::remove_const_t<typename alt_type::value_type>;
         return hash<value_type>{}(alt.value);
       }
     };

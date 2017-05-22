@@ -6,8 +6,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MPARK_VARIANTS_CONFIG_HPP
-#define MPARK_VARIANTS_CONFIG_HPP
+#ifndef MPARK_CONFIG_HPP
+#define MPARK_CONFIG_HPP
 
 // MSVC 2015 Update 3.
 #if __cplusplus < 201103L && (!defined(_MSC_VER) || _MSC_FULL_VER < 190024215)
@@ -58,4 +58,4 @@
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
-#endif  // MPARK_VARIANTS_CONFIG_HPP
+#endif  // MPARK_CONFIG_HPP

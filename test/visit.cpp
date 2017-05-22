@@ -14,7 +14,7 @@
 
 #include <gtest/gtest.h>
 
-namespace lib = mpark::variants::lib;
+namespace lib = mpark::lib;
 
 enum Qual { LRef, ConstLRef, RRef, ConstRRef };
 
