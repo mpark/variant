@@ -29,18 +29,6 @@ TEST(Access_Get, MutVarMutType) {
   EXPECT_EQ(RRef, get_qual(mpark::get<int>(lib::move(v))));
 }
 
-#if 0
-TEST(Access_Get, MutVarMutTypeRef) {
-  int expected = 42;
-  mpark::variant<int &> v(expected);
-  EXPECT_EQ(expected, mpark::get<int &>(v));
-  EXPECT_EQ(&expected, &mpark::get<int &>(v));
-  // Check qualifier.
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(v)));
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(lib::move(v))));
-}
-#endif
-
 TEST(Access_Get, MutVarConstType) {
   mpark::variant<const int> v(42);
   EXPECT_EQ(42, mpark::get<const int>(v));
@@ -48,18 +36,6 @@ TEST(Access_Get, MutVarConstType) {
   EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int>(v)));
   EXPECT_EQ(ConstRRef, get_qual(mpark::get<const int>(lib::move(v))));
 }
-
-#if 0
-TEST(Access_Get, MutVarConstTypeRef) {
-  int expected = 42;
-  mpark::variant<const int &> v(expected);
-  EXPECT_EQ(expected, mpark::get<const int &>(v));
-  EXPECT_EQ(&expected, &mpark::get<const int &>(v));
-  // Check qualifier.
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(v)));
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(lib::move(v))));
-}
-#endif
 
 TEST(Access_Get, ConstVarMutType) {
   const mpark::variant<int> v(42);
@@ -77,18 +53,6 @@ TEST(Access_Get, ConstVarMutType) {
   }
 }
 
-#if 0
-TEST(Access_Get, ConstVarMutTypeRef) {
-  int expected = 42;
-  const mpark::variant<int &> v(expected);
-  EXPECT_EQ(expected, mpark::get<int &>(v));
-  EXPECT_EQ(&expected, &mpark::get<int &>(v));
-  // Check qualifier.
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(v)));
-  EXPECT_EQ(LRef, get_qual(mpark::get<int &>(lib::move(v))));
-}
-#endif
-
 TEST(Access_Get, ConstVarConstType) {
   const mpark::variant<const int> v(42);
   EXPECT_EQ(42, mpark::get<const int>(v));
@@ -105,28 +69,6 @@ TEST(Access_Get, ConstVarConstType) {
                   "");
   }
 }
-
-#if 0
-TEST(Access_Get, ConstVarConstTypeRef) {
-  int expected = 42;
-  const mpark::variant<const int &> v(expected);
-  EXPECT_EQ(expected, mpark::get<const int &>(v));
-  EXPECT_EQ(&expected, &mpark::get<const int &>(v));
-  // Check qualifier.
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(v)));
-  EXPECT_EQ(ConstLRef, get_qual(mpark::get<const int &>(lib::move(v))));
-
-  /* constexpr */ {
-    static constexpr int expected = 42;
-    constexpr mpark::variant<const int &> cv(expected);
-    static_assert(42 == mpark::get<const int &>(cv), "");
-    // Check qualifier.
-    static_assert(ConstLRef == get_qual(mpark::get<const int &>(cv)), "");
-    static_assert(ConstLRef == get_qual(mpark::get<const int &>(lib::move(cv))),
-                  "");
-  }
-}
-#endif
 
 TEST(Access_Get, ValuelessByException) {
   struct move_thrower_t {

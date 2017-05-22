@@ -26,34 +26,12 @@ TEST(Access_GetIf, MutVarMutType) {
   EXPECT_EQ(Ptr, get_qual(mpark::get_if<int>(&v)));
 }
 
-#if 0
-TEST(Access_GetIf, MutVarMutTypeRef) {
-  int expected = 42;
-  mpark::variant<int &> v(expected);
-  EXPECT_EQ(expected, *mpark::get_if<int &>(&v));
-  EXPECT_EQ(&expected, mpark::get_if<int &>(&v));
-  // Check qualifier.
-  EXPECT_EQ(Ptr, get_qual(mpark::get_if<int &>(&v)));
-}
-#endif
-
 TEST(Access_GetIf, MutVarConstType) {
   mpark::variant<const int> v(42);
   EXPECT_EQ(42, *mpark::get_if<const int>(&v));
   // Check qualifier.
   EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int>(&v)));
 }
-
-#if 0
-TEST(Access_GetIf, MutVarConstTypeRef) {
-  int expected = 42;
-  mpark::variant<const int &> v(expected);
-  EXPECT_EQ(expected, *mpark::get_if<const int &>(&v));
-  EXPECT_EQ(&expected, mpark::get_if<const int &>(&v));
-  // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int &>(&v)));
-}
-#endif
 
 TEST(Access_GetIf, ConstVarMutType) {
   const mpark::variant<int> v(42);
@@ -69,17 +47,6 @@ TEST(Access_GetIf, ConstVarMutType) {
   }
 }
 
-#if 0
-TEST(Access_GetIf, ConstVarMutTypeRef) {
-  int expected = 42;
-  const mpark::variant<int &> v(expected);
-  EXPECT_EQ(expected, *mpark::get_if<int &>(&v));
-  EXPECT_EQ(&expected, mpark::get_if<int &>(&v));
-  // Check qualifier.
-  EXPECT_EQ(Ptr, get_qual(mpark::get_if<int &>(&v)));
-}
-#endif
-
 TEST(Access_GetIf, ConstVarConstType) {
   const mpark::variant<const int> v(42);
   EXPECT_EQ(42, *mpark::get_if<const int>(&v));
@@ -93,25 +60,6 @@ TEST(Access_GetIf, ConstVarConstType) {
     static_assert(ConstPtr == get_qual(mpark::get_if<const int>(&cv)), "");
   }
 }
-
-#if 0
-TEST(Access_GetIf, ConstVarConstTypeRef) {
-  int expected = 42;
-  const mpark::variant<const int &> v(expected);
-  EXPECT_EQ(expected, *mpark::get_if<const int &>(&v));
-  EXPECT_EQ(&expected, mpark::get_if<const int &>(&v));
-  // Check qualifier.
-  EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int &>(&v)));
-
-  /* constexpr */ {
-    static constexpr int expected = 42;
-    constexpr mpark::variant<const int &> cv(expected);
-    static_assert(42 == *mpark::get_if<const int &>(&cv), "");
-    // Check qualifier.
-    static_assert(ConstPtr == get_qual(mpark::get_if<const int &>(&cv)), "");
-  }
-}
-#endif
 
 TEST(Access_GetIf, MoveValuelessByException) {
   struct move_thrower_t {

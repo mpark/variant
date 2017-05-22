@@ -32,23 +32,6 @@ TEST(Cnstr_Copy, Value) {
   }
 }
 
-#if 0
-TEST(Cnstr_Copy, Ref) {
-  std::string s = "hello";
-  // `v`
-  mpark::variant<int &, std::string &> v(s);
-  EXPECT_EQ("hello", mpark::get<std::string &>(v));
-  EXPECT_EQ(&s, &mpark::get<std::string &>(v));
-  // `w`
-  mpark::variant<int &, std::string &> w(v);
-  EXPECT_EQ("hello", mpark::get<std::string &>(w));
-  EXPECT_EQ(&s, &mpark::get<std::string &>(w));
-  // Check `v`
-  EXPECT_EQ("hello", mpark::get<std::string &>(v));
-  EXPECT_EQ(&s, &mpark::get<std::string &>(v));
-}
-#endif
-
 TEST(Cnstr_Copy, ValuelessByException) {
   struct move_thrower_t {
     constexpr move_thrower_t() {}

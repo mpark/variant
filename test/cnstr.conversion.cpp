@@ -22,22 +22,6 @@ TEST(Cnstr_Conversion, Direct) {
   }
 }
 
-#if 0
-TEST(Cnstr_Conversion, DirectRef) {
-  int expected = 42;
-  mpark::variant<int &, std::string &> v(expected);
-  EXPECT_EQ(expected, mpark::get<int &>(v));
-  EXPECT_EQ(&expected, &mpark::get<int &>(v));
-
-  /* constexpr */ {
-    static constexpr int expected = 42;
-    constexpr mpark::variant<const int &> cv(expected);
-    static_assert(expected == mpark::get<const int &>(cv), "");
-    static_assert(&expected == &mpark::get<const int &>(cv), "");
-  }
-}
-#endif
-
 TEST(Cnstr_Conversion, DirectConversion) {
   mpark::variant<int, std::string> v("42");
   EXPECT_EQ("42", mpark::get<std::string>(v));
@@ -47,14 +31,6 @@ TEST(Cnstr_Conversion, DirectConversion) {
     static_assert(1 == mpark::get<int>(cv), "");
   }
 }
-
-#if 0
-TEST(Cnstr_Conversion, DirectConversionRef) {
-  std::ostringstream strm;
-  mpark::variant<int &, std::ostream &> v(strm);
-  EXPECT_EQ(&strm, &mpark::get<std::ostream &>(v));
-}
-#endif
 
 TEST(Cnstr_Conversion, CopyInitialization) {
   mpark::variant<int, std::string> v = 42;
@@ -66,15 +42,6 @@ TEST(Cnstr_Conversion, CopyInitialization) {
   }
 }
 
-#if 0
-TEST(Cnstr_Conversion, CopyInitializationRef) {
-  std::string expected = "42";
-  mpark::variant<int &, std::string &> v = expected;
-  EXPECT_EQ(expected, mpark::get<std::string &>(v));
-  EXPECT_EQ(&expected, &mpark::get<std::string &>(v));
-}
-#endif
-
 TEST(Cnstr_Conversion, CopyInitializationConversion) {
   mpark::variant<int, std::string> v = "42";
   EXPECT_EQ("42", mpark::get<std::string>(v));
@@ -84,11 +51,3 @@ TEST(Cnstr_Conversion, CopyInitializationConversion) {
     static_assert(1 == mpark::get<int>(cv), "");
   }
 }
-
-#if 0
-TEST(Cnstr_Conversion, CopyInitializationConversionRef) {
-  std::ostringstream strm;
-  mpark::variant<int &, std::ostream &> v = strm;
-  EXPECT_EQ(&strm, &mpark::get<std::ostream &>(v));
-}
-#endif
