@@ -12,7 +12,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(Cnstr_Conversion, Direct) {
+TEST(Ctor_Fwd, Direct) {
   mpark::variant<int, std::string> v(42);
   EXPECT_EQ(42, mpark::get<int>(v));
 
@@ -22,7 +22,7 @@ TEST(Cnstr_Conversion, Direct) {
   }
 }
 
-TEST(Cnstr_Conversion, DirectConversion) {
+TEST(Ctor_Fwd, DirectConversion) {
   mpark::variant<int, std::string> v("42");
   EXPECT_EQ("42", mpark::get<std::string>(v));
 
@@ -32,7 +32,7 @@ TEST(Cnstr_Conversion, DirectConversion) {
   }
 }
 
-TEST(Cnstr_Conversion, CopyInitialization) {
+TEST(Ctor_Fwd, CopyInitialization) {
   mpark::variant<int, std::string> v = 42;
   EXPECT_EQ(42, mpark::get<int>(v));
 
@@ -42,7 +42,7 @@ TEST(Cnstr_Conversion, CopyInitialization) {
   }
 }
 
-TEST(Cnstr_Conversion, CopyInitializationConversion) {
+TEST(Ctor_Fwd, CopyInitializationConversion) {
   mpark::variant<int, std::string> v = "42";
   EXPECT_EQ("42", mpark::get<std::string>(v));
 

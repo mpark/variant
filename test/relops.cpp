@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "util.hpp"
+
 TEST(Rel, SameTypeSameValue) {
   mpark::variant<int, std::string> v(0), w(0);
   // `v` op `w`
@@ -154,38 +156,11 @@ TEST(Rel, DiffTypeDiffValue) {
   }
 }
 
-struct move_thrower_t {
-  constexpr move_thrower_t() {}
-  move_thrower_t(const move_thrower_t &) = default;
-  [[noreturn]] move_thrower_t(move_thrower_t &&) {
-    throw std::runtime_error("");
-  }
-  move_thrower_t &operator=(const move_thrower_t &) = default;
-  move_thrower_t &operator=(move_thrower_t &&) = default;
-  friend bool operator<(const move_thrower_t &, const move_thrower_t &) {
-    return false;
-  }
-  friend bool operator>(const move_thrower_t &, const move_thrower_t &) {
-    return false;
-  }
-  friend bool operator<=(const move_thrower_t &, const move_thrower_t &) {
-    return true;
-  }
-  friend bool operator>=(const move_thrower_t &, const move_thrower_t &) {
-    return true;
-  }
-  friend bool operator==(const move_thrower_t &, const move_thrower_t &) {
-    return true;
-  }
-  friend bool operator!=(const move_thrower_t &, const move_thrower_t &) {
-    return false;
-  }
-};  // move_thrower_t
-
+#ifdef MPARK_EXCEPTIONS
 TEST(Rel, OneValuelessByException) {
   // `v` normal, `w` corrupted.
   mpark::variant<int, move_thrower_t> v(42), w(42);
-  EXPECT_THROW(w = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(w = move_thrower_t{}, MoveConstruction);
   EXPECT_FALSE(v.valueless_by_exception());
   EXPECT_TRUE(w.valueless_by_exception());
   // `v` op `w`
@@ -200,7 +175,7 @@ TEST(Rel, OneValuelessByException) {
 TEST(Rel, BothValuelessByException) {
   // `v`, `w` both corrupted.
   mpark::variant<int, move_thrower_t> v(42);
-  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(v = move_thrower_t{}, MoveConstruction);
   mpark::variant<int, move_thrower_t> w(v);
   EXPECT_TRUE(v.valueless_by_exception());
   EXPECT_TRUE(w.valueless_by_exception());
@@ -212,3 +187,4 @@ TEST(Rel, BothValuelessByException) {
   EXPECT_TRUE(v <= w);
   EXPECT_TRUE(v >= w);
 }
+#endif

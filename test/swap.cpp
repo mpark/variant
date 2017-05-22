@@ -12,6 +12,8 @@
 
 #include <gtest/gtest.h>
 
+#include "util.hpp"
+
 TEST(Swap, Same) {
   mpark::variant<int, std::string> v("hello");
   mpark::variant<int, std::string> w("world");
@@ -44,20 +46,11 @@ TEST(Swap, Different) {
   EXPECT_EQ(42, mpark::get<int>(w));
 }
 
-struct move_thrower_t {
-  constexpr move_thrower_t() {}
-  move_thrower_t(const move_thrower_t &) = default;
-  [[noreturn]] move_thrower_t(move_thrower_t &&) {
-    throw std::runtime_error("");
-  }
-  move_thrower_t &operator=(const move_thrower_t &) = default;
-  move_thrower_t &operator=(move_thrower_t &&) = default;
-};  // move_thrower_t
-
+#ifdef MPARK_EXCEPTIONS
 TEST(Swap, OneValuelessByException) {
   // `v` normal, `w` corrupted.
   mpark::variant<int, move_thrower_t> v(42), w(42);
-  EXPECT_THROW(w = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(w = move_thrower_t{}, MoveConstruction);
   EXPECT_EQ(42, mpark::get<int>(v));
   EXPECT_TRUE(w.valueless_by_exception());
   // Swap.
@@ -71,7 +64,7 @@ TEST(Swap, OneValuelessByException) {
 TEST(Swap, BothValuelessByException) {
   // `v`, `w` both corrupted.
   mpark::variant<int, move_thrower_t> v(42);
-  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(v = move_thrower_t{}, MoveConstruction);
   mpark::variant<int, move_thrower_t> w(v);
   EXPECT_TRUE(v.valueless_by_exception());
   EXPECT_TRUE(w.valueless_by_exception());
@@ -82,6 +75,7 @@ TEST(Swap, BothValuelessByException) {
   EXPECT_TRUE(v.valueless_by_exception());
   EXPECT_TRUE(w.valueless_by_exception());
 }
+#endif
 
 TEST(Swap, DtorsSame) {
   struct Obj {

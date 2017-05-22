@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "util.hpp"
+
 TEST(Assign_Copy, SameType) {
   struct Obj {
     constexpr Obj() {}
@@ -34,22 +36,17 @@ TEST(Assign_Copy, DiffType) {
   };
   // `v`, `w`.
   mpark::variant<Obj, int> v(42), w;
-  // move assignment.
+  // copy assignment.
   v = w;
 }
 
+#ifdef MPARK_EXCEPTIONS
 TEST(Assign_Copy, ValuelessByException) {
-  struct move_thrower_t {
-    constexpr move_thrower_t() {}
-    move_thrower_t(const move_thrower_t &) = default;
-    move_thrower_t(move_thrower_t &&) { throw std::runtime_error(""); }
-    move_thrower_t &operator=(const move_thrower_t &) = default;
-    move_thrower_t &operator=(move_thrower_t &&) = default;
-  };  // move_thrower_t
   mpark::variant<int, move_thrower_t> v(42);
-  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(v = move_thrower_t{}, MoveConstruction);
   EXPECT_TRUE(v.valueless_by_exception());
   mpark::variant<int, move_thrower_t> w(42);
   w = v;
   EXPECT_TRUE(w.valueless_by_exception());
 }
+#endif

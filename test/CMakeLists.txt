@@ -29,31 +29,30 @@ endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
-  function(add_gtest name)
-    add_executable(${name} ${name}.cpp)
-    set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
-    target_link_libraries(${name} gtest_main mpark_variant)
-    add_test(${name} ${name} --gtest_color=yes)
-  endfunction(add_gtest)
+  set(MPARK_TESTS
+    assign.copy
+    assign.fwd
+    assign.move
+    ctor.copy
+    ctor.default
+    ctor.fwd
+    ctor.in_place
+    ctor.move
+    dtor
+    get
+    hash
+    intro
+    mod
+    relops
+    swap
+    visit)
 
-  add_gtest(access.get)
-  add_gtest(access.get_if)
-  add_gtest(access.holds_alternative)
-  add_gtest(assign.copy)
-  add_gtest(assign.conversion)
-  add_gtest(assign.emplace)
-  add_gtest(assign.move)
-  add_gtest(cnstr.copy)
-  add_gtest(cnstr.conversion)
-  add_gtest(cnstr.default)
-  add_gtest(cnstr.in_place)
-  add_gtest(cnstr.move)
-  add_gtest(dtor)
-  add_gtest(hash)
-  add_gtest(intro)
-  add_gtest(rel)
-  add_gtest(swap)
-  add_gtest(visit)
+  foreach(test ${MPARK_TESTS})
+    add_executable(${test} ${test}.cpp)
+    set_target_properties(${test} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
+    target_link_libraries(${test} gtest_main mpark_variant)
+    add_test(${test} ${test} --gtest_color=yes)
+  endforeach()
 
 endif()
 

@@ -12,7 +12,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(Cnstr_InPlace, IndexDirect) {
+TEST(Ctor_InPlace, IndexDirect) {
   mpark::variant<int, std::string> v(mpark::in_place_index_t<0>{}, 42);
   EXPECT_EQ(42, mpark::get<0>(v));
 
@@ -23,7 +23,7 @@ TEST(Cnstr_InPlace, IndexDirect) {
   }
 }
 
-TEST(Cnstr_InPlace, IndexDirectDuplicate) {
+TEST(Ctor_InPlace, IndexDirectDuplicate) {
   mpark::variant<int, int> v(mpark::in_place_index_t<0>{}, 42);
   EXPECT_EQ(42, mpark::get<0>(v));
 
@@ -33,7 +33,7 @@ TEST(Cnstr_InPlace, IndexDirectDuplicate) {
   }
 }
 
-TEST(Cnstr_InPlace, IndexConversion) {
+TEST(Ctor_InPlace, IndexConversion) {
   mpark::variant<int, std::string> v(mpark::in_place_index_t<1>{}, "42");
   EXPECT_EQ("42", mpark::get<1>(v));
 
@@ -44,12 +44,12 @@ TEST(Cnstr_InPlace, IndexConversion) {
   }
 }
 
-TEST(Cnstr_InPlace, IndexInitializerList) {
+TEST(Ctor_InPlace, IndexInitializerList) {
   mpark::variant<int, std::string> v(mpark::in_place_index_t<1>{}, {'4', '2'});
   EXPECT_EQ("42", mpark::get<1>(v));
 }
 
-TEST(Cnstr_InPlace, TypeDirect) {
+TEST(Ctor_InPlace, TypeDirect) {
   mpark::variant<int, std::string> v(mpark::in_place_type_t<std::string>{},
                                      "42");
   EXPECT_EQ("42", mpark::get<std::string>(v));
@@ -61,7 +61,7 @@ TEST(Cnstr_InPlace, TypeDirect) {
   }
 }
 
-TEST(Cnstr_InPlace, TypeConversion) {
+TEST(Ctor_InPlace, TypeConversion) {
   mpark::variant<int, std::string> v(mpark::in_place_type_t<int>{}, 42.5);
   EXPECT_EQ(42, mpark::get<int>(v));
 
@@ -72,7 +72,7 @@ TEST(Cnstr_InPlace, TypeConversion) {
   }
 }
 
-TEST(Cnstr_InPlace, TypeInitializerList) {
+TEST(Ctor_InPlace, TypeInitializerList) {
   mpark::variant<int, std::string> v(mpark::in_place_type_t<std::string>{},
                                      {'4', '2'});
   EXPECT_EQ("42", mpark::get<std::string>(v));

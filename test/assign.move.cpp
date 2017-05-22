@@ -10,6 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "util.hpp"
+
 namespace lib = mpark::variants::lib;
 
 TEST(Assign_Move, SameType) {
@@ -40,20 +42,13 @@ TEST(Assign_Move, DiffType) {
   v = lib::move(w);
 }
 
-TEST(Assign_Copy, ValuelessByException) {
-  struct move_thrower_t {
-    constexpr move_thrower_t() {}
-    move_thrower_t(const move_thrower_t &) = default;
-    [[noreturn]] move_thrower_t(move_thrower_t &&) {
-      throw std::runtime_error("");
-    }
-    move_thrower_t &operator=(const move_thrower_t &) = default;
-    move_thrower_t &operator=(move_thrower_t &&) = default;
-  };  // move_thrower_t
+#ifdef MPARK_EXCEPTIONS
+TEST(Assign_Move, ValuelessByException) {
   mpark::variant<int, move_thrower_t> v(42);
-  EXPECT_THROW(v = move_thrower_t{}, std::runtime_error);
+  EXPECT_THROW(v = move_thrower_t{}, MoveConstruction);
   EXPECT_TRUE(v.valueless_by_exception());
   mpark::variant<int, move_thrower_t> w(42);
   w = lib::move(v);
   EXPECT_TRUE(w.valueless_by_exception());
 }
+#endif

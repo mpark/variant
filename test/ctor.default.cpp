@@ -12,7 +12,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(Cnstr_Default, Variant) {
+TEST(Ctor_Default, Variant) {
   mpark::variant<int, std::string> v;
   EXPECT_EQ(0, mpark::get<0>(v));
 

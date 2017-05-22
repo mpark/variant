@@ -21,7 +21,9 @@ TEST(Variant, Intro) {
   EXPECT_EQ("hello world!", mpark::get<std::string>(v));
 
   // bad access.
+#ifdef MPARK_EXCEPTIONS
   EXPECT_THROW(mpark::get<int>(v), mpark::bad_variant_access);
+#endif
 
   // copy construction.
   mpark::variant<int, std::string> w(v);
