@@ -19,7 +19,7 @@
 [stability]: http://github.com/badges/stability-badges
 [travis]: https://travis-ci.org/mpark/variant
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
-[license]: https://github.com/mpark/variant/blob/master/LICENSE_1_0.txt
+[license]: https://github.com/mpark/variant/blob/master/LICENSE.md
 [gitter]: https://gitter.im/mpark/variant
 [wandbox]: https://wandbox.org/permlink/cWs9KZgG1aTnJqQP
 
