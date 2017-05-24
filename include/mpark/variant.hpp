@@ -195,11 +195,7 @@ namespace std {
 */
 
 #include <cstddef>
-#ifdef MPARK_EXCEPTIONS
 #include <exception>
-#else
-#include <cstdlib>
-#endif
 #include <functional>
 #include <initializer_list>
 #include <new>
@@ -251,7 +247,7 @@ namespace mpark {
 #ifdef MPARK_EXCEPTIONS
     throw bad_variant_access{};
 #else
-    std::abort();
+    std::terminate();
 #endif
   }
 
