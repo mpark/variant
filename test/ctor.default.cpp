@@ -16,7 +16,7 @@ TEST(Ctor_Default, Variant) {
   EXPECT_EQ(0, mpark::get<0>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int> cv;
+    constexpr mpark::variant<int> cv{};
     static_assert(0 == mpark::get<0>(cv), "");
   }
 }

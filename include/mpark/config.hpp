@@ -21,7 +21,8 @@
 #define __has_feature(x) 0
 #endif
 
-#if __has_builtin(__builtin_addressof) || __GNUC__ >= 7 || defined(_MSC_VER)
+#if __has_builtin(__builtin_addressof) || \
+    (defined(__GNUC__) && __GNUC__ >= 7) || defined(_MSC_VER)
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
 
@@ -55,6 +56,11 @@
 
 #if defined(__cpp_variable_templates) || defined(_MSC_VER)
 #define MPARK_VARIABLE_TEMPLATES
+#endif
+
+#if !defined(__GLIBCXX__) || \
+    (defined(__has_include) && __has_include(<codecvt>))  // >= libstdc++-5
+#define MPARK_TRIVIALITY_TYPE_TRAITS
 #endif
 
 #endif  // MPARK_CONFIG_HPP

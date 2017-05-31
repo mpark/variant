@@ -410,6 +410,38 @@ namespace mpark {
     using type_pack_element_t = typename type_pack_element<I, Ts...>::type;
 #endif
 
+#ifdef MPARK_TRIVIALITY_TYPE_TRAITS
+    template <typename T>
+    using is_trivially_copy_constructible =
+        std::is_trivially_copy_constructible<T>;
+
+    template <typename T>
+    using is_trivially_move_constructible =
+        std::is_trivially_move_constructible<T>;
+
+    template <typename T>
+    using is_trivially_copy_assignable = std::is_trivially_copy_assignable<T>;
+
+    template <typename T>
+    using is_trivially_move_assignable = std::is_trivially_move_assignable<T>;
+#else
+    template <typename T>
+    struct is_trivially_copy_constructible
+        : bool_constant<
+              std::is_copy_constructible<T>::value && __has_trivial_copy(T)> {};
+
+    template <typename T>
+    struct is_trivially_move_constructible : bool_constant<__is_trivial(T)> {};
+
+    template <typename T>
+    struct is_trivially_copy_assignable
+        : bool_constant<
+              std::is_copy_assignable<T>::value && __has_trivial_assign(T)> {};
+
+    template <typename T>
+    struct is_trivially_move_assignable : bool_constant<__is_trivial(T)> {};
+#endif
+
   }  // namespace lib
 }  // namespace mpark
 
