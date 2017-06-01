@@ -14,9 +14,9 @@ import sys
 
 processed = []
 
-def process(abspath):
+def process(header):
   result = ''
-  with open(abspath, 'r') as f:
+  with open(header, 'r') as f:
     for line in f:
       p = re.compile('^#include "(.+)"')
       m = p.match(line)
@@ -24,11 +24,11 @@ def process(abspath):
         result += line
       else:
         g = m.group(1)
-        if g not in processed:
-          dirname = os.path.dirname(abspath)
-          result += process(os.path.join(dirname, g))
+        include = os.path.join(os.path.dirname(header), g)
+        if include not in processed:
+          result += process(include)
           result += '\n'
-          processed.append(g)
+          processed.append(include)
   return result
 
 root = subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).strip()
