@@ -481,7 +481,7 @@ namespace mpark {
         template <std::size_t I, typename V>
         inline static constexpr AUTO_REFREF get_alt(V &&v)
           AUTO_REFREF_RETURN(recursive_union::get_alt(
-              lib::forward<V>(v).data_, in_place_index_t<I>{}))
+              data(lib::forward<V>(v)), in_place_index_t<I>{}))
       };
 
       struct variant {
@@ -799,14 +799,21 @@ namespace mpark {
       }
 
       protected:
+      using data_t = recursive_union<DestructibleTrait, 0, Ts...>;
+
       friend inline constexpr base &as_base(base &b) { return b; }
       friend inline constexpr const base &as_base(const base &b) { return b; }
       friend inline constexpr base &&as_base(base &&b) { return lib::move(b); }
       friend inline constexpr const base &&as_base(const base &&b) { return lib::move(b); }
 
+      friend inline constexpr data_t &data(base &b) { return b.data_; }
+      friend inline constexpr const data_t &data(const base &b) { return b.data_; }
+      friend inline constexpr data_t &&data(base &&b) { return lib::move(b).data_; }
+      friend inline constexpr const data_t &&data(const base &&b) { return lib::move(b).data_; }
+
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
-      recursive_union<DestructibleTrait, 0, Ts...> data_;
+      data_t data_;
       index_t index_;
 
       friend struct access::base;
