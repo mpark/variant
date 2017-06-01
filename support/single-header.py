@@ -14,10 +14,10 @@ import sys
 
 processed = []
 
-def process(f):
+def process(abspath):
   result = ''
-  with open(f, 'r') as variant:
-    for line in variant:
+  with open(abspath, 'r') as f:
+    for line in f:
       p = re.compile('^#include "(.+)"')
       m = p.match(line)
       if m is None:
@@ -25,13 +25,13 @@ def process(f):
       else:
         g = m.group(1)
         if g not in processed:
-          result += process(os.path.join(include, g))
+          dirname = os.path.dirname(abspath)
+          result += process(os.path.join(dirname, g))
           result += '\n'
           processed.append(g)
   return result
 
 root = subprocess.check_output(['git', 'rev-parse', '--show-toplevel']).strip()
-include = os.path.join(root, 'include', 'mpark')
-result = process(os.path.join(include, 'variant.hpp'))
+result = process(os.path.join(root, 'include/mpark/variant.hpp'))
 
 sys.stdout.write(result)
