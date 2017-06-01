@@ -66,7 +66,7 @@ namespace mpark {
       }
 
       template <typename T>
-      constexpr remove_reference_t<T> &&move(T &&t) noexcept {
+      inline constexpr remove_reference_t<T> &&move(T &&t) noexcept {
         return static_cast<remove_reference_t<T> &&>(t);
       }
 
