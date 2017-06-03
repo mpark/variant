@@ -109,7 +109,7 @@ TEST(GetIf, ConstVarMutType) {
   EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<int>(&v)));
 
   /* constexpr */ {
-    constexpr mpark::variant<int> cv(42);
+    static constexpr mpark::variant<int> cv(42);
     static_assert(42 == *mpark::get_if<int>(&cv), "");
     // Check qualifier.
     static_assert(ConstPtr == get_qual(mpark::get_if<int>(&cv)), "");
@@ -123,7 +123,7 @@ TEST(GetIf, ConstVarConstType) {
   EXPECT_EQ(ConstPtr, get_qual(mpark::get_if<const int>(&v)));
 
   /* constexpr */ {
-    constexpr mpark::variant<const int> cv(42);
+    static constexpr mpark::variant<const int> cv(42);
     static_assert(42 == *mpark::get_if<const int>(&cv), "");
     // Check qualifier.
     static_assert(ConstPtr == get_qual(mpark::get_if<const int>(&cv)), "");
