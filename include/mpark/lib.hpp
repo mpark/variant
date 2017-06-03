@@ -190,7 +190,10 @@ namespace mpark {
       using bool_constant = std::integral_constant<bool, B>;
 
       template <typename...>
-      using void_t = void;
+      struct voider : identity<void> {};
+
+      template <typename... Ts>
+      using void_t = typename voider<Ts...>::type;
 
       namespace detail {
         namespace swappable {
