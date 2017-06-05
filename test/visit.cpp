@@ -48,6 +48,7 @@ TEST(Visit, ConstVarMutType) {
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<int> cv(42);
     static_assert(42 == mpark::get<int>(cv), "");
@@ -55,6 +56,7 @@ TEST(Visit, ConstVarMutType) {
     static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
     static_assert(ConstRRef == mpark::visit(get_qual(), lib::move(cv)), "");
   }
+#endif
 }
 
 TEST(Visit, ConstVarConstType) {
@@ -64,6 +66,7 @@ TEST(Visit, ConstVarConstType) {
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<const int> cv(42);
     static_assert(42 == mpark::get<const int>(cv), "");
@@ -71,6 +74,7 @@ TEST(Visit, ConstVarConstType) {
     static_assert(ConstLRef == mpark::visit(get_qual(), cv), "");
     static_assert(ConstRRef == mpark::visit(get_qual(), lib::move(cv)), "");
   }
+#endif
 }
 
 struct concat {
@@ -88,6 +92,7 @@ TEST(Visit_Homogeneous, Double) {
   mpark::variant<int, std::string> v("hello"), w("world!");
   EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<int, double> cv(101), cw(202), cx(3.3);
     struct add_ints {
@@ -101,6 +106,7 @@ TEST(Visit_Homogeneous, Double) {
     static_assert(101 == mpark::visit(add_ints{}, cx, cv), "");
     static_assert(0 == mpark::visit(add_ints{}, cx, cx), "");
   }
+#endif
 }
 
 TEST(Visit_Homogeneous, Quintuple) {

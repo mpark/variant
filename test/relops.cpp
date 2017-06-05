@@ -28,6 +28,7 @@ TEST(Rel, SameTypeSameValue) {
   EXPECT_TRUE(w <= v);
   EXPECT_TRUE(w >= v);
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(0), cw(0);
     // `cv` op `cw`
@@ -45,6 +46,7 @@ TEST(Rel, SameTypeSameValue) {
     static_assert(cw <= cv, "");
     static_assert(cw >= cv, "");
   }
+#endif
 }
 
 TEST(Rel, SameTypeDiffValue) {
@@ -64,6 +66,7 @@ TEST(Rel, SameTypeDiffValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(0), cw(1);
     // `cv` op `cw`
@@ -81,6 +84,7 @@ TEST(Rel, SameTypeDiffValue) {
     static_assert(!(cw <= cv), "");
     static_assert(cw >= cv, "");
   }
+#endif
 }
 
 TEST(Rel, DiffTypeSameValue) {
@@ -100,6 +104,7 @@ TEST(Rel, DiffTypeSameValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */ {
     constexpr mpark::variant<int, unsigned int> cv(0), cw(0u);
     // `cv` op `cw`
@@ -117,6 +122,7 @@ TEST(Rel, DiffTypeSameValue) {
     static_assert(!(cw <= cv), "");
     static_assert(cw >= cv, "");
   }
+#endif
 }
 
 TEST(Rel, DiffTypeDiffValue) {
@@ -136,6 +142,7 @@ TEST(Rel, DiffTypeDiffValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
+#if !defined(__GNUC__) || __GNUC__ >= 5
   /* constexpr */  {
     constexpr mpark::variant<int, unsigned int> cv(0), cw(1u);
     // `cv` op `cw`
@@ -153,6 +160,7 @@ TEST(Rel, DiffTypeDiffValue) {
     static_assert(!(cw <= cv), "");
     static_assert(cw >= cv, "");
   }
+#endif
 }
 
 #ifdef MPARK_EXCEPTIONS
