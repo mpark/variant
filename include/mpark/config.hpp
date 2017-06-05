@@ -58,8 +58,9 @@
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
-#if !defined(__GLIBCXX__) || \
-    (defined(__has_include) && __has_include(<codecvt>))  // >= libstdc++-5
+#if !defined(__GLIBCXX__)
+#define MPARK_TRIVIALITY_TYPE_TRAITS
+#elif defined(__has_include) && __has_include(<codecvt>)  // >= libstdc++-5
 #define MPARK_TRIVIALITY_TYPE_TRAITS
 #endif
 
