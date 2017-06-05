@@ -51,6 +51,7 @@ The following compilers are continously tested:
 
 | Compiler                               | Operating System                            | Version String                                                                          |
 |----------------------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------|
+| GCC 4.9.4                              | Ubuntu 14.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4                                           |
 | GCC 5.4.1                              | Ubuntu 14.04.5 LTS                          | g++-5 (Ubuntu 5.4.1-2ubuntu1~14.04) 5.4.1 20160904                                      |
 | GCC 6.2.0                              | Ubuntu 14.04.5 LTS                          | g++-6 (Ubuntu 6.2.0-3ubuntu11~14.04) 6.2.0 20160901                                     |
 | Clang 3.5.2                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.5.2-svn232544-1~exp1 (branches/release_35) (based on LLVM 3.5.2) |
