@@ -21,7 +21,7 @@
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
 [gitter]: https://gitter.im/mpark/variant
-[wandbox]: https://wandbox.org/permlink/cWs9KZgG1aTnJqQP
+[wandbox]: https://wandbox.org/permlink/7voZB4vKQnYiXMwV
 
 ## Introduction
 
