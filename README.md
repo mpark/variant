@@ -40,9 +40,10 @@ components of __MPark.Variant__.
 
   -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING` (__default__: `""`)
 
-      Semicolon-separated list of tests to build. Possible values are `mpark` and `libc++`.
+     Semicolon-separated list of tests to build.
+     Possible values are `mpark`, and `libc++`.
 
-      __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
+     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
 
 ## Requirements
 

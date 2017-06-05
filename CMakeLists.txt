@@ -10,10 +10,9 @@ cmake_minimum_required(VERSION 3.6.3)
 project(MPark.Variant VERSION 1.1.0 LANGUAGES CXX)
 
 # Option.
-set(MPARK_VARIANT_INCLUDE_TESTS
-    "" CACHE STRING
+set(MPARK_VARIANT_INCLUDE_TESTS "" CACHE STRING
     "Semicolon-separated list of tests to build. \
-     Possible values are `mpark` and `libc++`.")
+     Possible values are `mpark`, and `libc++`.")
 
 # Target.
 add_library(mpark_variant INTERFACE)
@@ -74,7 +73,7 @@ list(LENGTH MPARK_VARIANT_INCLUDE_TESTS MPARK_VARIANT_LENGTH)
 if(MPARK_VARIANT_LENGTH GREATER 0)
   message(FATAL_ERROR
     "The following values in `MPARK_VARIANT_INCLUDE_TESTS` are not one of "
-    "the possible values, `mpark` and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
+    "the possible values, `mpark`, and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
 endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
