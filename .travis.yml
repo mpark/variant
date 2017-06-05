@@ -5,6 +5,68 @@ git:
 
 matrix:
   include:
+    # ubuntu 14.04, gcc-4.9, c++11, debug, exceptions
+    - env: VER=4.9 STD=11 BUILD=Debug EX=ON TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &gcc49
+        apt:
+          packages:
+            - g++-4.9
+          sources:
+            - ubuntu-toolchain-r-test
+    # ubuntu 14.04, gcc-4.9, c++11, debug, no exceptions
+    - env: VER=4.9 STD=11 BUILD=Debug EX=OFF TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++11, release, exceptions
+    - env: VER=4.9 STD=11 BUILD=Release EX=ON TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++11, release, no-exceptions
+    - env: VER=4.9 STD=11 BUILD=Release EX=OFF TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++14, debug, exceptions
+    - env: VER=4.9 STD=14 BUILD=Debug EX=ON TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++14, debug, no-exceptions
+    - env: VER=4.9 STD=14 BUILD=Debug EX=OFF TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++14, release, exceptions
+    - env: VER=4.9 STD=14 BUILD=Release EX=ON TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+    # ubuntu 14.04, gcc-4.9, c++14, release, no-exceptions
+    - env: VER=4.9 STD=14 BUILD=Release EX=OFF TEST="mpark"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *gcc49
+
     # ubuntu 14.04, gcc-5, c++11, debug, exceptions
     - env: VER=5 STD=11 BUILD=Debug EX=ON
       compiler: gcc
@@ -567,6 +629,9 @@ before_install:
       export CC="${CC}-${VER}";
       export CXX="${CXX}-${VER}";
     fi
+  - if [ -z "${TEST}" ]; then
+      export TEST="mpark;libc++";
+    fi
   - ${CXX} --version
 
 install:
@@ -575,7 +640,7 @@ install:
   - cmake -DCMAKE_BUILD_TYPE=${BUILD}
           -DMPARK_VARIANT_CXX_STANDARD=${STD}
           -DMPARK_VARIANT_EXCEPTIONS=${EX}
-          -DMPARK_VARIANT_INCLUDE_TESTS="mpark;libc++" ..
+          -DMPARK_VARIANT_INCLUDE_TESTS=${TEST} ..
   - cmake --build .
 
 script:
