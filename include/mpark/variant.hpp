@@ -516,9 +516,10 @@ namespace mpark {
         }
 
         template <typename... Fs>
-        inline static constexpr lib::
-            array<lib::common_type_t<lib::decay_t<Fs>...>, sizeof...(Fs)>
-            make_farray(Fs &&... fs) {
+        inline static constexpr lib::array<
+            lib::common_type_t<lib::decay_t<Fs>...>,
+            sizeof...(Fs)>
+        make_farray(Fs &&... fs) {
           using result = lib::array<lib::common_type_t<lib::decay_t<Fs>...>,
                                     sizeof...(Fs)>;
           return visit_visitor_return_type_check<lib::decay_t<Fs>...>(),

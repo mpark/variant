@@ -55,7 +55,8 @@ TEST(Assign_Fwd, BetterMatch) {
   EXPECT_EQ(static_cast<int>('x'), mpark::get<int>(v));
 }
 
-TEST(Assign_Fwd, NoMatch) { struct x { };
+TEST(Assign_Fwd, NoMatch) {
+  struct x {};
   static_assert(!std::is_assignable<mpark::variant<int, std::string>, x>{},
                 "variant<int, std::string> v; v = x;");
 }
