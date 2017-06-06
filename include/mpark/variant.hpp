@@ -426,7 +426,6 @@ namespace mpark {
 
       static constexpr Trait copy_assignable_trait =
           common_trait(copy_constructible_trait,
-                       move_constructible_trait,
                        trait<Ts,
                              lib::is_trivially_copy_assignable,
                              std::is_copy_assignable>()...);
@@ -1037,18 +1036,14 @@ namespace mpark {
       struct assigner {
         template <typename ThisAlt, typename ThatAlt>
         inline void operator()(ThisAlt &this_alt, ThatAlt &&that_alt) const {
-          self->assign_alt(this_alt,
-                           lib::forward<ThatAlt>(that_alt).value,
-                           std::is_lvalue_reference<That>{});
+          self->assign_alt(this_alt, lib::forward<ThatAlt>(that_alt).value);
         }
         assignment *self;
       };
 #endif
 
-      template <bool CopyAssign, std::size_t I, typename T, typename Arg>
-      inline void assign_alt(alt<I, T> &a,
-                             Arg &&arg,
-                             lib::bool_constant<CopyAssign> tag) {
+      template <std::size_t I, typename T, typename Arg>
+      inline void assign_alt(alt<I, T> &a, Arg &&arg) {
         if (this->index() == I) {
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -1061,15 +1056,17 @@ namespace mpark {
         } else {
           struct {
             void operator()(std::true_type) const {
-              this_->emplace<I>(T(lib::forward<Arg>(arg_)));
+              this_->emplace<I>(lib::forward<Arg>(arg_));
             }
             void operator()(std::false_type) const {
-              this_->emplace<I>(lib::forward<Arg>(arg_));
+              this_->emplace<I>(T(lib::forward<Arg>(arg_)));
             }
             assignment *this_;
             Arg &&arg_;
           } impl{this, lib::forward<Arg>(arg)};
-          impl(tag);
+          impl(lib::bool_constant<
+                   std::is_nothrow_constructible<T, Arg>::value ||
+                   !std::is_nothrow_move_constructible<T>::value>{});
         }
       }
 
@@ -1085,9 +1082,7 @@ namespace mpark {
 #ifdef MPARK_GENERIC_LAMBDAS
               [this](auto &this_alt, auto &&that_alt) {
                 this->assign_alt(
-                    this_alt,
-                    lib::forward<decltype(that_alt)>(that_alt).value,
-                    std::is_lvalue_reference<That>{});
+                    this_alt, lib::forward<decltype(that_alt)>(that_alt).value);
               }
 #else
               assigner<That>{this}
@@ -1187,8 +1182,7 @@ namespace mpark {
       template <std::size_t I, typename Arg>
       inline void assign(Arg &&arg) {
         this->assign_alt(access::base::get_alt<I>(*this),
-                         lib::forward<Arg>(arg),
-                         std::false_type{});
+                         lib::forward<Arg>(arg));
       }
 
       inline void swap(impl &that) {
