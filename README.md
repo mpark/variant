@@ -7,6 +7,7 @@
 [![appveyor][badge.appveyor]][appveyor]
 [![license][badge.license]][license]
 [![gitter][badge.gitter]][gitter]
+[![godbolt][badge.godbolt]][godbolt]
 [![wandbox][badge.wandbox]][wandbox]
 
 [badge.stability]: https://img.shields.io/badge/stability-stable-brightgreen.svg
@@ -14,6 +15,7 @@
 [badge.appveyor]: https://ci.appveyor.com/api/projects/status/github/mpark/variant?branch=master&svg=true
 [badge.license]: http://img.shields.io/badge/license-boost-blue.svg
 [badge.gitter]: https://badges.gitter.im/mpark/variant.svg
+[badge.godbolt]: https://img.shields.io/badge/try%20it-on%20godbolt-222266.svg
 [badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-green.svg
 
 [stability]: http://github.com/badges/stability-badges
@@ -21,6 +23,7 @@
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
 [gitter]: https://gitter.im/mpark/variant
+[godbolt]: https://godbolt.org/g/I5WXWL
 [wandbox]: https://wandbox.org/permlink/7voZB4vKQnYiXMwV
 
 ## Introduction
