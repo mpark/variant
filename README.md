@@ -67,8 +67,9 @@ The following compilers are continously tested:
 | Visual Studio 14 2017                  | Visual Studio 2017                          | MSVC 19.10.25019.0 | Microsoft (R) Build Engine version 15.1.1012.6693                  |
 | Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio 2015 with Update 3            | Clang 4.0.0        | Microsoft (R) Build Engine version 14.0.25420.1                    |
 
-__NOTE 1__: __GCC 4.9__: `constexpr` support is not available for `visit` and relational operators.
-__NOTE 2__: Enabling __libc++__ `std::variant` tests require `-std=c++1z` support.
+__NOTE__
+  - __GCC 4.9__: `constexpr` support is not available for `visit` and relational operators.
+  - Enabling __libc++__ `std::variant` tests require `-std=c++1z` support.
 
 ## Unit Tests
 
