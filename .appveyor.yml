@@ -11,22 +11,20 @@ environment:
   matrix:
     # MSVC 2015
     - GENERATOR: Visual Studio 14 2015
-      CXXFLAGS: /DGTEST_HAS_TR1_TUPLE=0 /DGTEST_HAS_STD_TUPLE=1
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     # MSVC 2017 /std:c++14
     - GENERATOR: Visual Studio 15 2017
-      CXXFLAGS: /std:c++14 /permissive- /DGTEST_HAS_TR1_TUPLE=0 /DGTEST_HAS_STD_TUPLE=1
+      CXXFLAGS: /std:c++14 /permissive-
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # MSVC 2017 /std:c++latest
     - GENERATOR: Visual Studio 15 2017
-      CXXFLAGS: /std:c++latest /permissive- /DGTEST_HAS_TR1_TUPLE=0 /DGTEST_HAS_STD_TUPLE=1
+      CXXFLAGS: /std:c++latest /permissive-
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # Clang/LLVM 2015
     - GENERATOR: Visual Studio 14 2015
-      CXXFLAGS: /DGTEST_HAS_TR1_TUPLE=0 /DGTEST_HAS_STD_TUPLE=1
       TOOLSET: LLVM-vs2014
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 

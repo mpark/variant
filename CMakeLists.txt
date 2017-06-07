@@ -84,6 +84,8 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     add_compile_options(-Wno-unknown-argument)
   endif()
 
+  add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
+  add_definitions(-DGTEST_HAS_STD_TUPLE=1)
   add_subdirectory(3rdparty/googletest/googletest)
   config_compiler_and_linker()
 endif()
