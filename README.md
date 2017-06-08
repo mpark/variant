@@ -16,7 +16,7 @@
 [badge.license]: http://img.shields.io/badge/license-boost-blue.svg
 [badge.gitter]: https://badges.gitter.im/mpark/variant.svg
 [badge.godbolt]: https://img.shields.io/badge/try%20it-on%20godbolt-222266.svg
-[badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-green.svg
+[badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-5cb85c.svg
 
 [stability]: http://github.com/badges/stability-badges
 [travis]: https://travis-ci.org/mpark/variant
@@ -24,7 +24,7 @@
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
 [gitter]: https://gitter.im/mpark/variant
 [godbolt]: https://godbolt.org/g/I5WXWL
-[wandbox]: https://wandbox.org/permlink/7voZB4vKQnYiXMwV
+[wandbox]: https://wandbox.org/permlink/QuDs9wncQPljHkp2
 
 ## Introduction
 
