@@ -17,6 +17,10 @@
 #define __has_builtin(x) 0
 #endif
 
+#ifndef __has_include
+#define __has_include(x) 0
+#endif
+
 #ifndef __has_feature
 #define __has_feature(x) 0
 #endif
@@ -58,9 +62,7 @@
 #define MPARK_VARIABLE_TEMPLATES
 #endif
 
-#if !defined(__GLIBCXX__)
-#define MPARK_TRIVIALITY_TYPE_TRAITS
-#elif defined(__has_include) && __has_include(<codecvt>)  // >= libstdc++-5
+#if !defined(__GLIBCXX__) || __has_include(<codecvt>)  // >= libstdc++-5
 #define MPARK_TRIVIALITY_TYPE_TRAITS
 #endif
 
