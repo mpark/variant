@@ -1263,6 +1263,18 @@ namespace mpark {
     using best_match_t =
         typename lib::invoke_result_t<overload<Ts...>, T &&>::type;
 
+    template <typename T>
+    struct is_in_place_index : std::false_type {};
+
+    template <std::size_t I>
+    struct is_in_place_index<in_place_index_t<I>> : std::true_type {};
+
+    template <typename T>
+    struct is_in_place_type : std::false_type {};
+
+    template <typename T>
+    struct is_in_place_type<in_place_type_t<T>> : std::true_type {};
+
   }  // detail
 
   template <typename... Ts>
@@ -1290,12 +1302,15 @@ namespace mpark {
     variant(const variant &) = default;
     variant(variant &&) = default;
 
-    template <typename Arg,
-              lib::enable_if_t<!std::is_same<lib::decay_t<Arg>, variant>::value,
-                               int> = 0,
-              typename T = detail::best_match_t<Arg, Ts...>,
-              std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
-              lib::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
+    template <
+        typename Arg,
+        typename Decayed = lib::decay_t<Arg>,
+        lib::enable_if_t<!std::is_same<Decayed, variant>::value, int> = 0,
+        lib::enable_if_t<!detail::is_in_place_index<Decayed>::value, int> = 0,
+        lib::enable_if_t<!detail::is_in_place_type<Decayed>::value, int> = 0,
+        typename T = detail::best_match_t<Arg, Ts...>,
+        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        lib::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
         std::is_nothrow_constructible<T, Arg>::value)
         : impl_(in_place_index_t<I>{}, lib::forward<Arg>(arg)) {}
