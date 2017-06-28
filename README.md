@@ -34,20 +34,8 @@ The implementation is based on [my implementation of `std::variant` for __libc++
 
 ## Documentation
 
-  - [cppreference.com][cppreference]
-  - [eel.is/c++draft][eel.is]
-
-[cppreference]: http://en.cppreference.com/w/cpp/utility/variant
-[eel.is]: http://eel.is/c++draft/variant
-
-## CMake Variables
-
-  -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING` (__default__: `""`)
-
-     Semicolon-separated list of tests to build.
-     Possible values are `mpark`, and `libc++`.
-
-     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
+  - [cppreference.com](http://en.cppreference.com/w/cpp/utility/variant)
+  - [eel.is/c++draft](http://eel.is/c++draft/variant)
 
 ## Requirements
 
@@ -75,6 +63,15 @@ The following compilers are continously tested:
   - __GCC 4.9__: `constexpr` support is not available for `visit` and relational operators.
   - Enabling __libc++__ `std::variant` tests require `-std=c++1z` support.
 
+## CMake Variables
+
+  -  __`MPARK_VARIANT_INCLUDE_TESTS`__:`STRING` (__default__: `""`)
+
+     Semicolon-separated list of tests to build.
+     Possible values are `mpark`, and `libc++`.
+
+     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
+
 ## Unit Tests
 
 Refer to [test/README.md](test/README.md).
@@ -83,6 +80,4 @@ Refer to [test/README.md](test/README.md).
 
 ## License
 
-Distributed under the [Boost Software License, Version 1.0][license].
-
-[license]: LICENSE.md
+Distributed under the [Boost Software License, Version 1.0](LICENSE.md).
