@@ -34,10 +34,11 @@ The implementation is based on [my implementation of `std::variant` for __libc++
 
 ## Documentation
 
-Refer to [`std::variant` - cppreference.com][cppreference] for the `std::variant`
-components of __MPark.Variant__.
+  - [cppreference.com][cppreference]
+  - [eel.is/c++draft][eel.is]
 
 [cppreference]: http://en.cppreference.com/w/cpp/utility/variant
+[eel.is]: http://eel.is/c++draft/variant
 
 ## CMake Variables
 
