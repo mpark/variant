@@ -80,3 +80,9 @@ The following compilers are continously tested:
 Refer to [test/README.md](test/README.md).
 
 [libcxx-impl]: https://reviews.llvm.org/rL288547
+
+## License
+
+Distributed under the [Boost Software License, Version 1.0][license].
+
+[license]: LICENSE.md
