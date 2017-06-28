@@ -602,6 +602,10 @@ matrix:
       os: osx
       osx_image: xcode8.2
 
+branches:
+  only:
+    - master
+
 before_install:
   # Install the newest `cmake`.
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then

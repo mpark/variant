@@ -36,6 +36,10 @@ configuration:
   - Debug
   - Release
 
+branches:
+  only:
+    - master
+
 build_script:
   - mkdir build
   - cd build
