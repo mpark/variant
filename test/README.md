@@ -23,7 +23,7 @@
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
 [gitter]: https://gitter.im/mpark/variant
-[godbolt]: https://godbolt.org/g/I5WXWL
+[godbolt]: https://godbolt.org/g/DceDpT
 [wandbox]: https://wandbox.org/permlink/QuDs9wncQPljHkp2
 
 ## Test
