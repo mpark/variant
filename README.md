@@ -38,6 +38,70 @@ __MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C
   - [cppreference.com](http://en.cppreference.com/w/cpp/utility/variant)
   - [eel.is/c++draft](http://eel.is/c++draft/variant)
 
+## Installation
+
+  - Single-Header
+
+    The [single-header] branch provides a standalone `variant.hpp` file for
+    each [release]. Simply copy it into your project and `#include` away!
+
+[single-header]: https://github.com/mpark/variant/tree/single-header
+[release]: https://github.com/mpark/variant/releases
+
+  - Bundle
+
+    You can bundle the repo into your project, for example as a submodule.
+
+    ```bash
+    git submodule add https://github.com/mpark/variant.git
+    ```
+
+    Now you can add it to your include path with `-Ivariant/include` and
+    include it via `#include <mpark/variant.hpp>`. It can also be included
+    via a relative path (i.e., `#include "variant/include/mpark/variant.hpp"`).
+
+  - `CMake`
+
+    1. Install
+
+       ```bash
+       git clone https://github.com/mpark/variant.git
+       mkdir variant/build && cd variant/build
+       cmake ..
+       cmake --build . --target install
+       ```
+
+       This will install `mpark/variant` to the default install-directory for
+       your platform (`/usr/local` for Unix, `C:\Program Files` for Windows).
+       You can also install at a custom location via the `CMAKE_INSTALL_PREFIX`
+       variable, (e.g., `cmake .. -DCMAKE_INSTALL_PREFIX=/opt`).
+
+    2. `find_package`
+
+       The installed `mpark/variant` can then be found by `CMake` via
+       `find_package`. The following is a simple `CMakeLists.txt` file:
+
+       ```
+       cmake_minimum_required(VERSION 3.6.3)
+
+       project(HelloWorld CXX)
+
+       set(CMAKE_CXX_STANDARD 14)
+       set(CMAKE_CXX_STANDARD_REQUIRED ON)
+       set(CMAKE_CXX_EXTENSIONS OFF)
+
+       find_package(mpark_variant 1.2.0 REQUIRED)
+
+       add_executable(hello-world hello_world.cpp)
+       target_link_libraries(hello-world mpark_variant)
+       ```
+
+       `CMake` will then search for `mpark/variant` in its default set of
+       installation prefixes. If it was installed in a custom location via
+       the `CMAKE_INSTALL_PREFIX` variable, you'll likely need to use
+       the `CMAKE_PREFIX_PATH` to specify the location of `mpark/variant`
+       (e.g., `cmake .. -DCMAKE_PREFIX_PATH=/opt`).
+
 ## Requirements
 
 This library requires a standard conformant __C++11__ compiler.
