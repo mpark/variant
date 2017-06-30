@@ -38,69 +38,82 @@ __MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C
   - [cppreference.com](http://en.cppreference.com/w/cpp/utility/variant)
   - [eel.is/c++draft](http://eel.is/c++draft/variant)
 
-## Installation
+## Integration
 
-  - Single-Header
+### Single-Header
 
-    The [single-header] branch provides a standalone `variant.hpp` file for
-    each [release]. Simply copy it into your project and `#include` away!
+The [single-header] branch provides a standalone `variant.hpp`
+file for each [release]. Copy it and `#include` away!
 
 [single-header]: https://github.com/mpark/variant/tree/single-header
 [release]: https://github.com/mpark/variant/releases
 
-  - Bundle
+### Submodule
 
-    You can bundle the repo into your project, for example as a submodule.
+You can add `mpark/variant` as a submodule to your project.
 
-    ```bash
-    git submodule add https://github.com/mpark/variant.git
-    ```
+```bash
+git submodule add https://github.com/mpark/variant.git
+```
 
-    Now you can add it to your include path with `-Ivariant/include` and
-    include it via `#include <mpark/variant.hpp>`. It can also be included
-    via a relative path (i.e., `#include "variant/include/mpark/variant.hpp"`).
+Add the `include` directory to your include path with `-Ivariant/include` then
+include the `variant.hpp` header with `#include <mpark/variant.hpp>`.
+Relative path includes (e.g., `#include "variant/include/mpark/variant.hpp"`)
+are also supported which enables other libraries to depend on `mpark/variant`.
 
-  - `CMake`
+If you use CMake, you can simply use `add_subdirectory(variant)`:
 
-    1. Install
+```
+cmake_minimum_required(VERSION 3.6.3)
 
-       ```bash
-       git clone https://github.com/mpark/variant.git
-       mkdir variant/build && cd variant/build
-       cmake ..
-       cmake --build . --target install
-       ```
+project(HelloWorld CXX)
 
-       This will install `mpark/variant` to the default install-directory for
-       your platform (`/usr/local` for Unix, `C:\Program Files` for Windows).
-       You can also install at a custom location via the `CMAKE_INSTALL_PREFIX`
-       variable, (e.g., `cmake .. -DCMAKE_INSTALL_PREFIX=/opt`).
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-    2. `find_package`
+add_subdirectory(variant)
 
-       The installed `mpark/variant` can then be found by `CMake` via
-       `find_package`. The following is a simple `CMakeLists.txt` file:
+add_executable(hello-world hello_world.cpp)
+target_link_libraries(hello-world mpark_variant)
+```
 
-       ```
-       cmake_minimum_required(VERSION 3.6.3)
+### Installation & CMake `find_package`
 
-       project(HelloWorld CXX)
+```bash
+git clone https://github.com/mpark/variant.git
+mkdir variant/build && cd variant/build
+cmake ..
+cmake --build . --target install
+```
 
-       set(CMAKE_CXX_STANDARD 14)
-       set(CMAKE_CXX_STANDARD_REQUIRED ON)
-       set(CMAKE_CXX_EXTENSIONS OFF)
+This will install `mpark/variant` to the default install-directory for
+your platform (`/usr/local` for Unix, `C:\Program Files` for Windows).
+You can also install at a custom location via the `CMAKE_INSTALL_PREFIX`
+variable, (e.g., `cmake .. -DCMAKE_INSTALL_PREFIX=/opt`).
 
-       find_package(mpark_variant 1.2.0 REQUIRED)
+The installed `mpark/variant` can then be found by CMake via `find_package`:
 
-       add_executable(hello-world hello_world.cpp)
-       target_link_libraries(hello-world mpark_variant)
-       ```
+```
+cmake_minimum_required(VERSION 3.6.3)
 
-       `CMake` will then search for `mpark/variant` in its default set of
-       installation prefixes. If it was installed in a custom location via
-       the `CMAKE_INSTALL_PREFIX` variable, you'll likely need to use
-       the `CMAKE_PREFIX_PATH` to specify the location of `mpark/variant`
-       (e.g., `cmake .. -DCMAKE_PREFIX_PATH=/opt`).
+project(HelloWorld CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(mpark_variant 1.2.0 REQUIRED)
+
+add_executable(hello-world hello_world.cpp)
+target_link_libraries(hello-world mpark_variant)
+```
+
+CMake will search for `mpark/variant` in its default set of
+installation prefixes. If `mpark/variant` is installed in
+a custom location via the `CMAKE_INSTALL_PREFIX` variable,
+you'll likely need to use the `CMAKE_PREFIX_PATH` to specify
+the location (e.g., `cmake .. -DCMAKE_PREFIX_PATH=/opt`).
 
 ## Requirements
 
