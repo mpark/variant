@@ -57,13 +57,13 @@ git submodule add https://github.com/mpark/variant.git
 ```
 
 Add the `include` directory to your include path with `-Ivariant/include` then
-include the `variant.hpp` header with `#include <mpark/variant.hpp>`.
+`#include` the `variant.hpp` header with `#include <mpark/variant.hpp>`.
 Relative path includes (e.g., `#include "variant/include/mpark/variant.hpp"`)
-are also supported which enables other libraries to depend on `mpark/variant`.
+are also supported which enable other libraries to depend on `mpark/variant`.
 
 If you use CMake, you can simply use `add_subdirectory(variant)`:
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.6.3)
 
 project(HelloWorld CXX)
@@ -94,7 +94,7 @@ variable, (e.g., `cmake .. -DCMAKE_INSTALL_PREFIX=/opt`).
 
 The installed `mpark/variant` can then be found by CMake via `find_package`:
 
-```
+```cmake
 cmake_minimum_required(VERSION 3.6.3)
 
 project(HelloWorld CXX)
