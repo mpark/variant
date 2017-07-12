@@ -1,0 +1,237 @@
+---
+compilers:
+  - name: Clang 3.6
+    label: clang-3.6
+  - name: Clang 3.7
+    label: clang-3.7
+  - name: Clang 3.8
+    label: clang-3.8
+  - name: Clang 3.9
+    label: clang-3.9
+  - name: Clang 4.0
+    label: clang-4.0
+    active: true
+  - name: GCC 4.9
+    label: gcc-4.9
+  - name: GCC 5
+    label: gcc-5
+  - name: GCC 6
+    label: gcc-6
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Variant Benchmark</title>
+
+    <link href="{{ site.baseurl }}/public/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ site.baseurl }}/public/octicons/octicons.css" rel="stylesheet">
+    <style>
+      /*!
+       * IE10 viewport hack for Surface/desktop Windows 8 bug
+       * Copyright 2014-2015 Twitter, Inc.
+       * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+       */
+
+      @-webkit-viewport { width: device-width; }
+      @-moz-viewport    { width: device-width; }
+      @-ms-viewport     { width: device-width; }
+      @-o-viewport      { width: device-width; }
+      @viewport         { width: device-width; }
+    </style>
+
+    <style>
+      html, body {
+        height: 100%;
+      }
+
+      a:focus {
+        outline: none;
+      }
+
+      .panel-group .panel-footer {
+        background-color: white;
+        padding: 0px 10px 4px;
+        font-size: 0.8em;
+        text-align: right;
+      }
+
+      #content {
+        height: auto;
+        min-height: 100%;
+        padding-top: 60px;
+        padding-bottom: 100px;
+        margin-bottom: -100px;
+      }
+
+      @media (max-width: 768px) {
+        #content {
+          padding-top: 200px;
+        }
+      }
+
+      #footer {
+        height: 100px;
+        font-size: 0.9em;
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #EEEEEE;
+      }
+
+      .chart iframe {
+        overflow: hidden !important;
+        height: 280px;
+        width: 100%;
+        border: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .chart a:hover {
+        text-decoration: none;
+      }
+    </style>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div id="content">
+      <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">Variant Benchmark</a>
+          </div>
+          <ul class="index nav navbar-nav navbar-left">
+            {% for collection in site.collections %}
+              {% if collection.label == 'posts' %}
+                {% continue %}
+              {% endif %}
+            <li class="collection{% if collection.active %} active{% endif %}" data-collection="{{ collection.label }}"><a href="#">{{ collection.name }}</a></li>
+            {% endfor %}
+            <li class="compilers active dropdown">
+              <a class="active dropdown-toggle" data-toggle="dropdown" href="#"><span class="name"></span><span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                {% for compiler in page.compilers %}
+                <li class="compiler{% if compiler.active %} active{% endif %}" data-compiler="{{ compiler.label }}"><a href="#">{{ compiler.name }}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="panel-group">
+              {% for benchmark in site.documents %}
+                {% comment %} Skip the JSON files {% endcomment %}
+                {% if benchmark.url contains "index.html" %}
+                <div class="chart panel panel-default" data-collection="{{ benchmark.collection }}" data-compiler="{{ benchmark.compiler }}" style="display: none">
+                  <div class="panel-heading" data-toggle="collapse" data-target="#chart{{ forloop.index }}" role="button">
+                    <span class="panel-title" >{{ benchmark.url | split: "/" | shift: 3 | pop | join: "/" }}</span>
+                    <span class="link pull-right"><a class="octicon octicon-link-external" href="{{ site.baseurl }}{{ benchmark.url }}"></a></span>
+                  </div>
+                  <div id="chart{{ forloop.index }}" class="panel-collapse collapse">
+                    <div class="chart-iframe" data-src="{{ site.baseurl }}{{ benchmark.url }}"></div>
+                    <div class="panel-footer text-muted">Last updated on {{ benchmark.timestamp }}</div>
+                  </div>
+                </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <div class="row text-muted">
+          <div class="col-md-12">
+            &copy; Copyright 2017
+            <a href="https://github.com/mpark">Michael Park</a>
+            <span class="hidden-xs">Distributed under the</span>
+            <a href="http://www.boost.org/LICENSE_1_0.txt">
+              Boost Software License, Version 1.0
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ site.baseurl }}/public/js/jquery-1.11.3.min.js"></script>
+    <script src="{{ site.baseurl }}/public/js/bootstrap.min.js"></script>
+    <script>
+      $(function(){
+        $(".index > .collection").on("click", function(){
+          var compiler = $(".index > .compilers .compiler.active").attr("data-compiler");
+          $(this).addClass("active").siblings(".collection").removeClass("active");
+          $(".chart:not([data-collection='" + $(this).attr("data-collection") + "'])").hide();
+          $(".chart[data-collection='" + $(this).attr("data-collection") + "'][data-compiler='" + compiler + "']").fadeIn();
+        });
+
+        $(".index > .compilers .compiler").on("click", function(){
+          var collection = $(".index > .collection.active").attr("data-collection");
+          $(this).addClass("active").siblings(".compiler").removeClass("active");
+          $(".chart:not([data-compiler='" + $(this).attr("data-compiler") + "'])").hide();
+          $(".chart[data-compiler='" + $(this).attr("data-compiler") + "'][data-collection='" + collection + "']").fadeIn();
+        });
+
+        // Replace the div by an iframe, but only the first time we click on it.
+        // This avoids overloading the page with many iframes, which is slow at
+        // least on Safari.
+        $(".chart").on("click", function(){
+          var div = $(this).find(".chart-iframe");
+          if (div.length > 0) {
+            var iframe = document.createElement('iframe');
+            $(iframe).attr("src", $(div).attr("data-src"));
+            $(iframe).addClass("panel-body");
+            $(div).replaceWith(iframe);
+          }
+        });
+
+        $(".chart .link").on("click", function(e){
+          e.stopPropagation();
+        });
+
+        $(".index > .compilers").on("click", function(){
+          $("> .active > .name", this).text($(".compiler.active", this).text());
+        });
+
+        $(".index > .compilers .compiler.active").click();
+      })
+    </script>
+
+    <script>
+      /*!
+       * IE10 viewport hack for Surface/desktop Windows 8 bug
+       * Copyright 2014-2015 Twitter, Inc.
+       * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+       */
+
+      (function () {
+        'use strict';
+
+        if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+          var msViewportStyle = document.createElement('style')
+          msViewportStyle.appendChild(
+            document.createTextNode(
+              '@-ms-viewport{width:auto!important}'
+            )
+          )
+          document.querySelector('head').appendChild(msViewportStyle)
+        }
+
+      })();
+    </script>
+  </body>
+</html>

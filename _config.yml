@@ -1,0 +1,13 @@
+title: Variant Benchmark
+email: mcypark@gmail.com
+description: "A collection of `variant` benchmarks."
+url: https://mpark.github.io/variant
+
+collections:
+  binary-size:
+    name: Binary Size
+    output: true
+  compile-time:
+    name: Compile Time
+    output: true
+    active: true
