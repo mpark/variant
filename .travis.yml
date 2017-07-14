@@ -1,0 +1,164 @@
+language: cpp
+
+git:
+  depth: 1
+
+env:
+  global:
+    - secure: jL8hAVoa2B512uGeoh5DL2YXrAznfKPz3GbcaUPzR6mR2Izj2yHFihLLeHrEY8vUdadS8zbn2CwtWnmJjNz5kIT/RxESxJJtgVNruwo0u4piIfxVI/tTRObMXKaGrfquDAHS/hjAhQlPSNNr+89oFSBvSfNpAVECd/ERhhnjIugD+MFFzaxi26qvM6li9toxPNJIxBq9jHRuZzlpWez6d6RcTsaqr30BaCEuJhVcg7J4SiSL8xeW2sokAG65pZ/aig23cCSJkhazbMd7Cy/OFNjQrhc2PQ+E0c2xEwdwCNA8qTnsMrUeo9NXc+lozOf23LWD1EvZtcNNG5arPhSuGGYs90T1GdL2jqyS1E+1Xf0cOWqB4VMho7H+vV55SgZb+TYDrmB63YvgxcUKgsDRvPI9bBv3S3uxgktbE6gwnrfQirKowbscC07X3R1RJiI6hSkVNdrLnQF28BHMRlCpyhDejIWm4qHgOrWCN+I6hZtk+nsRuJF8sCSFPUWuzlG+/kSwaBwm/eEy+ZI66ufJamHUqC8bxa+6kINxtJTMN79ZnbIPwOvey9cfVfzwxefaStwpQbCJuZlMbuo4738HxUQpscxgv6LA5ZEMz8hlKO82cWDZSEDxSrUowueu1Az0u5tfzBUXaU5pZCnGdK6aMGHcTznaeUFebq8uhLR3uc0=
+
+matrix:
+  include:
+    # ubuntu 14.04, gcc-4.9
+    - env: VER=4.9
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &gcc49
+        apt:
+          packages:
+            - g++-4.9
+          sources:
+            - ubuntu-toolchain-r-test
+    # ubuntu 14.04, gcc-5
+    - env: VER=5
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &gcc5
+        apt:
+          packages:
+            - g++-5
+          sources:
+            - ubuntu-toolchain-r-test
+    # ubuntu 14.04, gcc-6
+    - env: VER=6
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+          sources:
+            - ubuntu-toolchain-r-test
+
+    # ubuntu 14.04, clang-3.5
+    - env: VER=3.5
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &libcxx
+        apt:
+          packages:
+            - libc++-dev
+    # ubuntu 14.04, clang-3.6
+    - env: VER=3.6
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.7
+    - env: VER=3.7
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.8
+    - env: VER=3.8
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+    # ubuntu 14.04, clang-3.9
+    - env: VER=3.9
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
+
+branches:
+  only:
+    - benchmark
+
+before_install:
+  # Install the newest `cmake`.
+  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+      brew update;
+      brew uninstall cmake;
+      brew install cmake;
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      wget https://cmake.org/files/v3.7/cmake-3.7.1-Linux-x86_64.sh;
+      chmod u+x cmake-3.7.1-Linux-x86_64.sh;
+      sudo ./cmake-3.7.1-Linux-x86_64.sh --skip-license --prefix=/usr/local;
+    fi
+  # Install a specific clang version.
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
+      wget -nv -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -;
+      sudo apt-add-repository -y "deb http://llvm.org/apt/trusty llvm-toolchain-trusty-${VER} main";
+      sudo apt-get update -qq;
+      sudo apt-get install -qq -y "clang-${VER}";
+    fi
+  # Set the correct `CXXFLAGS` environment variable.
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ]; then
+      export CXXFLAGS="${CXXFLAGS} -stdlib=libc++";
+    fi
+  # Set the correct `CC` and `CXX` environment variables.
+  - if [ -n "${VER}" ]; then
+      export CC="${CC}-${VER}";
+      export CXX="${CXX}-${VER}";
+    fi
+  - ${CXX} --version
+
+install:
+  - mkdir build && cd build
+  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake --build .
+
+before_script:
+  - benchmarks=($(cmake --build . --target help | grep -E "benchmark\.[[:alnum:]_]+\." | cut -d " " -f 2 | sort))
+  - git clone https://$GITHUB_TOKEN@github.com/mpark/variant --depth 1 --branch=gh-pages gh-pages &>/dev/null
+  - |
+    for benchmark in ${benchmarks[@]}; do
+      category="$(echo ${benchmark} | cut -d '.' -f 2)"
+      name="$(echo ${benchmark} | cut -d '.' -f 3-)"
+      src="${name}"
+      out="gh-pages/_${category}/${CC}/${name}"
+
+      rm -rf ${out}
+      mkdir -p ${out}
+
+      # Add a YAML front matter to every chart and every JSON file (for Jekyll).
+      {
+        echo "---"
+        echo "compiler: ${CC}"
+        echo "timestamp: $(date '+%a, %-d %b %Y')"
+        echo "---"
+        cat ${src}/${category}.html
+      } > ${out}/index.html
+
+      for dataset in ${src}/*.json; do
+        {
+          echo "---"
+          echo "---"
+          cat ${dataset}
+        } > ${out}/$(basename ${dataset})
+      done
+    done
+
+script:
+  - cd gh-pages
+  - git add --all .
+  - git commit -m "Update benchmarks for ${CC}"
+  - travis_retry git push origin gh-pages &>/dev/null
+
+notifications:
+  email: false

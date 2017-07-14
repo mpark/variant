@@ -1,0 +1,4 @@
+[submodule "3rdparty/metabench"]
+	path = 3rdparty/metabench
+	url = https://github.com/ldionne/metabench
+  shallow = true
