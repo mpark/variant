@@ -639,8 +639,7 @@ before_install:
   - ${CXX} --version
 
 install:
-  - mkdir build
-  - cd build
+  - mkdir build && cd build
   - cmake -DCMAKE_BUILD_TYPE=${BUILD}
           -DMPARK_VARIANT_CXX_STANDARD=${STD}
           -DMPARK_VARIANT_EXCEPTIONS=${EX}
