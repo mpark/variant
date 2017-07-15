@@ -4,10 +4,10 @@ description: "A collection of `variant` benchmarks."
 url: https://mpark.github.io/variant
 
 collections:
-  binary-size:
+  binary_size:
     name: Binary Size
     output: true
-  compile-time:
+  compile_time:
     name: Compile Time
     output: true
     active: true
