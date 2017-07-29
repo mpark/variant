@@ -29,6 +29,7 @@ if(HAS_FTEMPLATE_DEPTH)
   add_compile_options(-ftemplate-depth=5000)
 endif()
 
+include(dependencies/boost.cmake)
 include(dependencies/eggs.cmake)
 include(dependencies/mpark.cmake)
 
@@ -38,7 +39,9 @@ include(metabench)
 macro(add_dataset datasets lib name range)
   set(dataset "${lib}.${name}")
 
-  if ("${lib}" STREQUAL "eggs")
+  if ("${lib}" STREQUAL "boost")
+    boost_add_dataset(${dataset} ${range})
+  elseif ("${lib}" STREQUAL "eggs")
     eggs_add_dataset(${dataset} ${range})
   elseif("${lib}" STREQUAL "mpark")
     mpark_add_dataset(${dataset} ${range})
