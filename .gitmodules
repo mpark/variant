@@ -2,3 +2,6 @@
 	path = 3rdparty/googletest
 	url = https://github.com/google/googletest.git
  	shallow = true
+[submodule "3rdparty/metabench"]
+	path = 3rdparty/metabench
+	url = https://github.com/ldionne/metabench
