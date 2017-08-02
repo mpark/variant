@@ -303,13 +303,6 @@ namespace mpark {
 
   namespace detail {
 
-    inline constexpr bool all() { return true; }
-
-    template <typename... Bs>
-    inline constexpr bool all(bool b, Bs... bs) {
-      return b && all(bs...);
-    }
-
     constexpr std::size_t not_found = static_cast<std::size_t>(-1);
     constexpr std::size_t ambiguous = static_cast<std::size_t>(-2);
 
@@ -508,7 +501,7 @@ namespace mpark {
 
         template <typename F, typename... Fs>
         inline static constexpr int visit_visitor_return_type_check() {
-          static_assert(all(std::is_same<F, Fs>::value...),
+          static_assert(lib::all<std::is_same<F, Fs>::value...>::value,
                         "`mpark::visit` requires the visitor to have a single "
                         "return type.");
           return 0;
@@ -554,9 +547,9 @@ namespace mpark {
         inline static constexpr /* auto * */ auto make_fdiagonal()
             -> decltype(make_fdiagonal_impl<F, V, Vs...>(
                 lib::make_index_sequence<lib::decay_t<V>::size()>{})) {
-          static_assert(
-              all((lib::decay_t<V>::size() == lib::decay_t<Vs>::size())...),
-              "all of the variants must be the same size.");
+          static_assert(lib::all<(lib::decay_t<V>::size() ==
+                                  lib::decay_t<Vs>::size())...>::value,
+                        "all of the variants must be the same size.");
           return make_fdiagonal_impl<F, V, Vs...>(
               lib::make_index_sequence<lib::decay_t<V>::size()>{});
         }
@@ -963,7 +956,7 @@ namespace mpark {
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
         Trait::Available,
         move_constructor(move_constructor &&that) noexcept(
-            all(std::is_nothrow_move_constructible<Ts>::value...))
+            lib::all<std::is_nothrow_move_constructible<Ts>::value...>::value)
             : move_constructor(valueless_t{}) {
           this->generic_construct(*this, lib::move(that));
         });
@@ -1122,8 +1115,8 @@ namespace mpark {
         Trait::Available,
         move_assignment &
         operator=(move_assignment &&that) noexcept(
-            all((std::is_nothrow_move_constructible<Ts>::value &&
-                 std::is_nothrow_move_assignable<Ts>::value)...)) {
+            lib::all<(std::is_nothrow_move_constructible<Ts>::value &&
+                      std::is_nothrow_move_assignable<Ts>::value)...>::value) {
           this->generic_assign(lib::move(that));
           return *this;
         });
@@ -1683,6 +1676,28 @@ namespace mpark {
 #endif
   }
 
+#ifdef MPARK_CPP14_CONSTEXPR
+  template <typename Visitor, typename... Vs>
+  inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
+    std::initializer_list<bool> bs = {vs.valueless_by_exception()...};
+    for (bool b : bs) {
+      if (b) {
+        throw_bad_variant_access();
+      }
+    }
+    return detail::visitation::variant::visit_value(
+        lib::forward<Visitor>(visitor), lib::forward<Vs>(vs)...);
+  }
+#else
+  namespace detail {
+
+    inline constexpr bool all() { return true; }
+
+    template <typename... Bs>
+    inline constexpr bool all(bool b, Bs... bs) { return b && all(bs...); }
+
+  }  // namespace detail
+
   template <typename Visitor, typename... Vs>
   inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
     DECLTYPE_AUTO_RETURN(
@@ -1691,6 +1706,7 @@ namespace mpark {
              : throw_bad_variant_access()),
         detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
                                                  lib::forward<Vs>(vs)...))
+#endif
 
   struct monostate {};
 
