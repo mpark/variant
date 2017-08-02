@@ -1679,7 +1679,9 @@ namespace mpark {
 #ifdef MPARK_CPP14_CONSTEXPR
   template <typename Visitor, typename... Vs>
   inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
-    std::initializer_list<bool> bs = {vs.valueless_by_exception()...};
+    constexpr std::array<bool, sizeof...(Vs)> bs = {
+        {vs.valueless_by_exception()...}
+    };
     for (bool b : bs) {
       if (b) {
         throw_bad_variant_access();
