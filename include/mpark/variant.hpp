@@ -1702,9 +1702,9 @@ namespace mpark {
     return false;
   }
 
+#ifdef MPARK_CPP14_CONSTEXPR
   namespace detail {
 
-#ifdef MPARK_CPP14_CONSTEXPR
     inline constexpr bool all(std::initializer_list<bool> bs) {
       for (bool b : bs) {
         if (!b) {
@@ -1713,7 +1713,20 @@ namespace mpark {
       }
       return true;
     }
+
+  }  // namespace detail
+
+  template <typename Visitor, typename... Vs>
+  inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
+    return (detail::all({!vs.valueless_by_exception()...})
+                ? (void)0
+                : throw_bad_variant_access()),
+           detail::visitation::variant::visit_value(
+               lib::forward<Visitor>(visitor), lib::forward<Vs>(vs)...);
+  }
 #else
+  namespace detail {
+
     template <std::size_t N>
     inline constexpr bool all_impl(const lib::array<bool, N> &bs,
                                    std::size_t idx) {
@@ -1724,7 +1737,6 @@ namespace mpark {
     inline constexpr bool all(const lib::array<bool, N> &bs) {
       return all_impl(bs, 0);
     }
-#endif
 
   }  // namespace detail
 
@@ -1737,6 +1749,7 @@ namespace mpark {
              : throw_bad_variant_access()),
         detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
                                                  lib::forward<Vs>(vs)...))
+#endif
 
   template <typename... Ts>
   inline auto swap(variant<Ts...> &lhs,
