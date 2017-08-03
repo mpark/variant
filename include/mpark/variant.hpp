@@ -1705,8 +1705,7 @@ namespace mpark {
   namespace detail {
 
 #ifdef MPARK_CPP14_CONSTEXPR
-    template <std::size_t N>
-    inline constexpr bool all(const bool (&bs)[N]) {
+    inline constexpr bool all(std::initializer_list<bool> bs) {
       for (bool b : bs) {
         if (!b) {
           return false;
@@ -1722,10 +1721,10 @@ namespace mpark {
 
     template <std::size_t N>
     inline constexpr bool all(const bool (&bs)[N]) { return all_impl(bs, 0); }
-#endif
 
     // Handles the zero-length array case.
     inline constexpr bool all(monostate) { return true; }
+#endif
 
   }  // namespace detail
 
