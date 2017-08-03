@@ -1676,40 +1676,6 @@ namespace mpark {
 #endif
   }
 
-#ifdef MPARK_CPP14_CONSTEXPR
-  template <typename Visitor, typename... Vs>
-  inline constexpr decltype(auto) visit(Visitor &&visitor, Vs &&... vs) {
-    constexpr std::array<bool, sizeof...(Vs)> bs = {
-        {vs.valueless_by_exception()...}
-    };
-    for (bool b : bs) {
-      if (b) {
-        throw_bad_variant_access();
-      }
-    }
-    return detail::visitation::variant::visit_value(
-        lib::forward<Visitor>(visitor), lib::forward<Vs>(vs)...);
-  }
-#else
-  namespace detail {
-
-    inline constexpr bool all() { return true; }
-
-    template <typename... Bs>
-    inline constexpr bool all(bool b, Bs... bs) { return b && all(bs...); }
-
-  }  // namespace detail
-
-  template <typename Visitor, typename... Vs>
-  inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
-    DECLTYPE_AUTO_RETURN(
-        (detail::all(!vs.valueless_by_exception()...)
-             ? (void)0
-             : throw_bad_variant_access()),
-        detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
-                                                 lib::forward<Vs>(vs)...))
-#endif
-
   struct monostate {};
 
   inline constexpr bool operator<(monostate, monostate) noexcept {
@@ -1735,6 +1701,42 @@ namespace mpark {
   inline constexpr bool operator!=(monostate, monostate) noexcept {
     return false;
   }
+
+  namespace detail {
+
+#ifdef MPARK_CPP14_CONSTEXPR
+    template <std::size_t N>
+    inline constexpr bool all(const bool (&bs)[N]) {
+      for (bool b : bs) {
+        if (!b) {
+          return false;
+        }
+      }
+      return true;
+    }
+#else
+    template <std::size_t N>
+    inline constexpr bool all_impl(const bool (&bs)[N], std::size_t idx) {
+      return idx >= N || (bs[idx] && all_impl(bs, idx + 1));
+    }
+
+    template <std::size_t N>
+    inline constexpr bool all(const bool (&bs)[N]) { return all_impl(bs, 0); }
+#endif
+
+    // Handles the zero-length array case.
+    inline constexpr bool all(monostate) { return true; }
+
+  }  // namespace detail
+
+  template <typename Visitor, typename... Vs>
+  inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
+    DECLTYPE_AUTO_RETURN(
+        (detail::all({!vs.valueless_by_exception()...})
+             ? (void)0
+             : throw_bad_variant_access()),
+        detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
+                                                 lib::forward<Vs>(vs)...))
 
   template <typename... Ts>
   inline auto swap(variant<Ts...> &lhs,
