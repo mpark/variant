@@ -1715,15 +1715,15 @@ namespace mpark {
     }
 #else
     template <std::size_t N>
-    inline constexpr bool all_impl(const bool (&bs)[N], std::size_t idx) {
+    inline constexpr bool all_impl(const lib::array<bool, N> &bs,
+                                   std::size_t idx) {
       return idx >= N || (bs[idx] && all_impl(bs, idx + 1));
     }
 
     template <std::size_t N>
-    inline constexpr bool all(const bool (&bs)[N]) { return all_impl(bs, 0); }
-
-    // Handles the zero-length array case.
-    inline constexpr bool all(monostate) { return true; }
+    inline constexpr bool all(const lib::array<bool, N> &bs) {
+      return all_impl(bs, 0);
+    }
 #endif
 
   }  // namespace detail
@@ -1731,7 +1731,8 @@ namespace mpark {
   template <typename Visitor, typename... Vs>
   inline constexpr DECLTYPE_AUTO visit(Visitor &&visitor, Vs &&... vs)
     DECLTYPE_AUTO_RETURN(
-        (detail::all({!vs.valueless_by_exception()...})
+        (detail::all(
+             lib::array<bool, sizeof...(Vs)>{{!vs.valueless_by_exception()...}})
              ? (void)0
              : throw_bad_variant_access()),
         detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
