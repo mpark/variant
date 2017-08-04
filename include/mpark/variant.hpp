@@ -1240,21 +1240,30 @@ namespace mpark {
       }
     };
 
-    template <typename... Ts>
-    struct overload;
-
-    template <>
-    struct overload<> { void operator()() const {} };
-
-    template <typename T, typename... Ts>
-    struct overload<T, Ts...> : overload<Ts...> {
-      using overload<Ts...>::operator();
-      lib::identity<T> operator()(T) const { return {}; }
+    template <std::size_t I, typename T>
+    struct overload_leaf {
+      using F = lib::size_constant<I> (*)(T);
+      operator F() const;
     };
 
+    template <typename... Ts>
+    struct overload_impl {
+      private:
+      template <typename>
+      struct impl;
+
+      template <std::size_t... Is>
+      struct impl<lib::index_sequence<Is...>> : overload_leaf<Is, Ts>... {};
+
+      public:
+      using type = impl<lib::index_sequence_for<Ts...>>;
+    };
+
+    template <typename... Ts>
+    using overload = typename overload_impl<Ts...>::type;
+
     template <typename T, typename... Ts>
-    using best_match_t =
-        typename lib::invoke_result_t<overload<Ts...>, T &&>::type;
+    using best_match = lib::invoke_result_t<overload<Ts...>, T &&>;
 
     template <typename T>
     struct is_in_place_index : std::false_type {};
@@ -1301,8 +1310,8 @@ namespace mpark {
         lib::enable_if_t<!std::is_same<Decayed, variant>::value, int> = 0,
         lib::enable_if_t<!detail::is_in_place_index<Decayed>::value, int> = 0,
         lib::enable_if_t<!detail::is_in_place_type<Decayed>::value, int> = 0,
-        typename T = detail::best_match_t<Arg, Ts...>,
-        std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+        std::size_t I = detail::best_match<Arg, Ts...>::value,
+        typename T = lib::type_pack_element_t<I, Ts...>,
         lib::enable_if_t<std::is_constructible<T, Arg>::value, int> = 0>
     inline constexpr variant(Arg &&arg) noexcept(
         std::is_nothrow_constructible<T, Arg>::value)
@@ -1376,8 +1385,8 @@ namespace mpark {
     template <typename Arg,
               lib::enable_if_t<!std::is_same<lib::decay_t<Arg>, variant>::value,
                                int> = 0,
-              typename T = detail::best_match_t<Arg, Ts...>,
-              std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
+              std::size_t I = detail::best_match<Arg, Ts...>::value,
+              typename T = lib::type_pack_element_t<I, Ts...>,
               lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
                                 std::is_constructible<T, Arg>::value),
                                int> = 0>
