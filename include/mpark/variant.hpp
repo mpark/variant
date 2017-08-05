@@ -1243,7 +1243,7 @@ namespace mpark {
     template <std::size_t I, typename T>
     struct overload_leaf {
       using F = lib::size_constant<I> (*)(T);
-      operator F() const;
+      operator F() const { return nullptr; }
     };
 
     template <typename... Ts>
