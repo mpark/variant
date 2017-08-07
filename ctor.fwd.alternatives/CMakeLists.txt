@@ -9,6 +9,10 @@
 set(datasets)
 
 add_dataset(
+  datasets anthonyw ctor.fwd.alternatives
+  "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
+
+add_dataset(
   datasets boost ctor.fwd.alternatives
   "[1] + (10..50).step(10).to_a")
 
