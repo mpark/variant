@@ -9,18 +9,6 @@ env:
 
 matrix:
   include:
-    # ubuntu 14.04, gcc-4.9
-    - env: VER=4.9
-      compiler: gcc
-      os: linux
-      dist: trusty
-      sudo: required
-      addons: &gcc49
-        apt:
-          packages:
-            - g++-4.9
-          sources:
-            - ubuntu-toolchain-r-test
     # ubuntu 14.04, gcc-5
     - env: VER=5
       compiler: gcc
@@ -58,8 +46,8 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    # ubuntu 14.04, clang-3.5
-    - env: VER=3.5
+    # ubuntu 14.04, clang-3.6
+    - env: VER=3.6
       compiler: clang
       os: linux
       dist: trusty
@@ -68,13 +56,6 @@ matrix:
         apt:
           packages:
             - libc++-dev
-    # ubuntu 14.04, clang-3.6
-    - env: VER=3.6
-      compiler: clang
-      os: linux
-      dist: trusty
-      sudo: required
-      addons: *libcxx
     # ubuntu 14.04, clang-3.7
     - env: VER=3.7
       compiler: clang
