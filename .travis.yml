@@ -50,7 +50,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # ubuntu 14.04, clang-3.6
-    - env: VER=3.6
+    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
       compiler: clang
       os: linux
       dist: trusty
@@ -60,7 +60,7 @@ matrix:
           packages:
             - mercurial
     # ubuntu 14.04, clang-3.7
-    - env: VER=3.7
+    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
       compiler: clang
       os: linux
       dist: trusty
@@ -155,11 +155,15 @@ before_install:
       export CC="${CC}-${VER}";
       export CXX="${CXX}-${VER}";
     fi
+  - if [ -z "${BENCHMARKS}" ]; then
+      export BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov";
+    fi
   - ${CXX} --version
 
 install:
   - mkdir build && cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release ..
+  - cmake -DCMAKE_BUILD_TYPE=Release
+          -DMPARK_VARIANT_INCLUDE_BENCHMARKS=${BENCHMARKS} ..
   - cmake --build .
 
 before_script:
