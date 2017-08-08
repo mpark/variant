@@ -1,4 +1,10 @@
 language: cpp
+os: linux
+sudo: false
+
+branches:
+  only:
+    - benchmark
 
 git:
   depth: 1
@@ -12,142 +18,134 @@ matrix:
     # ubuntu 14.04, gcc-5
     - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: gcc
-      os: linux
       dist: trusty
-      sudo: required
-      addons: &gcc5
-        apt:
-          packages:
-            - g++-5
-          sources:
-            - ubuntu-toolchain-r-test
+      addons: { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
     # ubuntu 14.04, gcc-6
     - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: gcc
-      os: linux
       dist: trusty
-      sudo: required
-      addons: &gcc6
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
+      addons: { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
     # ubuntu 14.04, gcc-7
     - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std"
       compiler: gcc
-      os: linux
       dist: trusty
-      sudo: required
-      addons: &gcc7
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
+      addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, clang-3.6
     - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
       compiler: clang
-      os: linux
-      dist: trusty
-      sudo: required
+      dist: precise
+      addons: { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
     # ubuntu 14.04, clang-3.7
     - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
       compiler: clang
-      os: linux
-      dist: trusty
-      sudo: required
+      dist: precise
+      addons: { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
     # ubuntu 14.04, clang-3.8
     - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
-      os: linux
-      dist: trusty
-      sudo: required
+      dist: precise
+      addons: { apt: { packages: ["clang-3.8"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
     # ubuntu 14.04, clang-3.9
     - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
-      os: linux
       dist: trusty
-      sudo: required
+      addons: { apt: { packages: ["clang-3.9"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
     # ubuntu 14.04, clang-4.0
     - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std"
       compiler: clang
-      os: linux
       dist: trusty
-      sudo: required
-
-branches:
-  only:
-    - benchmark
+      addons: { apt: { packages: ["clang-4.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
 
 before_install:
-  # Install the newest `cmake`.
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-      brew update;
-      brew uninstall cmake;
-      brew install cmake;
-    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      wget https://cmake.org/files/v3.7/cmake-3.7.1-Linux-x86_64.sh;
-      chmod u+x cmake-3.7.1-Linux-x86_64.sh;
-      sudo ./cmake-3.7.1-Linux-x86_64.sh --skip-license --prefix=/usr/local;
-    fi
-  # Install specific version of clang.
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
-      wget -nv -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -;
-      sudo apt-add-repository -y "deb http://llvm.org/apt/trusty llvm-toolchain-trusty-${VER} main";
-      sudo apt-get update -qq;
-      sudo apt-get install -qq -y "clang-${VER}";
-    fi
-  # Install specific version of libc++.
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
-      export BRANCH=$(echo "${VER}" | sed -e 's/\.//g');
-      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/llvm.git llvm;
-      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/libcxx.git llvm/projects/libcxx;
-      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/libcxxabi.git llvm/projects/libcxxabi;
-
-      mkdir llvm-build && cd llvm-build;
-      cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ../llvm;
-      sudo cmake --build projects/libcxx --target install -- -j $(nproc);
-      sudo cmake --build projects/libcxxabi --target install -- -j $(nproc);
-      cd -;
-    fi
-
-  # Install boost 1.64.
-  - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-      brew update;
-      brew uninstall boost;
-      brew install boost;
-    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      wget https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.bz2;
-      tar --bzip2 -xf boost_1_64_0.tar.bz2;
-      sudo cp -r boost_1_64_0/boost /usr/local/include/boost;
-    fi
-  # Set the correct `CXXFLAGS` environment variable.
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ]; then
-      export CXXFLAGS="${CXXFLAGS} -stdlib=libc++";
-    fi
+  # Save the name of the compiler.
+  - COMPILER=${CC}
   # Set the correct `CC` and `CXX` environment variables.
-  - if [ -n "${VER}" ]; then
-      export CC="${CC}-${VER}";
-      export CXX="${CXX}-${VER}";
+  - |
+    if [ -n "${VER}" ]; then
+      export CC="${CC}-${VER}"
+      export CXX="${CXX}-${VER}"
     fi
   - ${CXX} --version
+  # Directory for dependency installation.
+  - DEPS="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p ${DEPS}
+  # Install newer cmake.
+  - |
+    if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+      brew update
+      brew uninstall cmake
+      brew install cmake
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      travis_retry wget --no-check-certificate https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.sh
+      bash cmake-3.7.2-Linux-x86_64.sh --skip-license --prefix="${DEPS}"
+      export PATH="${DEPS}/bin:${PATH}"
+    fi
+  - cmake --version
+  # Install newer ruby
+  - rvm use 2.1 --install --binary --fuzzy
+  - ruby --version
+  # Install specific version of libc++.
+  - |
+    if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${COMPILER}" = "clang" ] && [ -n "${VER}" ]; then
+      LLVM_VER=$(echo "$(${CXX} --version)" | grep -Po "clang version \K([0-9]\.[0-9]\.[0-9])")
+
+      LLVM_URL="http://llvm.org/releases/${LLVM_VER}/llvm-${LLVM_VER}.src.tar.xz"
+      LIBCXX_URL="http://llvm.org/releases/${LLVM_VER}/libcxx-${LLVM_VER}.src.tar.xz"
+      LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VER}/libcxxabi-${LLVM_VER}.src.tar.xz"
+
+      mkdir -p llvm-build llvm llvm/projects/libcxx llvm/projects/libcxxabi
+
+      travis_retry wget -O - ${LLVM_URL} | tar --strip-components=1 -xJ -C llvm
+      travis_retry wget -O - ${LIBCXX_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxx
+      travis_retry wget -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxxabi
+
+      pushd llvm-build
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPS} ../llvm
+      cmake --build projects/libcxx --target install
+      cmake --build projects/libcxxabi --target install
+      popd
+
+      export CXXFLAGS="${CXXFLAGS} -nostdinc++ -isystem ${DEPS}/include/c++/v1"
+      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib"
+      export LD_LIBRARY_PATH="${DEPS}/lib:${LD_LIBRARY_PATH}"
+    fi
+  # Install newer boost.
+  - |
+    if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+      brew update
+      brew uninstall boost
+      brew install boost
+    elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      mkdir -p ${DEPS}/include
+
+      BOOST_URL="https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz"
+      travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${DEPS}/include boost_1_64_0/boost
+      export CXXFLAGS="${CXXFLAGS} -isystem ${DEPS}/include"
+    fi
+  # Set the correct `CXXFLAGS` environment variable.
+  - |
+    if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${COMPILER}" = "clang" ]; then
+      export CXXFLAGS="${CXXFLAGS} -stdlib=libc++"
+    fi
 
 install:
-  - mkdir build && cd build
-  - cmake -DCMAKE_BUILD_TYPE=Release
-          -DMPARK_VARIANT_INCLUDE_BENCHMARKS=${BENCHMARKS} ..
+  - mkdir build
+  - pushd build
+  - cmake -DCMAKE_BUILD_TYPE=Release -DMPARK_VARIANT_INCLUDE_BENCHMARKS=${BENCHMARKS} ..
   - cmake --build .
+  - popd
 
 before_script:
-  - benchmarks=($(cmake --build . --target help | grep -E "benchmark\.[[:alnum:]_]+\." | cut -d " " -f 2 | sort))
+  - git config --global user.name "Travis CI"
+  - git config --global user.email "<>"
   - git clone https://$GITHUB_TOKEN@github.com/mpark/variant --depth 1 --branch=gh-pages gh-pages &>/dev/null
+  - benchmarks=($(cmake --build build --target help | grep -E "benchmark\.[[:alnum:]_]+\." | cut -d " " -f 2 | sort))
   - |
     for benchmark in ${benchmarks[@]}; do
       category="$(echo ${benchmark} | cut -d '.' -f 2)"
       name="$(echo ${benchmark} | cut -d '.' -f 3-)"
-      src="${name}"
+      src="build/${name}"
       out="gh-pages/_${category}/${CC}/${name}"
 
       rm -rf ${out}
@@ -172,10 +170,11 @@ before_script:
     done
 
 script:
-  - cd gh-pages
+  - pushd gh-pages
   - git add --all .
   - git commit -m "Update benchmarks for ${CC}"
   - travis_retry git push origin gh-pages &>/dev/null
+  - popd
 
 notifications:
   email: false
