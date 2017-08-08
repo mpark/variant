@@ -52,38 +52,30 @@ matrix:
       os: linux
       dist: trusty
       sudo: required
-      addons: &libcxx
-        apt:
-          packages:
-            - libc++-dev
     # ubuntu 14.04, clang-3.7
     - env: VER=3.7
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
-      addons: *libcxx
     # ubuntu 14.04, clang-3.8
     - env: VER=3.8
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
-      addons: *libcxx
     # ubuntu 14.04, clang-3.9
     - env: VER=3.9
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
-      addons: *libcxx
     # ubuntu 14.04, clang-4.0
     - env: VER=4.0
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
-      addons: *libcxx
 
 branches:
   only:
@@ -100,13 +92,27 @@ before_install:
       chmod u+x cmake-3.7.1-Linux-x86_64.sh;
       sudo ./cmake-3.7.1-Linux-x86_64.sh --skip-license --prefix=/usr/local;
     fi
-  # Install a specific clang version.
+  # Install specific version of clang.
   - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
       wget -nv -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -;
       sudo apt-add-repository -y "deb http://llvm.org/apt/trusty llvm-toolchain-trusty-${VER} main";
       sudo apt-get update -qq;
       sudo apt-get install -qq -y "clang-${VER}";
     fi
+  # Install specific version of libc++.
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${CC}" = "clang" ] && [ -n "${VER}" ]; then
+      export BRANCH=$(echo "${VER}" | sed -e 's/\.//g');
+      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/llvm.git llvm;
+      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/libcxx.git llvm/projects/libcxx;
+      git clone --depth=1 --branch="release_${BRANCH}" https://github.com/llvm-mirror/libcxxabi.git llvm/projects/libcxxabi;
+
+      mkdir llvm-build && cd llvm-build;
+      cmake -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ../llvm;
+      sudo cmake --build projects/libcxx --target install -- -j $(nproc);
+      sudo cmake --build projects/libcxxabi --target install -- -j $(nproc);
+      cd -;
+    fi
+
   # Install boost 1.64.
   - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
       brew update;
