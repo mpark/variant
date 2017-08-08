@@ -6,10 +6,8 @@
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
 include(ExternalProject)
-
 ExternalProject_Add(anthonyw
-  URL https://bitbucket.org/anthonyw/variant/get/d2df0f0039dd.zip
-  GIT_SHALLOW 1
+  HG_REPOSITORY https://bitbucket.org/anthonyw/variant
   TIMEOUT 120
   SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/dependencies/anthonyw"
   CONFIGURE_COMMAND "" # Disable configure step

@@ -19,6 +19,7 @@ matrix:
         apt:
           packages:
             - g++-5
+            - mercurial
           sources:
             - ubuntu-toolchain-r-test
     # ubuntu 14.04, gcc-6
@@ -31,6 +32,7 @@ matrix:
         apt:
           packages:
             - g++-6
+            - mercurial
           sources:
             - ubuntu-toolchain-r-test
     # ubuntu 14.04, gcc-7
@@ -43,6 +45,7 @@ matrix:
         apt:
           packages:
             - g++-7
+            - mercurial
           sources:
             - ubuntu-toolchain-r-test
 
@@ -52,30 +55,50 @@ matrix:
       os: linux
       dist: trusty
       sudo: required
+      addons:
+        apt:
+          packages:
+            - mercurial
     # ubuntu 14.04, clang-3.7
     - env: VER=3.7
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
+      addons:
+        apt:
+          packages:
+            - mercurial
     # ubuntu 14.04, clang-3.8
     - env: VER=3.8
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
+      addons:
+        apt:
+          packages:
+            - mercurial
     # ubuntu 14.04, clang-3.9
     - env: VER=3.9
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
+      addons:
+        apt:
+          packages:
+            - mercurial
     # ubuntu 14.04, clang-4.0
     - env: VER=4.0
       compiler: clang
       os: linux
       dist: trusty
       sudo: required
+      addons:
+        apt:
+          packages:
+            - mercurial
 
 branches:
   only:
