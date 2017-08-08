@@ -36,6 +36,10 @@ add_dataset(
   datasets pdimov ctor.fwd.alternatives
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
+add_dataset(
+  datasets std ctor.fwd.alternatives
+  "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
+
 # Add a compile-time chart
 metabench_add_chart(
   benchmark.compile_time.ctor.fwd.alternatives

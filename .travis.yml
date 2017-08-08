@@ -10,7 +10,7 @@ env:
 matrix:
   include:
     # ubuntu 14.04, gcc-5
-    - env: VER=5
+    - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: gcc
       os: linux
       dist: trusty
@@ -23,7 +23,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
     # ubuntu 14.04, gcc-6
-    - env: VER=6
+    - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: gcc
       os: linux
       dist: trusty
@@ -36,7 +36,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
     # ubuntu 14.04, gcc-7
-    - env: VER=7
+    - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std"
       compiler: gcc
       os: linux
       dist: trusty
@@ -70,7 +70,7 @@ matrix:
           packages:
             - mercurial
     # ubuntu 14.04, clang-3.8
-    - env: VER=3.8
+    - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
       os: linux
       dist: trusty
@@ -80,7 +80,7 @@ matrix:
           packages:
             - mercurial
     # ubuntu 14.04, clang-3.9
-    - env: VER=3.9
+    - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
       os: linux
       dist: trusty
@@ -90,7 +90,7 @@ matrix:
           packages:
             - mercurial
     # ubuntu 14.04, clang-4.0
-    - env: VER=4.0
+    - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std"
       compiler: clang
       os: linux
       dist: trusty
@@ -154,9 +154,6 @@ before_install:
   - if [ -n "${VER}" ]; then
       export CC="${CC}-${VER}";
       export CXX="${CXX}-${VER}";
-    fi
-  - if [ -z "${BENCHMARKS}" ]; then
-      export BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov";
     fi
   - ${CXX} --version
 
