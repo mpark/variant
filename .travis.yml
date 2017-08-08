@@ -45,6 +45,18 @@ matrix:
             - g++-6
           sources:
             - ubuntu-toolchain-r-test
+    # ubuntu 14.04, gcc-7
+    - env: VER=7
+      compiler: gcc
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: &gcc7
+        apt:
+          packages:
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
 
     # ubuntu 14.04, clang-3.5
     - env: VER=3.5
