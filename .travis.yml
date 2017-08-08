@@ -96,6 +96,13 @@ matrix:
       dist: trusty
       sudo: required
       addons: *libcxx
+    # ubuntu 14.04, clang-4.0
+    - env: VER=4.0
+      compiler: clang
+      os: linux
+      dist: trusty
+      sudo: required
+      addons: *libcxx
 
 branches:
   only:
