@@ -574,11 +574,6 @@ before_install:
       export LDFLAGS="${LDFLAGS} -L${DEPS}/lib -lc++abi"
       export LD_LIBRARY_PATH="${DEPS}/lib:${LD_LIBRARY_PATH}"
     fi
-  # Set the correct `CXXFLAGS` environment variable.
-  - |
-    if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${COMPILER}" = "clang" ]; then
-      export CXXFLAGS="${CXXFLAGS} -stdlib=libc++"
-    fi
 
 install:
   - mkdir build
