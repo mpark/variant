@@ -123,11 +123,6 @@ before_install:
       travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${DEPS}/include boost_1_64_0/boost
       export CXXFLAGS="${CXXFLAGS} -isystem ${DEPS}/include"
     fi
-  # Set the correct `CXXFLAGS` environment variable.
-  - |
-    if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${COMPILER}" = "clang" ]; then
-      export CXXFLAGS="${CXXFLAGS} -stdlib=libc++"
-    fi
 
 install:
   - mkdir build
