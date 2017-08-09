@@ -579,8 +579,9 @@ install:
   - mkdir build
   - pushd build
   - cmake -DCMAKE_BUILD_TYPE=${BUILD}
-          -DMPARK_VARIANT_EXCEPTIONS=${EX}
+          -DCMAKE_CXX_FLAGS=${CXXFLAGS}
           -DMPARK_VARIANT_CXX_STANDARD=${STD}
+          -DMPARK_VARIANT_EXCEPTIONS=${EX}
           -DMPARK_VARIANT_INCLUDE_TESTS=${TESTS} ..
   - cmake --build .
   - popd
