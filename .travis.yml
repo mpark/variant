@@ -102,12 +102,12 @@ before_install:
 
       pushd llvm-build
       cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPS} ../llvm
-      cmake --build projects/libcxx --target install
-      cmake --build projects/libcxxabi --target install
+      cmake --build projects/libcxx --target install -- -j 2
+      cmake --build projects/libcxxabi --target install -- -j 2
       popd
 
       export CXXFLAGS="${CXXFLAGS} -nostdinc++ -isystem ${DEPS}/include/c++/v1"
-      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib"
+      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib -lc++ -lc++abi"
       export LD_LIBRARY_PATH="${DEPS}/lib:${LD_LIBRARY_PATH}"
     fi
   # Install newer boost.
@@ -127,9 +127,8 @@ before_install:
 install:
   - mkdir build
   - pushd build
-  - cmake -DCMAKE_BUILD_TYPE=Release
-          -DCMAKE_CXX_FLAGS=${CXXFLAGS}
-          -DMPARK_VARIANT_INCLUDE_BENCHMARKS=${BENCHMARKS} ..
+  - cmake -DCMAKE_BUILD_TYPE="Release"
+          -DMPARK_VARIANT_INCLUDE_BENCHMARKS="${BENCHMARKS}" ..
   - cmake --build .
   - popd
 
