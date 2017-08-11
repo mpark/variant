@@ -586,42 +586,42 @@ matrix:
     - env: STD=11 BUILD=Debug EX=ON TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++11, debug, no-exceptions
     - env: STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++11, release, exceptions
     - env: STD=11 BUILD=Release EX=ON TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++11, release, no-exceptions
     - env: STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++14, debug, exceptions
     - env: STD=14 BUILD=Debug EX=ON TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++14, debug, no-exceptions
     - env: STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++14, release, exceptions
     - env: STD=14 BUILD=Release EX=ON TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
     # OS X Sierra 10.12, apple-clang-8, c++14, release, no-exceptions
     - env: STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
-      osx_image: xcode8.2
+      osx_image: xcode8.3
 
 before_install:
   # Save the name of the compiler.
