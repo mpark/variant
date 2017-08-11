@@ -127,11 +127,13 @@ The following compilers are continously tested:
 | GCC 4.9.4                              | Ubuntu 14.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4                                           |
 | GCC 5.4.1                              | Ubuntu 14.04.5 LTS                          | g++-5 (Ubuntu 5.4.1-2ubuntu1~14.04) 5.4.1 20160904                                      |
 | GCC 6.2.0                              | Ubuntu 14.04.5 LTS                          | g++-6 (Ubuntu 6.2.0-3ubuntu11~14.04) 6.2.0 20160901                                     |
-| Clang 3.5.2                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.5.2-svn232544-1~exp1 (branches/release_35) (based on LLVM 3.5.2) |
-| Clang 3.6.2                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.6.2-svn240577-1~exp1 (branches/release_36) (based on LLVM 3.6.2) |
-| Clang 3.7.1                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.7.1-svn253742-1~exp1 (branches/release_37) (based on LLVM 3.7.1) |
-| Clang 3.8.0                            | Ubuntu 14.04.5 LTS                          | clang version 3.8.0-2ubuntu3~trusty4 (tags/RELEASE_380/final)                           |
+| GCC 7.1.0                              | Ubuntu 14.04.5 LTS                          | g++-7 (Ubuntu 7.1.0-5ubuntu2~14.04) 7.1.0                                               |
+| Clang 3.5.0                            | Ubuntu 12.04.5 LTS                          | Ubuntu clang version 3.5.0-svn217304-1~exp1 (branches/release_35) (based on LLVM 3.5.0) |
+| Clang 3.6.2                            | Ubuntu 12.04.5 LTS                          | Ubuntu clang version 3.6.2-svn240577-1~exp1 (branches/release_36) (based on LLVM 3.6.2) |
+| Clang 3.7.1                            | Ubuntu 12.04.5 LTS                          | Ubuntu clang version 3.7.1-svn253571-1~exp1 (branches/release_37) (based on LLVM 3.7.1) |
+| Clang 3.8.1                            | Ubuntu 12.04.5 LTS                          | clang version 3.8.1-svn271772-1~exp1 (branches/release_38)                              |
 | Clang 3.9.1                            | Ubuntu 14.04.5 LTS                          | clang version 3.9.1-svn288847-1~exp1 (branches/release_39)                              |
+| Clang 4.0.1                            | Ubuntu 14.04.5 LTS                          | clang version 4.0.1-svn305264-1~exp1 (branches/release_40)                              |
 | Clang Xcode 6.4                        | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                      |
 | Clang Xcode 7.3                        | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                               |
 | Clang Xcode 8.2                        | Darwin Kernel Version 16.1.0 (OS X 10.12.1) | Apple LLVM version 8.0.0 (clang-800.0.42.1)                                             |
