@@ -136,7 +136,7 @@ The following compilers are continously tested:
 | Clang 4.0.1                            | Ubuntu 14.04.5 LTS                          | clang version 4.0.1-svn305264-1~exp1 (branches/release_40)                              |
 | Clang Xcode 6.4                        | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                      |
 | Clang Xcode 7.3                        | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                               |
-| Clang Xcode 8.2                        | Darwin Kernel Version 16.1.0 (OS X 10.12.1) | Apple LLVM version 8.0.0 (clang-800.0.42.1)                                             |
+| Clang Xcode 8.3                        | Darwin Kernel Version 16.6.0 (OS X 10.12.5) | Apple LLVM version 8.1.0 (clang-802.0.42)                                               |
 | Visual Studio 14 2015                  | Visual Studio 2015 with Update 3            | MSVC 19.00.24215.1 | Microsoft (R) Build Engine version 14.0.25420.1                    |
 | Visual Studio 14 2017                  | Visual Studio 2017                          | MSVC 19.10.25019.0 | Microsoft (R) Build Engine version 15.1.1012.6693                  |
 | Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio 2015 with Update 3            | Clang 4.0.0        | Microsoft (R) Build Engine version 14.0.25420.1                    |
