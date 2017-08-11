@@ -69,9 +69,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   ExternalProject_Add(llvm
     GIT_REPOSITORY    http://llvm.org/git/llvm.git
     GIT_SHALLOW       1
-    CMAKE_ARGS        "-DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}"
-                      "-DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}"
-                      "-DLIBCXX_ENABLE_EXCEPTIONS=${MPARK_VARIANT_EXCEPTIONS}"
+    CMAKE_ARGS        -DCMAKE_BUILD_TYPE=Release
     SOURCE_DIR        ${MPARK_VARIANT_LLVM_SOURCE_DIR}
     BINARY_DIR        ${MPARK_VARIANT_LLVM_BINARY_DIR}
     BUILD_COMMAND     ${CMAKE_COMMAND} --build . --target cxx

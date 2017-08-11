@@ -570,19 +570,23 @@ before_install:
       cmake --build projects/libcxxabi --target install
       popd
 
-      export CXXFLAGS="${CXXFLAGS} -nostdinc++ -isystem ${DEPS}/include/c++/v1"
-      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib -lc++abi"
+      # These flags are passed via `-DCMAKE_CXX_FLAGS` because setting them on
+      # `CXXFLAGS` conflicts with the include directories explicitly set by
+      # libc++ when it's being built for the `std::variant` tests.
+      COMPILE_FLAGS="-nostdinc++ -isystem ${DEPS}/include/c++/v1"
+
+      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib -lc++ -lc++abi"
       export LD_LIBRARY_PATH="${DEPS}/lib:${LD_LIBRARY_PATH}"
     fi
 
 install:
   - mkdir build
   - pushd build
-  - cmake -DCMAKE_BUILD_TYPE=${BUILD}
-          -DCMAKE_CXX_FLAGS=${CXXFLAGS}
-          -DMPARK_VARIANT_CXX_STANDARD=${STD}
-          -DMPARK_VARIANT_EXCEPTIONS=${EX}
-          -DMPARK_VARIANT_INCLUDE_TESTS=${TESTS} ..
+  - cmake -DCMAKE_CXX_FLAGS="${COMPILE_FLAGS}"
+          -DCMAKE_BUILD_TYPE="${BUILD}"
+          -DMPARK_VARIANT_CXX_STANDARD="${STD}"
+          -DMPARK_VARIANT_EXCEPTIONS="${EX}"
+          -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
   - cmake --build .
   - popd
 
