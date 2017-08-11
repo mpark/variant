@@ -157,6 +157,55 @@ matrix:
       dist: trusty
       addons: *gcc6
 
+    # ubuntu 14.04, gcc-7, c++11, debug, exceptions
+    - env: VER=7 STD=11 BUILD=Debug EX=ON TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: &gcc7 { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
+    # ubuntu 14.04, gcc-7, c++11 debug, no-exceptions
+    - env: VER=7 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++11, release, exceptions
+    - env: VER=7 STD=11 BUILD=Release EX=ON TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++11, release, no-exceptions
+    - env: VER=7 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++14, debug, exceptions
+    - env: VER=7 STD=14 BUILD=Debug EX=ON TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++14, debug, no-exceptions
+    - env: VER=7 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++14, release, exceptions
+    - env: VER=7 STD=14 BUILD=Release EX=ON TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+    # ubuntu 14.04, gcc-7, c++14, release, no-exceptions
+    - env: VER=7 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
+      compiler: gcc
+      os: linux
+      dist: trusty
+      addons: *gcc7
+
     # ubuntu 14.04, clang-3.5, c++11, debug, exceptions
     - env: VER=3.5 STD=11 BUILD=Debug EX=ON TESTS="mpark;libc++"
       compiler: clang
@@ -401,6 +450,55 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang39
+
+    # ubuntu 14.04, clang-4.0, c++11, debug, exceptions
+    - env: VER=4.0 STD=11 BUILD=Debug EX=ON TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: &clang40 { apt: { packages: ["clang-4.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+    # ubuntu 14.04, clang-4.0, c++11, debug, no-exceptions
+    - env: VER=4.0 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++11, release, exceptions
+    - env: VER=4.0 STD=11 BUILD=Release EX=ON TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++11, release, no-exceptions
+    - env: VER=4.0 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++14, debug, exceptions
+    - env: VER=4.0 STD=14 BUILD=Debug EX=ON TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++14, debug, no-exceptions
+    - env: VER=4.0 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++14, release, exceptions
+    - env: VER=4.0 STD=14 BUILD=Release EX=ON TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
+    # ubuntu 14.04, clang-4.0, c++14, release, no-exceptions
+    - env: VER=4.0 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
+      compiler: clang
+      os: linux
+      dist: trusty
+      addons: *clang40
 
     # OS X Yosemite 10.10, Apple Clang, c++11, debug, exceptions
     - env: STD=11 BUILD=Debug EX=ON TESTS="mpark;libc++"
