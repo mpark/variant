@@ -23,7 +23,6 @@ ${MPARK_VARIANT_LIT} \
     -v \
     --param color_diagnostics \
     --param compile_flags=-I${MPARK_VARIANT_SOURCE_DIR}/include/mpark \
-    --param cxx_under_test=${MPARK_VARIANT_CXX_COMPILER} \
     --param std=c++1z \
     --param libcxx_site_config=${MPARK_VARIANT_LIBCXX_SITE_CONFIG} \
     ${MPARK_VARIANT_LIBCXX_SOURCE_DIR}/test/std/utilities/variant \
