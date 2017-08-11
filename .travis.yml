@@ -664,8 +664,8 @@ before_install:
 
       pushd llvm-build
       cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPS} ../llvm
-      cmake --build projects/libcxx --target install
-      cmake --build projects/libcxxabi --target install
+      cmake --build projects/libcxx --target install -- -j 2
+      cmake --build projects/libcxxabi --target install -- -j 2
       popd
       if [ "${VER}" = "3.5" ]; then
         # `cxxabi.h` isn't installed correctly for libc++-3.5.
@@ -689,7 +689,7 @@ install:
           -DMPARK_VARIANT_CXX_STANDARD="${STD}"
           -DMPARK_VARIANT_EXCEPTIONS="${EX}"
           -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
-  - cmake --build .
+  - cmake --build . -- -j 2
   - popd
 
 script:
