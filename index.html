@@ -26,7 +26,7 @@ compilers:
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Variant Benchmark</title>
+    <title>MPark.Variant/Benchmark</title>
 
     <link href="{{ site.baseurl }}/public/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ site.baseurl }}/public/octicons/octicons.css" rel="stylesheet">
@@ -107,7 +107,7 @@ compilers:
       <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
           <div class="navbar-header">
-            <a class="navbar-brand" href="#">Variant Benchmark</a>
+            <a class="navbar-brand" href="#">MPark.Variant / Benchmark</a>
           </div>
           <ul class="index nav navbar-nav navbar-left">
             {% for collection in site.collections %}
@@ -123,6 +123,15 @@ compilers:
                 <li class="compiler{% if compiler.active %} active{% endif %}" data-compiler="{{ compiler.label }}"><a href="#">{{ compiler.name }}</a></li>
                 {% endfor %}
               </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+              <a aria-label="View on GitHub" href="https://github.com/mpark/variant/tree/benchmark">
+                <span class="hidden-xs">View on GitHub</span>
+                <span class="hidden-xs octicon octicon-mark-github" aria-hidden="true"></span>
+                <span class="visible-xs-block mega-octicon octicon-mark-github" aria-hidden="true"></span>
+              </a>
             </li>
           </ul>
         </div>
