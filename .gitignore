@@ -29,3 +29,5 @@
 
 # build
 /build
+
+3rdparty/googletest
