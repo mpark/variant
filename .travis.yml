@@ -569,6 +569,10 @@ before_install:
       cmake --build projects/libcxx --target install
       cmake --build projects/libcxxabi --target install
       popd
+      if [ "${VER}" = "3.5" ]; then
+        # `cxxabi.h` isn't installed correctly for libc++-3.5.
+        cp llvm/projects/libcxxabi/include/cxxabi.h ${DEPS}/include/c++/v1
+      fi
 
       # These flags are passed via `-DCMAKE_CXX_FLAGS` because setting them on
       # `CXXFLAGS` conflicts with the include directories explicitly set by
