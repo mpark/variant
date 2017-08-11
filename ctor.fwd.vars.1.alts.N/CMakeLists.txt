@@ -6,56 +6,62 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
+set(test "ctor.fwd.vars.1.alts.N")
+set(title "1 variant, N alternatives")
+set(xlabel "Number of alternatives")
+
 set(datasets)
 
 add_dataset(
-  datasets anthonyw ctor.fwd.alternatives
+  datasets anthonyw ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets boost ctor.fwd.alternatives
+  datasets boost ${test}
   "[1] + (10..50).step(10).to_a")
 
 add_dataset(
-  datasets eggs ctor.fwd.alternatives
+  datasets eggs ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets juice ctor.fwd.alternatives
+  datasets juice ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets mapbox ctor.fwd.alternatives
+  datasets mapbox ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets mpark ctor.fwd.alternatives
+  datasets mpark ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets pdimov ctor.fwd.alternatives
+  datasets pdimov ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 add_dataset(
-  datasets std ctor.fwd.alternatives
+  datasets std ${test}
   "[1] + (10..50).step(10).to_a + (100..500).step(50).to_a")
 
 # Add a compile-time chart
 metabench_add_chart(
-  benchmark.compile_time.ctor.fwd.alternatives
+  benchmark.compile_time.${test}
   ALL
   ASPECT COMPILATION_TIME
-  XLABEL "Number of alternatives"
+  TITLE ${title}
+  XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT compile_time.html
 )
 
 # Add a binary size chart
 metabench_add_chart(
-  benchmark.binary_size.ctor.fwd.alternatives
+  benchmark.binary_size.${test}
   ALL
   ASPECT EXECUTABLE_SIZE
-  XLABEL "Number of alternatives"
+  TITLE ${title}
+  XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT binary_size.html
 )

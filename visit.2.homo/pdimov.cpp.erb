@@ -1,0 +1,22 @@
+// MPark.Variant
+//
+// Copyright Michael Park, 2015-2017
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#include <boost/variant2/variant.hpp>
+
+template <int>
+struct S {};
+
+int main() {
+  boost::variant2::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>>
+      v(S<0>{}),
+      w(S<<%= n - 1 %>>{});
+#if defined(METABENCH)
+  boost::variant2::visit([](auto, auto) {}, v, w);
+  boost::variant2::visit([](auto, auto) {}, w, v);
+#endif
+}

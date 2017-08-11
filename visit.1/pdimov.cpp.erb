@@ -6,14 +6,14 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <functional>  // Missing in <variant>, for `std::hash`
-#include <variant>
+#include <boost/variant2/variant.hpp>
 
 template <int>
 struct S {};
 
 int main() {
+  boost::variant2::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
 #if defined(METABENCH)
-  <%= (0...n).map { |i| "std::experimental::variant<S<#{i}>> v#{i}(S<#{i}>{});" }.join("\n") %>
+  boost::variant2::visit([](auto) {}, v);
 #endif
 }

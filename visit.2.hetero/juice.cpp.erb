@@ -1,0 +1,23 @@
+// MPark.Variant
+//
+// Copyright Michael Park, 2015-2017
+//
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+
+#include <juice/variant.hpp>
+
+template <int>
+struct S {};
+
+int main() {
+  juice::variant<
+      <%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+  juice::variant<
+      <%= (n - 1).downto(0).map { |i| "S<#{i}>" }.join(', ') %>> w(S<0>{});
+#if defined(METABENCH)
+  juice::visit([](auto, auto) {}, v, w);
+  juice::visit([](auto, auto) {}, w, v);
+#endif
+}

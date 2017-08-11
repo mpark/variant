@@ -6,13 +6,18 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <juice/variant.hpp>
+#include <mapbox/variant.hpp>
 
 template <int>
 struct S {};
 
 int main() {
 #if defined(METABENCH)
-  <%= (0...n).map { |i| "juice::variant<S<#{i}>> v#{i}(S<#{i}>{});" }.join("\n") %>
+<%=
+  (0...n).map { |i|
+    alts = (0..i).map { |j| "S<#{j}>" }.join(", ")
+    "  mapbox::util::variant<#{alts}> v#{i}(S<#{i}>{});"
+  }.join("\n")
+%>
 #endif
 }

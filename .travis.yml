@@ -32,12 +32,12 @@ matrix:
       addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, clang-3.6
-    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
       dist: precise
       addons: { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
     # ubuntu 14.04, clang-3.7
-    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov"
       compiler: clang
       dist: precise
       addons: { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }

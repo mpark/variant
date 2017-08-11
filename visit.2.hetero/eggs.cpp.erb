@@ -6,13 +6,18 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/variant.hpp>
+#include <eggs/variant.hpp>
 
 template <int>
 struct S {};
 
 int main() {
+  eggs::variant<
+      <%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+  eggs::variant<
+      <%= (n - 1).downto(0).map { |i| "S<#{i}>" }.join(', ') %>> w(S<0>{});
 #if defined(METABENCH)
-  <%= (0...n).map { |i| "boost::variant<S<#{i}>> v#{i}(S<#{i}>{});" }.join("\n") %>
+  eggs::apply([](auto, auto) {}, v, w);
+  eggs::apply([](auto, auto) {}, w, v);
 #endif
 }
