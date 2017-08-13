@@ -6,8 +6,8 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-set(test "visit.2.hetero")
-set(title "Double visitation (Heterogeneous)")
+set(test "visit.2.mixed")
+set(title "Double visitation (Mixed types)")
 set(xlabel "Number of alternatives")
 
 set(datasets)
