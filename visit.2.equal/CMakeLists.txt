@@ -26,7 +26,7 @@ metabench_add_chart(
   benchmark.binary_size.${test}
   ALL
   ASPECT EXECUTABLE_SIZE
-  TITLE ${title}
+  SUBTITLE ${title}
   XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT binary_size.html
@@ -37,7 +37,7 @@ metabench_add_chart(
   benchmark.compile_time.${test}
   ALL
   ASPECT COMPILATION_TIME
-  TITLE ${title}
+  SUBTITLE ${title}
   XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT compile_time.html
