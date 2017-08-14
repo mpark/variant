@@ -40,11 +40,11 @@ add_dataset(
 
 add_dataset(
   datasets pdimov   ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets std      ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 # Add a binary size chart
 metabench_add_chart(
