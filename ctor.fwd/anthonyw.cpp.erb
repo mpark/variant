@@ -6,7 +6,8 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/variant2/variant.hpp>
+#include <functional>
+#include <variant>
 
 template <int>
 struct S {};
@@ -14,10 +15,11 @@ struct S {};
 int main() {
 #if defined(METABENCH)
 <%=
-  (0...n).map { |i|
-    alts = (0..i).map { |j| "S<#{j}>" }.join(", ")
-    "  boost::variant2::variant<#{alts}> v#{i}(S<#{i}>{});"
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  std::experimental::variant<#{alts}> v#{i}(S<#{i}>{});"
   }.join("\n")
 %>
+
 #endif
 }

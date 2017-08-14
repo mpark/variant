@@ -17,6 +17,11 @@ struct S {};
 
 int main() {
 #if defined(METABENCH)
-  boost::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  boost::variant<#{alts}> v#{i}(S<#{i}>{});"
+  }.join("\n")
+%>
 #endif
 }

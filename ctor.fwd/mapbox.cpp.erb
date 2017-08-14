@@ -14,8 +14,8 @@ struct S {};
 int main() {
 #if defined(METABENCH)
 <%=
-  (0...n).map { |i|
-    alts = (0..i).map { |j| "S<#{j}>" }.join(", ")
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
     "  mapbox::util::variant<#{alts}> v#{i}(S<#{i}>{});"
   }.join("\n")
 %>

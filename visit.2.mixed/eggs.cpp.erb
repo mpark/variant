@@ -12,12 +12,26 @@ template <int>
 struct S {};
 
 int main() {
-  eggs::variant<
-      <%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
-  eggs::variant<
-      <%= (n - 1).downto(0).map { |i| "S<#{i}>" }.join(', ') %>> w(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    x_alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    y_alts = (n - 1).downto(0).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  eggs::variant<#{x_alts}>\n"         \
+    "      xv#{i}(S<#{i}>{}),\n"           \
+    "      xw#{i}(S<#{(n - 1) + i}>{});\n" \
+    "  eggs::variant<#{y_alts}>\n"         \
+    "      yv#{i}(S<#{i}>{}),\n"           \
+    "      yw#{i}(S<#{(n - 1) + i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  eggs::apply([](auto, auto) {}, v, w);
-  eggs::apply([](auto, auto) {}, w, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  eggs::apply([](auto, auto) {}, xv#{i}, yv#{i});\n" \
+    "  eggs::apply([](auto, auto) {}, xv#{i}, yw#{i});\n" \
+    "  eggs::apply([](auto, auto) {}, xw#{i}, yv#{i});\n" \
+    "  eggs::apply([](auto, auto) {}, xw#{i}, yw#{i});"
+  }.join("\n")
+%>
 #endif
 }

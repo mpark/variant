@@ -8,8 +8,9 @@
 if (MPARK_VARIANT_INCLUDE_BOOST_BENCHMARKS)
   find_package(Boost 1.64 REQUIRED)
 
-  function(boost_add_dataset dataset range)
-    metabench_add_dataset(${dataset} boost.cpp.erb ${range} NAME boost)
+  function(boost_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} boost.cpp.erb ${range}
+                          NAME boost ENV "{repeat: ${repeat}}")
     target_link_libraries(${dataset} PUBLIC ${Boost_LIBRARIES})
   endfunction()
 else()

@@ -22,8 +22,9 @@ if (MPARK_VARIANT_INCLUDE_MPARK_BENCHMARKS)
   ExternalProject_Get_Property(mpark SOURCE_DIR)
   set(mpark_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(mpark_add_dataset dataset range)
-    metabench_add_dataset(${dataset} mpark.cpp.erb ${range} NAME mpark)
+  function(mpark_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} mpark.cpp.erb ${range}
+                          NAME mpark ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${mpark_INCLUDE_DIRS})
     add_dependencies(${dataset} mpark)
   endfunction()

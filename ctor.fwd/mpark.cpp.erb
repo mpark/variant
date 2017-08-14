@@ -6,8 +6,7 @@
 // (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <functional>  // Missing in <variant>, for `std::hash`
-#include <variant>
+#include <mpark/variant.hpp>
 
 template <int>
 struct S {};
@@ -15,9 +14,9 @@ struct S {};
 int main() {
 #if defined(METABENCH)
 <%=
-  (0...n).map { |i|
-    alts = (0..i).map { |j| "S<#{j}>" }.join(", ")
-    "  std::experimental::variant<#{alts}> v#{i}(S<#{i}>{});"
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  mpark::variant<#{alts}> v#{i}(S<#{i}>{});"
   }.join("\n")
 %>
 #endif

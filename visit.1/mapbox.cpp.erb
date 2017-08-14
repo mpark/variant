@@ -12,8 +12,17 @@ template <int>
 struct S {};
 
 int main() {
-  mapbox::util::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  mapbox::util::variant<#{alts}> v#{i}(S<#{i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  v.match([](auto) {});
+<%=
+  (0...env[:repeat]).map { |i|
+    "  v#{i}.match([](auto) {});"
+  }.join("\n")
+%>
 #endif
 }

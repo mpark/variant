@@ -22,8 +22,9 @@ if (MPARK_VARIANT_INCLUDE_EGGS_BENCHMARKS)
   ExternalProject_Get_Property(eggs SOURCE_DIR)
   set(eggs_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(eggs_add_dataset dataset range)
-    metabench_add_dataset(${dataset} eggs.cpp.erb ${range} NAME eggs)
+  function(eggs_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} eggs.cpp.erb ${range}
+                          NAME eggs ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${eggs_INCLUDE_DIRS})
     add_dependencies(${dataset} eggs)
   endfunction()

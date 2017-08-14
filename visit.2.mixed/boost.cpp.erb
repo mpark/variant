@@ -16,12 +16,26 @@ template <int>
 struct S {};
 
 int main() {
-  boost::variant<
-      <%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
-  boost::variant<
-      <%= (n - 1).downto(0).map { |i| "S<#{i}>" }.join(', ') %>> w(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    x_alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    y_alts = (n - 1).downto(0).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  boost::variant<#{x_alts}>\n"        \
+    "      xv#{i}(S<#{i}>{}),\n"           \
+    "      xw#{i}(S<#{(n - 1) + i}>{});\n" \
+    "  boost::variant<#{y_alts}>\n"        \
+    "      yv#{i}(S<#{i}>{}),\n"           \
+    "      yw#{i}(S<#{(n - 1) + i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  boost::apply_visitor([](auto, auto) {}, v, w);
-  boost::apply_visitor([](auto, auto) {}, w, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  boost::apply_visitor([](auto, auto) {}, xv#{i}, yv#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, xv#{i}, yw#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, xw#{i}, yv#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, xw#{i}, yw#{i});"
+  }.join("\n")
+%>
 #endif
 }

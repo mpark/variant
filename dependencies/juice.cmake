@@ -22,8 +22,9 @@ if (MPARK_VARIANT_INCLUDE_JUICE_BENCHMARKS)
   ExternalProject_Get_Property(juice SOURCE_DIR)
   set(juice_INCLUDE_DIRS ${SOURCE_DIR})
 
-  function(juice_add_dataset dataset range)
-    metabench_add_dataset(${dataset} juice.cpp.erb ${range} NAME juice)
+  function(juice_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} juice.cpp.erb ${range}
+                          NAME juice ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${juice_INCLUDE_DIRS})
     add_dependencies(${dataset} juice)
   endfunction()

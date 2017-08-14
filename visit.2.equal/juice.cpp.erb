@@ -12,11 +12,22 @@ template <int>
 struct S {};
 
 int main() {
-  juice::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>>
-      v(S<0>{}),
-      w(S<<%= n - 1 %>>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  juice::variant<#{alts}>\n" \
+    "      v#{i}(S<#{i}>{}),\n"   \
+    "      w#{i}(S<#{(n - 1) + i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  juice::visit([](auto, auto) {}, v, w);
-  juice::visit([](auto, auto) {}, w, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  juice::visit([](auto, auto) {}, v#{i}, v#{i});\n" \
+    "  juice::visit([](auto, auto) {}, v#{i}, w#{i});\n" \
+    "  juice::visit([](auto, auto) {}, w#{i}, v#{i});\n" \
+    "  juice::visit([](auto, auto) {}, v#{i}, v#{i});"
+  }.join("\n")
+%>
 #endif
 }

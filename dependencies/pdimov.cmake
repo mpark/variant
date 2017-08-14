@@ -38,8 +38,9 @@ if (MPARK_VARIANT_INCLUDE_PDIMOV_BENCHMARKS)
   ExternalProject_Get_Property(pdimov SOURCE_DIR)
   set(pdimov_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(pdimov_add_dataset dataset range)
-    metabench_add_dataset(${dataset} pdimov.cpp.erb ${range} NAME pdimov)
+  function(pdimov_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} pdimov.cpp.erb ${range}
+                          NAME pdimov ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${mp11_INCLUDE_DIRS}
                                                  ${pdimov_INCLUDE_DIRS})
     add_dependencies(${dataset} mp11 pdimov)

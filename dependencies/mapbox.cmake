@@ -22,8 +22,9 @@ if (MPARK_VARIANT_INCLUDE_MAPBOX_BENCHMARKS)
   ExternalProject_Get_Property(mapbox SOURCE_DIR)
   set(mapbox_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(mapbox_add_dataset dataset range)
-    metabench_add_dataset(${dataset} mapbox.cpp.erb ${range} NAME mapbox)
+  function(mapbox_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} mapbox.cpp.erb ${range}
+                          NAME mapbox ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${mapbox_INCLUDE_DIRS})
     add_dependencies(${dataset} mapbox)
   endfunction()

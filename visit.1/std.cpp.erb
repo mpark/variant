@@ -12,8 +12,17 @@ template <int>
 struct S {};
 
 int main() {
-  std::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  std::variant<#{alts}> v#{i}(S<#{i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  std::visit([](auto) {}, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  std::visit([](auto) {}, v#{i});"
+  }.join("\n")
+%>
 #endif
 }

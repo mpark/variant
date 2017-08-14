@@ -6,10 +6,10 @@
 # (See accompanying file LICENSE_1_0.txt or copy at
 # http://www.boost.org/LICENSE_1_0.txt)
 
-set(name "visit.1")
-set(repeat 25)
+set(name "ctor.fwd")
+set(repeat 250)
 
-set(title "Single visitation (${repeat}x)")
+set(title "Forwarding constructor (${repeat}x)")
 set(xlabel "Number of alternatives")
 
 set(datasets)
@@ -42,20 +42,9 @@ add_dataset(
   datasets pdimov   ${name} ${repeat}
   "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
 
-# add_dataset(
-#   datasets std      ${name} ${repeat}
-#   "(1..5).to_a + (10..20).step(5).to_a + (30..50).step(10).to_a")
-
-# Add a binary size chart
-metabench_add_chart(
-  benchmark.binary_size.${name}
-  ALL
-  ASPECT EXECUTABLE_SIZE
-  TITLE ${title}
-  XLABEL ${xlabel}
-  DATASETS ${datasets}
-  OUTPUT binary_size.html
-)
+add_dataset(
+  datasets std      ${name} ${repeat}
+  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
 
 # Add a compile-time chart
 metabench_add_chart(
@@ -66,4 +55,15 @@ metabench_add_chart(
   XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT compile_time.html
+)
+
+# Add a binary size chart
+metabench_add_chart(
+  benchmark.binary_size.${name}
+  ALL
+  ASPECT EXECUTABLE_SIZE
+  TITLE ${title}
+  XLABEL ${xlabel}
+  DATASETS ${datasets}
+  OUTPUT binary_size.html
 )

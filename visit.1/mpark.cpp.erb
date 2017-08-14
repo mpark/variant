@@ -12,8 +12,17 @@ template <int>
 struct S {};
 
 int main() {
-  mpark::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>> v(S<0>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  mpark::variant<#{alts}> v#{i}(S<#{i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  mpark::visit([](auto) {}, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  mpark::visit([](auto) {}, v#{i});"
+  }.join("\n")
+%>
 #endif
 }

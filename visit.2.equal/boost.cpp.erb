@@ -16,11 +16,22 @@ template <int>
 struct S {};
 
 int main() {
-  boost::variant<<%= (0...n).map { |i| "S<#{i}>" }.join(', ') %>>
-      v(S<0>{}),
-      w(S<<%= n - 1 %>>{});
+<%=
+  (0...env[:repeat]).map { |i|
+    alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
+    "  boost::variant<#{alts}>\n" \
+    "      v#{i}(S<#{i}>{}),\n"   \
+    "      w#{i}(S<#{(n - 1) + i}>{});"
+  }.join("\n")
+%>
 #if defined(METABENCH)
-  boost::apply_visitor([](auto, auto) {}, v, w);
-  boost::apply_visitor([](auto, auto) {}, w, v);
+<%=
+  (0...env[:repeat]).map { |i|
+    "  boost::apply_visitor([](auto, auto) {}, v#{i}, v#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, v#{i}, w#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, w#{i}, v#{i});\n" \
+    "  boost::apply_visitor([](auto, auto) {}, w#{i}, w#{i});"
+  }.join("\n")
+%>
 #endif
 }

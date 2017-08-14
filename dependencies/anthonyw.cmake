@@ -21,8 +21,9 @@ if (MPARK_VARIANT_INCLUDE_ANTHONYW_BENCHMARKS)
   ExternalProject_Get_Property(anthonyw SOURCE_DIR)
   set(anthonyw_INCLUDE_DIRS ${SOURCE_DIR})
 
-  function(anthonyw_add_dataset dataset range)
-    metabench_add_dataset(${dataset} anthonyw.cpp.erb ${range} NAME anthonyw)
+  function(anthonyw_add_dataset dataset repeat range)
+    metabench_add_dataset(${dataset} anthonyw.cpp.erb ${range}
+                          NAME anthonyw ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${anthonyw_INCLUDE_DIRS})
     add_dependencies(${dataset} anthonyw)
   endfunction()
