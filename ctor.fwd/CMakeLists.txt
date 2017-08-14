@@ -7,7 +7,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 set(name "ctor.fwd")
-set(repeat 250)
+set(repeat 100)
 
 set(title "Forwarding constructor (${repeat}x)")
 set(xlabel "Number of alternatives")
