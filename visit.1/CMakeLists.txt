@@ -16,27 +16,27 @@ set(datasets)
 
 add_dataset(
   datasets anthonyw ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets boost    ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets eggs     ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets juice    ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets mapbox   ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets mpark    ${name} ${repeat}
-  "[1] + (2..10).step(2).to_a + (15..20).step(5).to_a + (30..50).step(10).to_a")
+  "[1] + (2..10).step(2).to_a + (15..25).step(5).to_a")
 
 add_dataset(
   datasets pdimov   ${name} ${repeat}
