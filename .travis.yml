@@ -297,7 +297,7 @@ script:
   - pushd gh-pages
   - git add --all .
   - git commit -m "Update benchmark '${BENCHMARK}' for '${CC}'."
-  - travis_retry git push origin gh-pages &>/dev/null
+  - travis_retry git pull --rebase && git push origin gh-pages &>/dev/null
   - popd
 
 notifications:
