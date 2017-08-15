@@ -7,20 +7,20 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 set(test "visit.2.mixed")
-set(repeat 10)
+set(repeat 1)
 
 set(title "Double visitation - Mixed variants (${repeat}x)")
 set(xlabel "Number of alternatives")
 
 set(datasets)
 
-add_dataset(datasets anthonyw ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets boost    ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets eggs     ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets juice    ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets mpark    ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets pdimov   ${test} ${repeat} "[1] + (2..10).step(2).to_a")
-add_dataset(datasets std      ${test} ${repeat} "[1] + (2..10).step(2).to_a")
+add_dataset(datasets anthonyw ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets boost    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets eggs     ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets juice    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets mpark    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets pdimov   ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+add_dataset(datasets std      ${test} ${repeat} "[1] + (5..25).step(5).to_a")
 
 # Add a binary size chart
 metabench_add_chart(
