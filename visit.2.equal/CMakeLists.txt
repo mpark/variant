@@ -7,7 +7,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 set(test "visit.2.equal")
-set(repeat 1)
+set(repeat 2)
 
 set(title "Double visitation - Equal variants (${repeat}x)")
 set(xlabel "Number of alternatives")

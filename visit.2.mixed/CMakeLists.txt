@@ -7,7 +7,7 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 set(test "visit.2.mixed")
-set(repeat 1)
+set(repeat 2)
 
 set(title "Double visitation - Mixed variants (${repeat}x)")
 set(xlabel "Number of alternatives")
