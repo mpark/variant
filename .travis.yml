@@ -16,169 +16,169 @@ env:
 matrix:
   include:
     # ubuntu 14.04, gcc-5, ctor.fwd
-    - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=5 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: gcc
       dist: trusty
       addons: &gcc5 { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
     # ubuntu 14.04, gcc-5, visit.1
-    - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=5 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: gcc
       dist: trusty
       addons: *gcc5
     # ubuntu 14.04, gcc-5, visit.2.equal
-    - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=5 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: gcc
       dist: trusty
       addons: *gcc5
     # ubuntu 14.04, gcc-5, visit.2.mixed
-    - env: VER=5 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=5 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: gcc
       dist: trusty
       addons: *gcc5
 
     # ubuntu 14.04, gcc-6, ctor.fwd
-    - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=6 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: gcc
       dist: trusty
       addons: &gcc6 { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
     # ubuntu 14.04, gcc-6, visit.1
-    - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=6 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: gcc
       dist: trusty
       addons: *gcc6
     # ubuntu 14.04, gcc-6, visit.2.equal
-    - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=6 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: gcc
       dist: trusty
       addons: *gcc6
     # ubuntu 14.04, gcc-6, visit.2.mixed
-    - env: VER=6 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=6 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: gcc
       dist: trusty
       addons: *gcc6
 
     # ubuntu 14.04, gcc-7, ctor.fwd
-    - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="ctor.fwd"
+    - env: VER=7 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="ctor.fwd"
       compiler: gcc
       dist: trusty
       addons: &gcc7 { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
     # ubuntu 14.04, gcc-7, visit.1
-    - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.1"
+    - env: VER=7 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.1"
       compiler: gcc
       dist: trusty
       addons: *gcc7
     # ubuntu 14.04, gcc-7, visit.2.equal
-    - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.2.equal"
+    - env: VER=7 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.2.equal"
       compiler: gcc
       dist: trusty
       addons: *gcc7
     # ubuntu 14.04, gcc-7, visit.2.mixed
-    - env: VER=7 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.2.mixed"
+    - env: VER=7 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.2.mixed"
       compiler: gcc
       dist: trusty
       addons: *gcc7
 
     # ubuntu 14.04, clang-3.6, ctor.fwd
-    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=3.6 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: clang
       dist: precise
       addons: &clang36 { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
     # ubuntu 14.04, clang-3.6, visit.1
-    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=3.6 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: clang
       dist: precise
       addons: *clang36
     # ubuntu 14.04, clang-3.6, visit.2.equal
-    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=3.6 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: clang
       dist: precise
       addons: *clang36
     # ubuntu 14.04, clang-3.6, visit.2.mixed
-    - env: VER=3.6 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=3.6 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: clang
       dist: precise
       addons: *clang36
 
     # ubuntu 14.04, clang-3.7, ctor.fwd
-    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=3.7 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: clang
       dist: precise
       addons: &clang37 { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
     # ubuntu 14.04, clang-3.7, visit.1
-    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=3.7 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: clang
       dist: precise
       addons: *clang37
     # ubuntu 14.04, clang-3.7, visit.2.equal
-    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=3.7 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: clang
       dist: precise
       addons: *clang37
     # ubuntu 14.04, clang-3.7, visit.2.mixed
-    - env: VER=3.7 BENCHMARKS="anthonyw;boost;eggs;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=3.7 LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: clang
       dist: precise
       addons: *clang37
 
     # ubuntu 14.04, clang-3.8, ctor.fwd
-    - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=3.8 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: clang
       dist: precise
       addons: &clang38 { apt: { packages: ["clang-3.8"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
     # ubuntu 14.04, clang-3.8, visit.1
-    - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=3.8 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: clang
       dist: precise
       addons: *clang38
     # ubuntu 14.04, clang-3.8, visit.2.equal
-    - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=3.8 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: clang
       dist: precise
       addons: *clang38
     # ubuntu 14.04, clang-3.8, visit.2.mixed
-    - env: VER=3.8 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=3.8 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: clang
       dist: precise
       addons: *clang38
 
     # ubuntu 14.04, clang-3.9, ctor.fwd
-    - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="ctor.fwd"
+    - env: VER=3.9 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="ctor.fwd"
       compiler: clang
       dist: trusty
       addons: &clang39 { apt: { packages: ["clang-3.9"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
     # ubuntu 14.04, clang-3.9, visit.1
-    - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.1"
+    - env: VER=3.9 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.1"
       compiler: clang
       dist: trusty
       addons: *clang39
     # ubuntu 14.04, clang-3.9, visit.2.equal
-    - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.equal"
+    - env: VER=3.9 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.equal"
       compiler: clang
       dist: trusty
       addons: *clang39
     # ubuntu 14.04, clang-3.9, visit.2.mixed
-    - env: VER=3.9 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" TEST="visit.2.mixed"
+    - env: VER=3.9 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov" BENCHMARK="visit.2.mixed"
       compiler: clang
       dist: trusty
       addons: *clang39
 
     # ubuntu 14.04, clang-4.0, ctor.fwd
-    - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="ctor.fwd"
+    - env: VER=4.0 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="ctor.fwd"
       compiler: clang
       dist: trusty
       addons: &clang40 { apt: { packages: ["clang-4.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
     # ubuntu 14.04, clang-4.0, visit.1
-    - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.1"
+    - env: VER=4.0 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.1"
       compiler: clang
       dist: trusty
       addons: *clang40
     # ubuntu 14.04, clang-4.0, visit.2.equal
-    - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.2.equal"
+    - env: VER=4.0 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.2.equal"
       compiler: clang
       dist: trusty
       addons: *clang40
     # ubuntu 14.04, clang-4.0, visit.2.mixed
-    - env: VER=4.0 BENCHMARKS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" TEST="visit.2.mixed"
+    - env: VER=4.0 LIBS="anthonyw;boost;eggs;juice;mapbox;mpark;pdimov;std" BENCHMARK="visit.2.mixed"
       compiler: clang
       dist: trusty
       addons: *clang40
@@ -253,13 +253,11 @@ before_install:
 install:
   - mkdir build
   - pushd build
-  - cmake -DCMAKE_BUILD_TYPE="Release"
-          -DMPARK_VARIANT_INCLUDE_BENCHMARKS="${BENCHMARKS}" ..
-
-  - BENCHMARKS=($(cmake --build build --target help | grep -E "benchmark\.[[:alnum:]_]+\.${TEST}" | cut -d " " -f 2 | sort))
+  - cmake -DCMAKE_BUILD_TYPE="Release" -DMPARK_VARIANT_INCLUDE_LIBRARIES="${LIBS}" ..
+  - TARGETS=($(cmake --build . --target help | grep -E "benchmark\.[[:alnum:]_]+\.${BENCHMARK}" | cut -d " " -f 2 | sort))
   - |
-    for BENCHMARK in ${BENCHMARKS[@]}; do
-      cmake --build . --target ${BENCHMARK}
+    for TARGET in ${TARGETS[@]}; do
+      cmake --build . --target ${TARGET}
     done
   - popd
 
@@ -268,9 +266,9 @@ before_script:
   - git config --global user.email "<>"
   - git clone https://$GITHUB_TOKEN@github.com/mpark/variant --depth 1 --branch=gh-pages gh-pages &>/dev/null
   - |
-    for BENCHMARK in ${BENCHMARKS[@]}; do
-      category="$(echo ${BENCHMARK} | cut -d '.' -f 2)"
-      name="$(echo ${BENCHMARK} | cut -d '.' -f 3-)"
+    for TARGET in ${TARGETS[@]}; do
+      category="$(echo ${TARGET} | cut -d '.' -f 2)"
+      name="$(echo ${TARGET} | cut -d '.' -f 3-)"
       src="build/${name}"
       out="gh-pages/_${category}/${CC}/${name}"
 
@@ -298,7 +296,7 @@ before_script:
 script:
   - pushd gh-pages
   - git add --all .
-  - git commit -m "Update ${TEST} benchmarks for ${CC}."
+  - git commit -m "Update benchmark '${BENCHMARK}' for '${CC}'."
   - travis_retry git push origin gh-pages &>/dev/null
   - popd
 
