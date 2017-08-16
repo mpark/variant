@@ -12,15 +12,17 @@ set(repeat 2)
 set(title "Double visitation - Mixed variants (${repeat}x)")
 set(xlabel "Number of alternatives")
 
-set(datasets)
+set(range "(1...5).to_a + (5..25).step(5).to_a")
 
-add_dataset(datasets anthonyw ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets boost    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets eggs     ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets juice    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets mpark    ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets pdimov   ${test} ${repeat} "[1] + (5..25).step(5).to_a")
-add_dataset(datasets std      ${test} ${repeat} "[1] + (5..25).step(5).to_a")
+set(datasets)
+add_dataset(datasets anthonyw ${test} ${repeat} ${range})
+add_dataset(datasets eggs     ${test} ${repeat} ${range})
+add_dataset(datasets juice    ${test} ${repeat} ${range})
+add_dataset(datasets mpark    ${test} ${repeat} ${range})
+add_dataset(datasets pdimov   ${test} ${repeat} ${range})
+add_dataset(datasets std      ${test} ${repeat} ${range})
+
+add_dataset(datasets boost    ${test} ${repeat} ${range})
 
 # Add a binary size chart
 metabench_add_chart(
@@ -33,7 +35,7 @@ metabench_add_chart(
   OUTPUT binary_size.html
 )
 
-# Add a compile-time chart
+# Add a compile time chart
 metabench_add_chart(
   benchmark.compile_time.${test}
   ALL

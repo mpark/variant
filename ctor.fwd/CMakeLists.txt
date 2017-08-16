@@ -12,7 +12,7 @@ set(repeat 10)
 set(title "Forwarding constructor (${repeat}x)")
 set(xlabel "Number of alternatives")
 
-set(range "(1...10).to_a + \
+set(range "(1...10).step(2).to_a + \
            (10...30).step(5).to_a + \
            (30...50).step(10).to_a + \
            (50...150).step(25).to_a + \
@@ -20,7 +20,6 @@ set(range "(1...10).to_a + \
 
 set(datasets)
 add_dataset(datasets anthonyw ${name} ${repeat} ${range})
-add_dataset(datasets boost    ${name} ${repeat} "(1...10).to_a + (10...30).step(5).to_a + (30..50).step(10).to_a")
 add_dataset(datasets eggs     ${name} ${repeat} ${range})
 add_dataset(datasets juice    ${name} ${repeat} ${range})
 add_dataset(datasets mapbox   ${name} ${repeat} ${range})
@@ -28,16 +27,9 @@ add_dataset(datasets mpark    ${name} ${repeat} ${range})
 add_dataset(datasets pdimov   ${name} ${repeat} ${range})
 add_dataset(datasets std      ${name} ${repeat} ${range})
 
-# Add a compile-time chart
-metabench_add_chart(
-  benchmark.compile_time.${name}
-  ALL
-  ASPECT COMPILATION_TIME
-  TITLE ${title}
-  XLABEL ${xlabel}
-  DATASETS ${datasets}
-  OUTPUT compile_time.html
-)
+add_dataset(
+  datasets boost    ${name} ${repeat}
+  "(1...10).step(2).to_a + (10...30).step(5).to_a + (30..50).step(10).to_a")
 
 # Add a binary size chart
 metabench_add_chart(
@@ -48,4 +40,15 @@ metabench_add_chart(
   XLABEL ${xlabel}
   DATASETS ${datasets}
   OUTPUT binary_size.html
+)
+
+# Add a compile time chart
+metabench_add_chart(
+  benchmark.compile_time.${name}
+  ALL
+  ASPECT COMPILATION_TIME
+  TITLE ${title}
+  XLABEL ${xlabel}
+  DATASETS ${datasets}
+  OUTPUT compile_time.html
 )
