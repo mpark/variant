@@ -12,46 +12,21 @@ set(repeat 20)
 set(title "Forwarding constructor (${repeat}x)")
 set(xlabel "Number of alternatives")
 
+set(range "(1...10).to_a + \
+           (10...30).step(5).to_a + \
+           (30...50).step(10).to_a + \
+           (50...150).step(25).to_a + \
+           (150..300).step(50).to_a")
+
 set(datasets)
-
-add_dataset(
-  datasets anthonyw ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets boost    ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a")
-
-add_dataset(
-  datasets eggs     ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets juice    ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets mapbox   ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets mpark    ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets pdimov   ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
-
-add_dataset(
-  datasets std      ${name} ${repeat}
-  "[1] + (5..20).step(5).to_a + (30..50).step(10).to_a + \
-   (75..100).step(25).to_a + (150..200).step(50).to_a")
+add_dataset(datasets anthonyw ${name} ${repeat} ${range})
+add_dataset(datasets boost    ${name} ${repeat} "(1...10).to_a + (10...30).step(5).to_a + (30..50).step(10).to_a")
+add_dataset(datasets eggs     ${name} ${repeat} ${range})
+add_dataset(datasets juice    ${name} ${repeat} ${range})
+add_dataset(datasets mapbox   ${name} ${repeat} ${range})
+add_dataset(datasets mpark    ${name} ${repeat} ${range})
+add_dataset(datasets pdimov   ${name} ${repeat} ${range})
+add_dataset(datasets std      ${name} ${repeat} ${range})
 
 # Add a compile-time chart
 metabench_add_chart(
