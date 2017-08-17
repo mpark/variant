@@ -21,7 +21,6 @@ add_dataset(datasets juice    ${test} ${repeat} ${range})
 add_dataset(datasets mpark    ${test} ${repeat} ${range})
 add_dataset(datasets pdimov   ${test} ${repeat} ${range})
 add_dataset(datasets std      ${test} ${repeat} ${range})
-
 add_dataset(datasets boost    ${test} ${repeat} ${range})
 
 # Add a binary size chart
