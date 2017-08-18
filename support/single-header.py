@@ -24,7 +24,7 @@ def process(header):
         result += line
       else:
         g = m.group(1)
-        include = os.path.join(os.path.dirname(header), g)
+        include = os.path.normpath(os.path.join(os.path.dirname(header), g))
         if include not in processed:
           result += process(include)
           result += '\n'
