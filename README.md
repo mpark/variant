@@ -33,6 +33,8 @@ __MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C
   - Based on [my implementation of `std::variant` for __libc++__][libcxx-impl]
   - Continuously tested against __libc++__'s `std::variant` test suite.
 
+[libcxx-impl]: https://reviews.llvm.org/rL288547
+
 ## License
 
 Distributed under the [Boost Software License, Version 1.0](LICENSE.md).
