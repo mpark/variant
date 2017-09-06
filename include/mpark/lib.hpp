@@ -71,17 +71,10 @@ namespace mpark {
       }
 
 #ifdef MPARK_INTEGER_SEQUENCE
-      template <typename T, T... Is>
-      using integer_sequence = std::integer_sequence<T, Is...>;
-
-      template <std::size_t... Is>
-      using index_sequence = std::index_sequence<Is...>;
-
-      template <std::size_t N>
-      using make_index_sequence = std::make_index_sequence<N>;
-
-      template <typename... Ts>
-      using index_sequence_for = std::index_sequence_for<Ts...>;
+      using std::integer_sequence;
+      using std::index_sequence;
+      using std::make_index_sequence;
+      using std::index_sequence_for;
 #else
       template <typename T, T... Is>
       struct integer_sequence {
@@ -414,19 +407,10 @@ namespace mpark {
 #endif
 
 #ifdef MPARK_TRIVIALITY_TYPE_TRAITS
-    template <typename T>
-    using is_trivially_copy_constructible =
-        std::is_trivially_copy_constructible<T>;
-
-    template <typename T>
-    using is_trivially_move_constructible =
-        std::is_trivially_move_constructible<T>;
-
-    template <typename T>
-    using is_trivially_copy_assignable = std::is_trivially_copy_assignable<T>;
-
-    template <typename T>
-    using is_trivially_move_assignable = std::is_trivially_move_assignable<T>;
+    using std::is_trivially_copy_constructible;
+    using std::is_trivially_move_constructible;
+    using std::is_trivially_copy_assignable;
+    using std::is_trivially_move_assignable;
 #else
     template <typename T>
     struct is_trivially_copy_constructible
