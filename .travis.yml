@@ -245,8 +245,8 @@ before_install:
     elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       mkdir -p ${DEPS}/include
 
-      BOOST_URL="https://dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz"
-      travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${DEPS}/include boost_1_64_0/boost
+      BOOST_URL="https://dl.bintray.com/boostorg/release/1.65.0/source/boost_1_65_0.tar.gz"
+      travis_retry wget -O - ${BOOST_URL} | tar --strip-components=1 -xz -C ${DEPS}/include boost_1_65_0/boost
       export CXXFLAGS="${CXXFLAGS} -isystem ${DEPS}/include"
     fi
 
