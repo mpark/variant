@@ -28,7 +28,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc49
-    # ubuntu 14.04, gcc-4.9, c++11, release, no-exceptions
+    # ubuntu 14.04, gcc-4.9, c++11, release, no exceptions
     - env: VER=4.9 STD=11 BUILD=Release EX=OFF TESTS="mpark"
       compiler: gcc
       os: linux
@@ -40,7 +40,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc49
-    # ubuntu 14.04, gcc-4.9, c++14, debug, no-exceptions
+    # ubuntu 14.04, gcc-4.9, c++14, debug, no exceptions
     - env: VER=4.9 STD=14 BUILD=Debug EX=OFF TESTS="mpark"
       compiler: gcc
       os: linux
@@ -52,7 +52,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc49
-    # ubuntu 14.04, gcc-4.9, c++14, release, no-exceptions
+    # ubuntu 14.04, gcc-4.9, c++14, release, no exceptions
     - env: VER=4.9 STD=14 BUILD=Release EX=OFF TESTS="mpark"
       compiler: gcc
       os: linux
@@ -77,7 +77,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc5
-    # ubuntu 14.04, gcc-5, c++11, release, no-exceptions
+    # ubuntu 14.04, gcc-5, c++11, release, no exceptions
     - env: VER=5 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -89,7 +89,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc5
-    # ubuntu 14.04, gcc-5, c++14, debug, no-exceptions
+    # ubuntu 14.04, gcc-5, c++14, debug, no exceptions
     - env: VER=5 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -101,7 +101,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc5
-    # ubuntu 14.04, gcc-5, c++14, release, no-exceptions
+    # ubuntu 14.04, gcc-5, c++14, release, no exceptions
     - env: VER=5 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -114,7 +114,7 @@ matrix:
       os: linux
       dist: trusty
       addons: &gcc6 { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
-    # ubuntu 14.04, gcc-6, c++11 debug, no-exceptions
+    # ubuntu 14.04, gcc-6, c++11 debug, no exceptions
     - env: VER=6 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -126,7 +126,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc6
-    # ubuntu 14.04, gcc-6, c++11, release, no-exceptions
+    # ubuntu 14.04, gcc-6, c++11, release, no exceptions
     - env: VER=6 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -138,7 +138,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc6
-    # ubuntu 14.04, gcc-6, c++14, debug, no-exceptions
+    # ubuntu 14.04, gcc-6, c++14, debug, no exceptions
     - env: VER=6 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -150,7 +150,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc6
-    # ubuntu 14.04, gcc-6, c++14, release, no-exceptions
+    # ubuntu 14.04, gcc-6, c++14, release, no exceptions
     - env: VER=6 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -163,7 +163,7 @@ matrix:
       os: linux
       dist: trusty
       addons: &gcc7 { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
-    # ubuntu 14.04, gcc-7, c++11 debug, no-exceptions
+    # ubuntu 14.04, gcc-7, c++11, debug, no exceptions
     - env: VER=7 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -175,7 +175,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc7
-    # ubuntu 14.04, gcc-7, c++11, release, no-exceptions
+    # ubuntu 14.04, gcc-7, c++11, release, no exceptions
     - env: VER=7 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -187,7 +187,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc7
-    # ubuntu 14.04, gcc-7, c++14, debug, no-exceptions
+    # ubuntu 14.04, gcc-7, c++14, debug, no exceptions
     - env: VER=7 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -199,7 +199,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *gcc7
-    # ubuntu 14.04, gcc-7, c++14, release, no-exceptions
+    # ubuntu 14.04, gcc-7, c++14, release, no exceptions
     - env: VER=7 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: gcc
       os: linux
@@ -212,7 +212,7 @@ matrix:
       os: linux
       dist: precise
       addons: &clang35 { apt: { packages: ["clang-3.5"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"] } }
-    # ubuntu 14.04, clang-3.5, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-3.5, c++11, debug, no exceptions
     - env: VER=3.5 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -224,7 +224,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang35
-    # ubuntu 14.04, clang-3.5, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-3.5, c++11, release, no exceptions
     - env: VER=3.5 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -236,7 +236,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang35
-    # ubuntu 14.04, clang-3.5, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-3.5, c++14, debug, no exceptions
     - env: VER=3.5 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -248,7 +248,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang35
-    # ubuntu 14.04, clang-3.5, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-3.5, c++14, release, no exceptions
     - env: VER=3.5 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -261,7 +261,7 @@ matrix:
       os: linux
       dist: precise
       addons: &clang36 { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
-    # ubuntu 14.04, clang-3.6, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-3.6, c++11, debug, no exceptions
     - env: VER=3.6 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -273,7 +273,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang36
-    # ubuntu 14.04, clang-3.6, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-3.6, c++11, release, no exceptions
     - env: VER=3.6 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -285,7 +285,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang36
-    # ubuntu 14.04, clang-3.6, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-3.6, c++14, debug, no exceptions
     - env: VER=3.6 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -297,7 +297,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang36
-    # ubuntu 14.04, clang-3.6, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-3.6, c++14, release, no exceptions
     - env: VER=3.6 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -310,7 +310,7 @@ matrix:
       os: linux
       dist: precise
       addons: &clang37 { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
-    # ubuntu 14.04, clang-3.7, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-3.7, c++11, debug, no exceptions
     - env: VER=3.7 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -322,7 +322,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang37
-    # ubuntu 14.04, clang-3.7, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-3.7, c++11, release, no exceptions
     - env: VER=3.7 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -334,7 +334,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang37
-    # ubuntu 14.04, clang-3.7, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-3.7, c++14, debug, no exceptions
     - env: VER=3.7 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -346,7 +346,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang37
-    # ubuntu 14.04, clang-3.7, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-3.7, c++14, release, no exceptions
     - env: VER=3.7 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -359,7 +359,7 @@ matrix:
       os: linux
       dist: precise
       addons: &clang38 { apt: { packages: ["clang-3.8"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
-    # ubuntu 14.04, clang-3.8, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-3.8, c++11, debug, no exceptions
     - env: VER=3.8 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -371,7 +371,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang38
-    # ubuntu 14.04, clang-3.8, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-3.8, c++11, release, no exceptions
     - env: VER=3.8 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -383,7 +383,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang38
-    # ubuntu 14.04, clang-3.8, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-3.8, c++14, debug, no exceptions
     - env: VER=3.8 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -395,7 +395,7 @@ matrix:
       os: linux
       dist: precise
       addons: *clang38
-    # ubuntu 14.04, clang-3.8, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-3.8, c++14, release, no exceptions
     - env: VER=3.8 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -408,7 +408,7 @@ matrix:
       os: linux
       dist: trusty
       addons: &clang39 { apt: { packages: ["clang-3.9"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
-    # ubuntu 14.04, clang-3.9, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-3.9, c++11, debug, no exceptions
     - env: VER=3.9 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -420,7 +420,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang39
-    # ubuntu 14.04, clang-3.9, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-3.9, c++11, release, no exceptions
     - env: VER=3.9 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -432,7 +432,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang39
-    # ubuntu 14.04, clang-3.9, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-3.9, c++14, debug, no exceptions
     - env: VER=3.9 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -444,7 +444,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang39
-    # ubuntu 14.04, clang-3.9, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-3.9, c++14, release, no exceptions
     - env: VER=3.9 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -457,7 +457,7 @@ matrix:
       os: linux
       dist: trusty
       addons: &clang40 { apt: { packages: ["clang-4.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
-    # ubuntu 14.04, clang-4.0, c++11, debug, no-exceptions
+    # ubuntu 14.04, clang-4.0, c++11, debug, no exceptions
     - env: VER=4.0 STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -469,7 +469,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang40
-    # ubuntu 14.04, clang-4.0, c++11, release, no-exceptions
+    # ubuntu 14.04, clang-4.0, c++11, release, no exceptions
     - env: VER=4.0 STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -481,7 +481,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang40
-    # ubuntu 14.04, clang-4.0, c++14, debug, no-exceptions
+    # ubuntu 14.04, clang-4.0, c++14, debug, no exceptions
     - env: VER=4.0 STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -493,7 +493,7 @@ matrix:
       os: linux
       dist: trusty
       addons: *clang40
-    # ubuntu 14.04, clang-4.0, c++14, release, no-exceptions
+    # ubuntu 14.04, clang-4.0, c++14, release, no exceptions
     - env: VER=4.0 STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: linux
@@ -505,7 +505,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++11, debug, no-exceptions
+    # OS X Yosemite 10.10, Apple Clang, c++11, debug, no exceptions
     - env: STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -515,7 +515,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++11, release, no-exceptions
+    # OS X Yosemite 10.10, Apple Clang, c++11, release, no exceptions
     - env: STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -525,7 +525,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++14, debug, no-exceptions
+    # OS X Yosemite 10.10, Apple Clang, c++14, debug, no exceptions
     - env: STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -535,7 +535,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode6.4
-    # OS X Yosemite 10.10, Apple Clang, c++14, release, no-exceptions
+    # OS X Yosemite 10.10, Apple Clang, c++14, release, no exceptions
     - env: STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -546,7 +546,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++11, debug, no-exceptions
+    # OS X El Capitan 10.11, apple-clang-8, c++11, debug, no exceptions
     - env: STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -556,7 +556,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++11, release, no-exceptions
+    # OS X El Capitan 10.11, apple-clang-8, c++11, release, no exceptions
     - env: STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -566,7 +566,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++14, debug, no-exceptions
+    # OS X El Capitan 10.11, apple-clang-8, c++14, debug, no exceptions
     - env: STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -576,7 +576,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode7.3
-    # OS X El Capitan 10.11, apple-clang-8, c++14, release, no-exceptions
+    # OS X El Capitan 10.11, apple-clang-8, c++14, release, no exceptions
     - env: STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -587,7 +587,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode8.3
-    # OS X Sierra 10.12, apple-clang-8, c++11, debug, no-exceptions
+    # OS X Sierra 10.12, apple-clang-8, c++11, debug, no exceptions
     - env: STD=11 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -597,7 +597,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode8.3
-    # OS X Sierra 10.12, apple-clang-8, c++11, release, no-exceptions
+    # OS X Sierra 10.12, apple-clang-8, c++11, release, no exceptions
     - env: STD=11 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -607,7 +607,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode8.3
-    # OS X Sierra 10.12, apple-clang-8, c++14, debug, no-exceptions
+    # OS X Sierra 10.12, apple-clang-8, c++14, debug, no exceptions
     - env: STD=14 BUILD=Debug EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
@@ -617,7 +617,7 @@ matrix:
       compiler: clang
       os: osx
       osx_image: xcode8.3
-    # OS X Sierra 10.12, apple-clang-8, c++14, release, no-exceptions
+    # OS X Sierra 10.12, apple-clang-8, c++14, release, no exceptions
     - env: STD=14 BUILD=Release EX=OFF TESTS="mpark;libc++"
       compiler: clang
       os: osx
