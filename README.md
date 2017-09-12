@@ -6,7 +6,6 @@
 [![travis][badge.travis]][travis]
 [![appveyor][badge.appveyor]][appveyor]
 [![license][badge.license]][license]
-[![gitter][badge.gitter]][gitter]
 [![godbolt][badge.godbolt]][godbolt]
 [![wandbox][badge.wandbox]][wandbox]
 
@@ -14,7 +13,6 @@
 [badge.travis]: https://travis-ci.org/mpark/variant.svg?branch=master
 [badge.appveyor]: https://ci.appveyor.com/api/projects/status/github/mpark/variant?branch=master&svg=true
 [badge.license]: http://img.shields.io/badge/license-boost-blue.svg
-[badge.gitter]: https://badges.gitter.im/mpark/variant.svg
 [badge.godbolt]: https://img.shields.io/badge/try%20it-on%20godbolt-222266.svg
 [badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-5cb85c.svg
 
@@ -22,7 +20,6 @@
 [travis]: https://travis-ci.org/mpark/variant
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
-[gitter]: https://gitter.im/mpark/variant
 [godbolt]: https://godbolt.org/g/G4dSbr
 [wandbox]: https://wandbox.org/permlink/glzF6r0NtWRY20Np
 
