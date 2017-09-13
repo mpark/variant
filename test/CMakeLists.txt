@@ -8,10 +8,10 @@
 cmake_minimum_required(VERSION 3.6.3)
 
 set(MPARK_VARIANT_CXX_STANDARD 14 CACHE STRING
-    "The C++ standard with which to build the tests.")
+    "The C++ standard with which to build the tests (e.g., `14`).")
 
 option(MPARK_VARIANT_EXCEPTIONS
-       "Build the tests with exceptions-handling support." ON)
+       "Build the tests with exceptions support." ON)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
    CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR

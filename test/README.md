@@ -31,14 +31,13 @@ This directory contains the tests for __MPark.Variant__.
 
   -  __`MPARK_VARIANT_CXX_STANDARD`__:`STRING` (__default__: `14`)
 
-     The C++ standard with which to build the tests.
-     Possible values are `11`, and `14`.
+     The C++ standard with which to build the tests (e.g., `14`).
 
      __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
 
   -  __`MPARK_VARIANT_EXCEPTIONS`__:`BOOL` (__default__: `ON`)
 
-     Build the tests with exceptions-handling support.
+     Build the tests with exceptions support.
 
 ### Building and Running Tests
 
