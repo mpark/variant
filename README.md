@@ -25,7 +25,7 @@
 
 ## Introduction
 
-__MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C++11__/__14__/__17__.
+__MPark.Variant__ is an implementation of __C++17__ `std::variant` for __C++11__/__14__/__17__.
 
   - Based on [my implementation of `std::variant` for __libc++__][libcxx-impl]
   - Continuously tested against __libc++__'s `std::variant` test suite.
