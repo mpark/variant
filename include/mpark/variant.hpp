@@ -247,7 +247,14 @@ namespace mpark {
 #ifdef MPARK_EXCEPTIONS
     throw bad_variant_access{};
 #else
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Winvalid-noreturn"
+#endif
     std::terminate();
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #endif
   }
 
