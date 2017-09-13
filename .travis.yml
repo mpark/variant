@@ -640,8 +640,7 @@ before_install:
   - |
     if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
       brew update
-      brew uninstall cmake
-      brew install cmake
+      brew upgrade cmake
     elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       travis_retry wget --no-check-certificate https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.sh
       bash cmake-3.7.2-Linux-x86_64.sh --skip-license --prefix="${DEPS}"
