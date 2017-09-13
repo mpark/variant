@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.6.3)
 
-project(MPark.Variant VERSION 1.2.1 LANGUAGES CXX)
+project(MPark.Variant VERSION 1.2.2 LANGUAGES CXX)
 
 # Option.
 set(MPARK_VARIANT_INCLUDE_TESTS "" CACHE STRING
