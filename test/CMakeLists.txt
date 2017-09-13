@@ -8,29 +8,44 @@
 cmake_minimum_required(VERSION 3.6.3)
 
 set(MPARK_VARIANT_CXX_STANDARD 14 CACHE STRING
-    "The C++ standard with which to build the tests. \
-     Possible values are `11`, and `14`")
+    "The C++ standard with which to build the tests.")
 
 option(MPARK_VARIANT_EXCEPTIONS
        "Build the tests with exceptions-handling support." ON)
 
-set(CMAKE_CXX_STANDARD ${MPARK_VARIANT_CXX_STANDARD})
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
+   CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
+   CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options("-std=c++${MPARK_VARIANT_CXX_STANDARD}")
 
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
-   "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
-   "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   add_compile_options(-Wall)
   add_compile_options(-Werror)
   add_compile_options(-Wextra)
   add_compile_options(-pedantic)
-  if(NOT ${MPARK_VARIANT_EXCEPTIONS})
-    add_compile_options(-fno-exceptions)
-  endif()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
+   CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
+  add_compile_options(-Qunused-arguments)
+  add_compile_options(-Wno-deprecated-declarations)
+  add_compile_options(-Wno-unknown-argument)
 endif()
 
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
+
+  add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
+  add_definitions(-DGTEST_HAS_STD_TUPLE=1)
+
+  add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/googletest/googletest
+                   ${CMAKE_BINARY_DIR}/3rdparty/googletest/googletest)
+
+  config_compiler_and_linker()
+
+  if(MPARK_VARIANT_EXCEPTIONS)
+    set(compile_flags ${cxx_strict})
+  else()
+    set(compile_flags ${cxx_no_exception})
+  endif()
 
   set(MPARK_TESTS
     assign.copy
@@ -52,7 +67,7 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
   foreach(test ${MPARK_TESTS})
     add_executable(${test} ${test}.cpp)
-    set_target_properties(${test} PROPERTIES COMPILE_FLAGS "${cxx_strict}")
+    set_target_properties(${test} PROPERTIES COMPILE_FLAGS "${compile_flags}")
     target_link_libraries(${test} gtest_main mpark_variant)
     add_test(${test} ${test} --gtest_color=yes)
   endforeach()
@@ -70,6 +85,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
     GIT_REPOSITORY    http://llvm.org/git/llvm.git
     GIT_SHALLOW       1
     CMAKE_ARGS        -DCMAKE_BUILD_TYPE=Release
+                      -DLIBCXX_ENABLE_EXCEPTIONS=${MPARK_VARIANT_EXCEPTIONS}
     SOURCE_DIR        ${MPARK_VARIANT_LLVM_SOURCE_DIR}
     BINARY_DIR        ${MPARK_VARIANT_LLVM_BINARY_DIR}
     BUILD_COMMAND     ${CMAKE_COMMAND} --build . --target cxx
@@ -109,13 +125,13 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
 
   ExternalProject_Add_StepDependencies(llvm configure libcxx-download libcxxabi-download)
 
-  add_test(run_libcxx_tests
+  add_test(libcxx
     ${CMAKE_COMMAND} -E
         env MPARK_VARIANT_SOURCE_DIR=${CMAKE_SOURCE_DIR}
         env MPARK_VARIANT_LIBCXX_SOURCE_DIR=${MPARK_VARIANT_LIBCXX_SOURCE_DIR}
         env MPARK_VARIANT_LIBCXX_SITE_CONFIG=${MPARK_VARIANT_LIBCXX_BINARY_DIR}/test/lit.site.cfg
         env MPARK_VARIANT_LIT=${MPARK_VARIANT_LLVM_BINARY_DIR}/bin/llvm-lit
-        ${CMAKE_CURRENT_SOURCE_DIR}/run_libcxx_tests.sh
+        ${CMAKE_CURRENT_SOURCE_DIR}/libcxx.sh
   )
 
 endif()

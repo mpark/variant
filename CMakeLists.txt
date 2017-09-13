@@ -76,20 +76,6 @@ if(MPARK_VARIANT_LENGTH GREATER 0)
     "the possible values, `mpark`, and `libc++`: ${MPARK_VARIANT_INCLUDE_TESTS}")
 endif()
 
-if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
-  if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND
-     "${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
-    add_compile_options(-Qunused-arguments)
-    add_compile_options(-Wno-deprecated-declarations)
-    add_compile_options(-Wno-unknown-argument)
-  endif()
-
-  add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
-  add_definitions(-DGTEST_HAS_STD_TUPLE=1)
-  add_subdirectory(3rdparty/googletest/googletest)
-  config_compiler_and_linker()
-endif()
-
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS OR MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   enable_testing()
   add_subdirectory(test)
