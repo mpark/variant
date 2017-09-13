@@ -30,6 +30,10 @@
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
 
+#if __has_builtin(__builtin_unreachable)
+#define MPARK_BUILTIN_UNREACHABLE
+#endif
+
 #if __has_builtin(__type_pack_element)
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
