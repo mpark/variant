@@ -240,8 +240,7 @@ before_install:
   - |
     if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
       brew update
-      brew uninstall boost
-      brew install boost
+      brew upgrade boost
     elif [ "${TRAVIS_OS_NAME}" = "linux" ]; then
       mkdir -p ${DEPS}/include
 
