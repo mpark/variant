@@ -8,12 +8,13 @@
 
 cmake_minimum_required(VERSION 3.6.3)
 
-project(MPark.Variant VERSION 1.2.0 LANGUAGES CXX)
+project(MPark.Variant/Benchmark LANGUAGES CXX)
 
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR
    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  add_compile_options(-std=c++1z)
+  add_compile_options(-std=c++14)
+
   add_compile_options(-Wall)
   add_compile_options(-Wextra)
   add_compile_options(-pedantic)
