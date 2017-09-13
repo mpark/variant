@@ -42,10 +42,8 @@ __MPark.Variant__ is an implementation of __C++17__ `std::variant` for __C++11__
 ### Single Header
 
 The [single-header] branch provides a standalone `variant.hpp`
-file for each [release]. Copy it and `#include` away!
-
-[single-header]: https://github.com/mpark/variant/tree/single-header
-[release]: https://github.com/mpark/variant/releases
+file for each [release](https://github.com/mpark/variant/releases).
+Copy it and `#include` away!
 
 ### Submodule
 
