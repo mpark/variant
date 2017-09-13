@@ -2,21 +2,21 @@
 
 > __C++17__ `std::variant` for __C++11__/__14__/__17__
 
-[![stability][badge.stability]][stability]
+[![version][badge.version]][version]
 [![travis][badge.travis]][travis]
 [![appveyor][badge.appveyor]][appveyor]
 [![license][badge.license]][license]
 [![godbolt][badge.godbolt]][godbolt]
 [![wandbox][badge.wandbox]][wandbox]
 
-[badge.stability]: https://img.shields.io/badge/stability-stable-brightgreen.svg
+[badge.version]: https://img.shields.io/github/release/mpark/variant.svg
 [badge.travis]: https://travis-ci.org/mpark/variant.svg?branch=master
 [badge.appveyor]: https://ci.appveyor.com/api/projects/status/github/mpark/variant?branch=master&svg=true
-[badge.license]: http://img.shields.io/badge/license-boost-blue.svg
+[badge.license]: https://img.shields.io/badge/license-boost-blue.svg
 [badge.godbolt]: https://img.shields.io/badge/try%20it-on%20godbolt-222266.svg
 [badge.wandbox]: https://img.shields.io/badge/try%20it-on%20wandbox-5cb85c.svg
 
-[stability]: http://github.com/badges/stability-badges
+[version]: https://github.com/mpark/variant/releases/latest
 [travis]: https://travis-ci.org/mpark/variant
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
