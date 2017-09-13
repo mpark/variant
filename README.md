@@ -131,6 +131,7 @@ The following compilers are continously tested:
 | Clang 3.8.1                            | Ubuntu 12.04.5 LTS                          | clang version 3.8.1-svn271772-1~exp1 (branches/release_38)                              |
 | Clang 3.9.1                            | Ubuntu 14.04.5 LTS                          | clang version 3.9.1-4ubuntu3~14.04.2 (tags/RELEASE_391/rc2)                             |
 | Clang 4.0.1                            | Ubuntu 14.04.5 LTS                          | clang version 4.0.1-svn305264-1~exp1 (branches/release_40)                              |
+| Clang 5.0.0                            | Ubuntu 14.04.5 LTS                          | clang version 5.0.0-svn312333-1~exp1 (branches/release_50)                              |
 | Clang Xcode 6.4                        | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                      |
 | Clang Xcode 7.3                        | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                               |
 | Clang Xcode 8.3                        | Darwin Kernel Version 16.6.0 (OS X 10.12.5) | Apple LLVM version 8.1.0 (clang-802.0.42)                                               |

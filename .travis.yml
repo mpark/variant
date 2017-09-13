@@ -105,12 +105,6 @@ matrix:
       os: osx
       osx_image: xcode8.3
 
-    # OS X Sierra 10.12, Apple Clang 9
-    - env: STDS="11;14;17" TESTS="mpark;libc++"
-      compiler: clang
-      os: osx
-      osx_image: xcode9
-
 install:
   # Save the name of the compiler.
   - COMPILER=${CC}
