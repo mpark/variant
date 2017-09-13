@@ -39,7 +39,7 @@ __MPark.Variant__ provides an implementation of __C++17__ `std::variant` for __C
 
 ## Integration
 
-### Single-Header
+### Single Header
 
 The [single-header] branch provides a standalone `variant.hpp`
 file for each [release]. Copy it and `#include` away!
@@ -52,15 +52,14 @@ file for each [release]. Copy it and `#include` away!
 You can add `mpark/variant` as a submodule to your project.
 
 ```bash
-git submodule add https://github.com/mpark/variant.git
+git submodule add https://github.com/mpark/variant.git 3rdparty/variant
 ```
 
-Add the `include` directory to your include path with `-Ivariant/include` then
-`#include` the `variant.hpp` header with `#include <mpark/variant.hpp>`.
-Relative path includes (e.g., `#include "variant/include/mpark/variant.hpp"`)
-are also supported which enable other libraries to depend on `mpark/variant`.
+Add the `include` directory to your include path with
+`-I3rdparty/variant/include` then `#include` the `variant.hpp` header
+with `#include <mpark/variant.hpp>`.
 
-If you use CMake, you can simply use `add_subdirectory(variant)`:
+If you use CMake, you can simply use `add_subdirectory(3rdparty/variant)`:
 
 ```cmake
 cmake_minimum_required(VERSION 3.6.3)
@@ -71,13 +70,13 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_subdirectory(variant)
+add_subdirectory(3rdparty/variant)
 
 add_executable(hello-world hello_world.cpp)
 target_link_libraries(hello-world mpark_variant)
 ```
 
-### Installation & CMake `find_package`
+### Installation / CMake `find_package`
 
 ```bash
 git clone https://github.com/mpark/variant.git
