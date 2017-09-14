@@ -20,8 +20,8 @@
 [travis]: https://travis-ci.org/mpark/variant
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
-[godbolt]: https://godbolt.org/g/G4dSbr
-[wandbox]: https://wandbox.org/permlink/glzF6r0NtWRY20Np
+[godbolt]: https://godbolt.org/g/NJ1nh4
+[wandbox]: https://wandbox.org/permlink/DKO6yFxjr9ejei8m
 
 ## Introduction
 
