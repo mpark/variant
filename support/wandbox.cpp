@@ -1,4 +1,4 @@
-// MPark.Patterns
+// MPark.Variant
 //
 // Copyright Michael Park, 2017
 //
