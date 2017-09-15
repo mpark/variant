@@ -45,6 +45,8 @@ The [single-header] branch provides a standalone `variant.hpp`
 file for each [release](https://github.com/mpark/variant/releases).
 Copy it and `#include` away!
 
+[single-header]: https://github.com/mpark/variant/tree/single-header
+
 ### Submodule
 
 You can add `mpark/variant` as a submodule to your project.
