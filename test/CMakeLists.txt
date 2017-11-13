@@ -60,6 +60,7 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     get
     hash
     intro
+    json
     mod
     relops
     swap
