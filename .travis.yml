@@ -175,9 +175,9 @@ script:
           (
             set -x
             cmake -DCMAKE_CXX_FLAGS="${COMPILE_FLAGS}"   \
+                  -DCMAKE_CXX_STANDARD="${STD}"          \
                   -DCMAKE_BUILD_TYPE="${BUILD}"          \
                   -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
-                  -DMPARK_VARIANT_CXX_STANDARD="${STD}"  \
                   -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
           )
           cmake --build . -- -j 2
