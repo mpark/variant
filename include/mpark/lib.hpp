@@ -220,11 +220,8 @@ namespace mpark {
         }  // namespace swappable
       }  // namespace detail
 
-      template <typename T>
-      using is_swappable = detail::swappable::is_swappable<T>;
-
-      template <typename T>
-      using is_nothrow_swappable = detail::swappable::is_nothrow_swappable<T>;
+      using detail::swappable::is_swappable;
+      using detail::swappable::is_nothrow_swappable;
 
       // <functional>
 #ifdef _MSC_VER
