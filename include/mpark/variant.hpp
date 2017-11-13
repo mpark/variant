@@ -1452,12 +1452,14 @@ namespace mpark {
       return impl_.index();
     }
 
-    template <
-        bool Dummy = true,
-        lib::enable_if_t<lib::all<Dummy,
-                                  (std::is_move_constructible<Ts>::value &&
-                                   lib::is_swappable<Ts>::value)...>::value,
-                         int> = 0>
+    template <bool Dummy = true,
+              lib::enable_if_t<
+                  lib::all<Dummy,
+                           (lib::dependent_type<std::is_move_constructible<Ts>,
+                                                Dummy>::value &&
+                            lib::dependent_type<lib::is_swappable<Ts>,
+                                                Dummy>::value)...>::value,
+                  int> = 0>
     inline void swap(variant &that) noexcept(
         lib::all<(std::is_nothrow_move_constructible<Ts>::value &&
                   lib::is_nothrow_swappable<Ts>::value)...>::value) {

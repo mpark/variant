@@ -429,6 +429,9 @@ namespace mpark {
     struct is_trivially_move_assignable : bool_constant<__is_trivial(T)> {};
 #endif
 
+    template <typename T, bool>
+    struct dependent_type : T {};
+
   }  // namespace lib
 }  // namespace mpark
 
