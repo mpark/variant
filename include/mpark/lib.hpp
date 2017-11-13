@@ -194,7 +194,7 @@ namespace mpark {
           using std::swap;
 
           template <typename T>
-          struct is_swappable_impl {
+          struct is_swappable {
             private:
             template <typename U,
                       typename = decltype(swap(std::declval<U &>(),
@@ -205,11 +205,8 @@ namespace mpark {
             inline static std::false_type test(...);
 
             public:
-            using type = decltype(test<T>(0));
+            static constexpr bool value = decltype(test<T>(0))::value;
           };
-
-          template <typename T>
-          using is_swappable = typename is_swappable_impl<T>::type;
 
           template <typename T, bool = is_swappable<T>::value>
           struct is_nothrow_swappable {
