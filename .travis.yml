@@ -79,43 +79,43 @@ matrix:
       addons: *gcc7
 
     # ubuntu 14.04, clang-3.6, ctor.fwd
-    - env: VER=3.6 STD=11 BENCHMARK="ctor.fwd" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.6 STD=11 BENCHMARK="ctor.fwd" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: &clang36 { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
     # ubuntu 14.04, clang-3.6, visit.1
-    - env: VER=3.6 STD=11 BENCHMARK="visit.1" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.6 STD=11 BENCHMARK="visit.1" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang36
     # ubuntu 14.04, clang-3.6, visit.2.equal
-    - env: VER=3.6 STD=11 BENCHMARK="visit.2.equal" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.6 STD=11 BENCHMARK="visit.2.equal" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang36
     # ubuntu 14.04, clang-3.6, visit.2.mixed
-    - env: VER=3.6 STD=11 BENCHMARK="visit.2.mixed" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.6 STD=11 BENCHMARK="visit.2.mixed" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang36
 
     # ubuntu 14.04, clang-3.7, ctor.fwd
-    - env: VER=3.7 STD=11 BENCHMARK="ctor.fwd" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.7 STD=11 BENCHMARK="ctor.fwd" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: &clang37 { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
     # ubuntu 14.04, clang-3.7, visit.1
-    - env: VER=3.7 STD=11 BENCHMARK="visit.1" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.7 STD=11 BENCHMARK="visit.1" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang37
     # ubuntu 14.04, clang-3.7, visit.2.equal
-    - env: VER=3.7 STD=11 BENCHMARK="visit.2.equal" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.7 STD=11 BENCHMARK="visit.2.equal" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang37
     # ubuntu 14.04, clang-3.7, visit.2.mixed
-    - env: VER=3.7 STD=11 BENCHMARK="visit.2.mixed" LIBS="anthonyw;boost;eggs;mapbox;mpark;pdimov"
+    - env: VER=3.7 STD=11 BENCHMARK="visit.2.mixed" LIBS="eggs;mapbox;mpark"
       compiler: clang
       dist: precise
       addons: *clang37
