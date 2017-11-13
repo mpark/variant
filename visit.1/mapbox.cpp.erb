@@ -11,6 +11,11 @@
 template <int>
 struct S {};
 
+struct V {
+  template <typename T>
+  void operator()(T) const {}
+};
+
 int main() {
 <%=
   (0...env[:repeat]).map { |i|
@@ -21,7 +26,7 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  v#{i}.match([](auto) {});"
+    "  v#{i}.match(V{});"
   }.join("\n")
 %>
 #endif

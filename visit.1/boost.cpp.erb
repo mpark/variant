@@ -15,6 +15,11 @@
 template <int>
 struct S {};
 
+struct V {
+  template <typename T>
+  void operator()(T) const {}
+};
+
 int main() {
 <%=
   (0...env[:repeat]).map { |i|
@@ -25,7 +30,7 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  boost::apply_visitor([](auto) {}, v#{i});"
+    "  boost::apply_visitor(V{}, v#{i});"
   }.join("\n")
 %>
 #endif

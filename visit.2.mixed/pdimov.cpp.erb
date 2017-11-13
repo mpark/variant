@@ -11,6 +11,11 @@
 template <int>
 struct S {};
 
+struct V {
+  template <typename T, typename U>
+  void operator()(T, U) const {}
+};
+
 int main() {
 <%=
   (0...env[:repeat]).map { |i|
@@ -27,10 +32,10 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  boost::variant2::visit([](auto, auto) {}, xv#{i}, yv#{i});\n" \
-    "  boost::variant2::visit([](auto, auto) {}, xv#{i}, yw#{i});\n" \
-    "  boost::variant2::visit([](auto, auto) {}, xw#{i}, yv#{i});\n" \
-    "  boost::variant2::visit([](auto, auto) {}, xw#{i}, yw#{i});"
+    "  boost::variant2::visit(V{}, xv#{i}, yv#{i});\n" \
+    "  boost::variant2::visit(V{}, xv#{i}, yw#{i});\n" \
+    "  boost::variant2::visit(V{}, xw#{i}, yv#{i});\n" \
+    "  boost::variant2::visit(V{}, xw#{i}, yw#{i});"
   }.join("\n")
 %>
 #endif

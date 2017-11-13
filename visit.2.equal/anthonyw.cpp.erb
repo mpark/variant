@@ -12,6 +12,11 @@
 template <int>
 struct S {};
 
+struct V {
+  template <typename T, typename U>
+  void operator()(T, U) const {}
+};
+
 int main() {
 <%=
   (0...env[:repeat]).map { |i|
@@ -24,10 +29,10 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  std::experimental::visit([](auto, auto) {}, v#{i}, v#{i});\n" \
-    "  std::experimental::visit([](auto, auto) {}, v#{i}, w#{i});\n" \
-    "  std::experimental::visit([](auto, auto) {}, w#{i}, v#{i});\n" \
-    "  std::experimental::visit([](auto, auto) {}, w#{i}, w#{i});"
+    "  std::experimental::visit(V{}, v#{i}, v#{i});\n" \
+    "  std::experimental::visit(V{}, v#{i}, w#{i});\n" \
+    "  std::experimental::visit(V{}, w#{i}, v#{i});\n" \
+    "  std::experimental::visit(V{}, w#{i}, w#{i});"
   }.join("\n")
 %>
 #endif
