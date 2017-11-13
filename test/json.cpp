@@ -17,7 +17,7 @@ struct Json : mpark::variant<bool,
                              int,
                              std::string,
                              std::vector<Json>,
-                             std::map<std::string, Json>> {
+                             std::shared_ptr<std::map<std::string, Json>>> {
   using variant::variant;
 };
 
@@ -39,21 +39,19 @@ TEST(Variant, String) {
 }
 
 TEST(Variant, Array) {
-  Json json = std::vector<Json> { true, 42, std::string("world") };
-  const std::vector<Json>& array = mpark::get<std::vector<Json>>(json);
+  Json json = std::vector<Json>{true, 42, std::string("world")};
+  const auto &array = mpark::get<std::vector<Json>>(json);
   EXPECT_TRUE(mpark::get<bool>(array[0]));
   EXPECT_EQ(42, mpark::get<int>(array[1]));
   EXPECT_EQ("world", mpark::get<std::string>(array[2]));
 }
 
-TEST(Variant, Dictionary) {
-  Json json = std::map<std::string, Json> {
-    { "x", true },
-    { "y", 42 },
-    { "z", std::string("world") }
-  };
-  const std::map<std::string, Json>& dict = mpark::get<std::map<std::string, Json>>(json);
-  EXPECT_TRUE(mpark::get<bool>(dict.at("x")));
-  EXPECT_EQ(42, mpark::get<int>(dict.at("y")));
-  EXPECT_EQ("world", mpark::get<std::string>(dict.at("z")));
+TEST(Variant, Dict) {
+  using Dict = std::map<std::string, Json>;
+  Json json = std::make_shared<Dict>(
+      Dict{{"x", true}, {"y", 42}, {"z", std::string("world")}});
+  const auto &dict = mpark::get<std::shared_ptr<Dict>>(json);
+  EXPECT_TRUE(mpark::get<bool>(dict->at("x")));
+  EXPECT_EQ(42, mpark::get<int>(dict->at("y")));
+  EXPECT_EQ("world", mpark::get<std::string>(dict->at("z")));
 }
