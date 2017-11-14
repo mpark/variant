@@ -18,14 +18,14 @@ matrix:
       addons: { apt: { packages: ["g++-4.9"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, gcc-5
-    - env: VER=5 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=5 STDS="11;14" TESTS="mpark"
       compiler: gcc
       os: linux
       dist: trusty
       addons: { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, gcc-6
-    - env: VER=6 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=6 STDS="11;14" TESTS="mpark"
       compiler: gcc
       os: linux
       dist: trusty
@@ -39,42 +39,42 @@ matrix:
       addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, clang-3.5
-    - env: VER=3.5 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=3.5 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: precise
       addons: { apt: { packages: ["clang-3.5"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"] } }
 
     # ubuntu 14.04, clang-3.6
-    - env: VER=3.6 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=3.6 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: precise
       addons: { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
 
     # ubuntu 14.04, clang-3.7
-    - env: VER=3.7 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=3.7 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: precise
       addons: { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
 
     # ubuntu 14.04, clang-3.8
-    - env: VER=3.8 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=3.8 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: precise
       addons: { apt: { packages: ["clang-3.8"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
 
     # ubuntu 14.04, clang-3.9
-    - env: VER=3.9 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=3.9 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: trusty
       addons: { apt: { packages: ["clang-3.9"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
 
     # ubuntu 14.04, clang-4.0
-    - env: VER=4.0 STDS="11;14" TESTS="mpark;libc++"
+    - env: VER=4.0 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
       dist: trusty
@@ -88,19 +88,19 @@ matrix:
       addons: { apt: { packages: ["clang-5.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"] } }
 
     # OS X Yosemite 10.10, Apple Clang 6
-    - env: STDS="11;14" TESTS="mpark;libc++"
+    - env: STDS="11;14" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode6.4
 
     # OS X El Capitan 10.11, Apple Clang 7
-    - env: STDS="11;14" TESTS="mpark;libc++"
+    - env: STDS="11;14" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode7.3
 
     # OS X Sierra 10.12, Apple Clang 8
-    - env: STDS="11;14" TESTS="mpark;libc++"
+    - env: STDS="11;14" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode8.3

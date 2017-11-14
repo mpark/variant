@@ -140,7 +140,7 @@ The following compilers are continously tested:
 
 #### NOTES
   - __GCC 4.9__: `constexpr` support is not available for `visit` and relational operators.
-  - Enabling __libc++__ `std::variant` tests require `-std=c++1z` support.
+  - Enabling __libc++__ `std::variant` tests require `-std=c++17` support.
 
 ## CMake Variables
 
@@ -149,7 +149,7 @@ The following compilers are continously tested:
      Semicolon-separated list of tests to build.
      Possible values are `mpark`, and `libc++`.
 
-     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
+     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++17`.
 
 ## Unit Tests
 

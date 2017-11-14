@@ -33,7 +33,7 @@ This directory contains the tests for __MPark.Variant__.
 
      The C++ standard with which to build the tests.
 
-     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++1z`.
+     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++17`.
 
   -  __`MPARK_VARIANT_EXCEPTIONS`__:`BOOL` (__default__: `ON`)
 
