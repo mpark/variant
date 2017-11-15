@@ -163,6 +163,7 @@ install:
     fi
 
 script:
+  - set -e
   - STDS=(${STDS//;/ })
   - BUILDS=(Debug Release)
   - EXS=(ON OFF)
