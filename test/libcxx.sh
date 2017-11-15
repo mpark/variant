@@ -22,6 +22,7 @@ EOF
 ${MPARK_VARIANT_LIT} \
     -v \
     --param color_diagnostics \
+    --param cxx_under_test="${MPARK_VARIANT_CXX_COMPILER}" \
     --param compile_flags=-I${MPARK_VARIANT_SOURCE_DIR}/include/mpark \
     --param std=c++17 \
     --param libcxx_site_config=${MPARK_VARIANT_LIBCXX_SITE_CONFIG} \
