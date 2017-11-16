@@ -166,29 +166,31 @@ install:
     fi
 
 script:
-  - set -e
   - STDS=(${STDS//;/ })
   - BUILDS=(Debug Release)
   - EXS=(ON OFF)
   - mkdir build
   - pushd build
   - |
-    for BUILD in "${BUILDS[@]}"; do
-      for EX in "${EXS[@]}"; do
-        for STD in "${STDS[@]}"; do
-          (
-            set -x
-            cmake -DCMAKE_CXX_FLAGS="${COMPILE_FLAGS}"   \
-                  -DCMAKE_CXX_STANDARD="${STD}"          \
-                  -DCMAKE_BUILD_TYPE="${BUILD}"          \
-                  -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
-                  -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
-          )
-          cmake --build . -- -j 2
-          ctest -V
+    (
+      set -e
+      for BUILD in "${BUILDS[@]}"; do
+        for EX in "${EXS[@]}"; do
+          for STD in "${STDS[@]}"; do
+            (
+              set -x
+              cmake -DCMAKE_CXX_FLAGS="${COMPILE_FLAGS}"   \
+                    -DCMAKE_CXX_STANDARD="${STD}"          \
+                    -DCMAKE_BUILD_TYPE="${BUILD}"          \
+                    -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
+                    -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
+            )
+            cmake --build . -- -j 2
+            ctest -V
+          done
         done
       done
-    done
+    )
   - popd
 
 notifications:
