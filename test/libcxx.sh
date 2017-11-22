@@ -27,4 +27,3 @@ ${MPARK_VARIANT_LIT} \
     --param std=c++17 \
     --param libcxx_site_config=${MPARK_VARIANT_LIBCXX_SITE_CONFIG} \
     ${MPARK_VARIANT_LIBCXX_SOURCE_DIR}/test/std/utilities/variant \
-    ${MPARK_VARIANT_LIBCXX_SOURCE_DIR}/test/libcxx/utilities/variant
