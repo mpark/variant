@@ -361,15 +361,12 @@ namespace mpark {
     template <std::size_t N>
     using size_constant = std::integral_constant<std::size_t, N>;
 
-    template <bool... Bs>
-    using bool_sequence = integer_sequence<bool, Bs...>;
-
     template <std::size_t I, typename T>
     struct indexed_type : size_constant<I>, identity<T> {};
 
     template <bool... Bs>
-    using all =
-        std::is_same<bool_sequence<true, Bs...>, bool_sequence<Bs..., true>>;
+    using all = std::is_same<integer_sequence<bool, true, Bs...>,
+                             integer_sequence<bool, Bs..., true>>;
 
 #ifdef MPARK_TYPE_PACK_ELEMENT
     template <std::size_t I, typename... Ts>

@@ -17,6 +17,12 @@ git:
 
 matrix:
   include:
+    # ubuntu 14.04, gcc-4.8
+    - env: VER=4.8 STDS="11;1y" TESTS="mpark"
+      compiler: gcc
+      os: linux
+      addons: { apt: { packages: ["g++-4.8"], sources: ["ubuntu-toolchain-r-test"] } }
+
     # ubuntu 14.04, gcc-4.9
     - env: VER=4.9 STDS="11;14" TESTS="mpark"
       compiler: gcc

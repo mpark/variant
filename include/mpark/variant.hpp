@@ -600,7 +600,8 @@ namespace mpark {
                       Ls...> {
             inline constexpr AUTO operator()() const
               AUTO_RETURN(make_farray(
-                  impl<lib::index_sequence<Is..., Js>, Ls...>{}()...))
+                  impl<lib::integer_sequence<std::size_t, Is..., Js>,
+                       Ls...>{}()...));
           };
         };
 
