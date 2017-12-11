@@ -423,6 +423,17 @@ namespace mpark {
     template <typename T, bool>
     struct dependent_type : T {};
 
+    template <typename Is, std::size_t J>
+    struct push_back;
+
+    template <typename Is, std::size_t J>
+    using push_back_t = typename push_back<Is, J>::type;
+
+    template <std::size_t... Is, std::size_t J>
+    struct push_back<index_sequence<Is...>, J> {
+      using type = index_sequence<Is..., J>;
+    };
+
   }  // namespace lib
 }  // namespace mpark
 

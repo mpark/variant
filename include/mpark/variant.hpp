@@ -558,21 +558,20 @@ namespace mpark {
         }
 
 #ifdef MPARK_RETURN_TYPE_DEDUCTION
-        template <typename F, typename... Vs, std::size_t... Is>
-        inline static constexpr auto make_fmatrix_impl(
-            lib::index_sequence<Is...> is) {
+        template <typename F, typename... Vs, typename Is>
+        inline static constexpr auto make_fmatrix_impl(Is is) {
           return make_dispatch<F, Vs...>(is);
         }
 
         template <typename F,
                   typename... Vs,
-                  std::size_t... Is,
+                  typename Is,
                   std::size_t... Js,
                   typename... Ls>
         inline static constexpr auto make_fmatrix_impl(
-            lib::index_sequence<Is...>, lib::index_sequence<Js...>, Ls... ls) {
+            Is, lib::index_sequence<Js...>, Ls... ls) {
           return make_farray(make_fmatrix_impl<F, Vs...>(
-              lib::index_sequence<Is..., Js>{}, ls...)...);
+              lib::push_back_t<Is, Js>{}, ls...)...);
         }
 
         template <typename F, typename... Vs>
@@ -587,21 +586,17 @@ namespace mpark {
           template <typename...>
           struct impl;
 
-          template <std::size_t... Is>
-          struct impl<lib::index_sequence<Is...>> {
+          template <typename Is>
+          struct impl<Is> {
             inline constexpr AUTO operator()() const
-              AUTO_RETURN(
-                  make_dispatch<F, Vs...>(lib::index_sequence<Is...>{}))
+              AUTO_RETURN(make_dispatch<F, Vs...>(Is{}))
           };
 
-          template <std::size_t... Is, std::size_t... Js, typename... Ls>
-          struct impl<lib::index_sequence<Is...>,
-                      lib::index_sequence<Js...>,
-                      Ls...> {
+          template <typename Is, std::size_t... Js, typename... Ls>
+          struct impl<Is, lib::index_sequence<Js...>, Ls...> {
             inline constexpr AUTO operator()() const
-              AUTO_RETURN(make_farray(
-                  impl<lib::integer_sequence<std::size_t, Is..., Js>,
-                       Ls...>{}()...));
+              AUTO_RETURN(
+                  make_farray(impl<lib::push_back_t<Is, Js>, Ls...>{}()...))
           };
         };
 
