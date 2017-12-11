@@ -1,3 +1,10 @@
+# MPark.Variant
+#
+# Copyright Michael Park, 2015-2017
+#
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
 language: cpp
 sudo: false
 
@@ -14,78 +21,67 @@ matrix:
     - env: VER=4.9 STDS="11;14" TESTS="mpark"
       compiler: gcc
       os: linux
-      dist: trusty
       addons: { apt: { packages: ["g++-4.9"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, gcc-5
-    - env: VER=5 STDS="11;14" TESTS="mpark"
+    - env: VER=5 STDS="11;14;1z" TESTS="mpark"
       compiler: gcc
       os: linux
-      dist: trusty
       addons: { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, gcc-6
-    - env: VER=6 STDS="11;14" TESTS="mpark"
+    - env: VER=6 STDS="11;14;1z" TESTS="mpark"
       compiler: gcc
       os: linux
-      dist: trusty
       addons: { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, gcc-7
     - env: VER=7 STDS="11;14;17" TESTS="mpark;libc++"
       compiler: gcc
       os: linux
-      dist: trusty
       addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 14.04, clang-3.5
     - env: VER=3.5 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: precise
-      addons: { apt: { packages: ["clang-3.5"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"] } }
+      addons: { apt: { packages: ["clang-3.5", "libstdc++-5-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.5"] } }
 
     # ubuntu 14.04, clang-3.6
     - env: VER=3.6 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: precise
-      addons: { apt: { packages: ["clang-3.6"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
+      addons: { apt: { packages: ["clang-3.6", "libstdc++-5-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.6"] } }
 
     # ubuntu 14.04, clang-3.7
     - env: VER=3.7 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: precise
-      addons: { apt: { packages: ["clang-3.7"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
+      addons: { apt: { packages: ["clang-3.7", "libstdc++-5-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.7"] } }
 
     # ubuntu 14.04, clang-3.8
     - env: VER=3.8 STDS="11;14" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: precise
-      addons: { apt: { packages: ["clang-3.8"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
+      addons: { apt: { packages: ["clang-3.8", "libstdc++-5-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-precise-3.8"] } }
 
     # ubuntu 14.04, clang-3.9
-    - env: VER=3.9 STDS="11;14" TESTS="mpark"
+    - env: VER=3.9 STDS="11;14;1z" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: trusty
-      addons: { apt: { packages: ["clang-3.9"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
+      addons: { apt: { packages: ["clang-3.9", "libstdc++-6-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-3.9"] } }
 
     # ubuntu 14.04, clang-4.0
-    - env: VER=4.0 STDS="11;14" TESTS="mpark"
+    - env: VER=4.0 STDS="11;14;1z" TESTS="mpark"
       compiler: clang
       os: linux
-      dist: trusty
-      addons: { apt: { packages: ["clang-4.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
+      addons: { apt: { packages: ["clang-4.0", "libstdc++-6-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-4.0"] } }
 
     # ubuntu 14.04, clang-5.0
     - env: VER=5.0 STDS="11;14;17" TESTS="mpark;libc++"
       compiler: clang
       os: linux
-      dist: trusty
-      addons: { apt: { packages: ["clang-5.0"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"] } }
+      addons: { apt: { packages: ["clang-5.0", "libstdc++-7-dev"], sources: ["ubuntu-toolchain-r-test", "llvm-toolchain-trusty-5.0"] } }
 
     # OS X Yosemite 10.10, Apple Clang 6
     - env: STDS="11;14" TESTS="mpark"
@@ -94,20 +90,18 @@ matrix:
       osx_image: xcode6.4
 
     # OS X El Capitan 10.11, Apple Clang 7
-    - env: STDS="11;14" TESTS="mpark"
+    - env: STDS="11;14;1z" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode7.3
 
     # OS X Sierra 10.12, Apple Clang 8
-    - env: STDS="11;14" TESTS="mpark"
+    - env: STDS="11;14;1z" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode8.3
 
-install:
-  # Save the name of the compiler.
-  - COMPILER=${CC}
+before_install:
   # Set the correct `CC` and `CXX` environment variables.
   - |
     if [ -n "${VER}" ]; then
@@ -128,70 +122,48 @@ install:
       bash cmake-3.8.2-Linux-x86_64.sh --skip-license --prefix="${DEPS}"
       export PATH="${DEPS}/bin:${PATH}"
     fi
-  # Install specific version of libc++.
-  - |
-    if [ "${TRAVIS_OS_NAME}" = "linux" ] && [ "${COMPILER}" = "clang" ] && [ -n "${VER}" ]; then
-      LLVM_VER=$(echo "$(${CXX} --version)" | grep -Po "clang version \K([0-9]\.[0-9]\.[0-9])")
-      if [ "${LLVM_VER}" = "5.0.1" ]; then
-        LLVM_VER="5.0.0"
-      fi
-
-      LLVM_URL="http://llvm.org/releases/${LLVM_VER}/llvm-${LLVM_VER}.src.tar.xz"
-      LIBCXX_URL="http://llvm.org/releases/${LLVM_VER}/libcxx-${LLVM_VER}.src.tar.xz"
-      LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VER}/libcxxabi-${LLVM_VER}.src.tar.xz"
-
-      mkdir -p llvm-build llvm llvm/projects/libcxx llvm/projects/libcxxabi
-
-      travis_retry wget -O - ${LLVM_URL} | tar --strip-components=1 -xJ -C llvm
-      travis_retry wget -O - ${LIBCXX_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxx
-      travis_retry wget -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxxabi
-
-      pushd llvm-build
-      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DEPS} ../llvm
-      cmake --build projects/libcxx --target install -- -j 2
-      cmake --build projects/libcxxabi --target install -- -j 2
-      popd
-      if [ "${VER}" = "3.5" ]; then
-        # `cxxabi.h` isn't installed correctly for libc++-3.5.
-        cp llvm/projects/libcxxabi/include/cxxabi.h ${DEPS}/include/c++/v1
-      fi
-
-      # These flags are passed via `-DCMAKE_CXX_FLAGS` because setting them on
-      # `CXXFLAGS` conflicts with the include directories explicitly set by
-      # libc++ when it's being built for the `std::variant` tests.
-      COMPILE_FLAGS="-nostdinc++ -isystem ${DEPS}/include/c++/v1"
-
-      export LDFLAGS="${LDFLAGS} -L${DEPS}/lib -lc++ -lc++abi"
-      export LD_LIBRARY_PATH="${DEPS}/lib:${LD_LIBRARY_PATH}"
-    fi
-
-script:
+  - export CXXFLAGS="-Wall -Wextra -Werror -pedantic-errors"
   - STDS=(${STDS//;/ })
   - BUILDS=(Debug Release)
   - EXS=(ON OFF)
-  - mkdir build
-  - pushd build
+
+install:
   - |
-    (
-      set -e
+    for STD in "${STDS[@]}"; do
       for BUILD in "${BUILDS[@]}"; do
         for EX in "${EXS[@]}"; do
-          for STD in "${STDS[@]}"; do
-            (
-              set -x
-              cmake -DCMAKE_CXX_FLAGS="${COMPILE_FLAGS}"   \
-                    -DCMAKE_CXX_STANDARD="${STD}"          \
-                    -DCMAKE_BUILD_TYPE="${BUILD}"          \
-                    -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
-                    -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
-            )
-            cmake --build . -- -j 2
-            ctest -V
-          done
+          BUILD_DIR="build-${STD}-${BUILD}-${EX}"
+          mkdir "${BUILD_DIR}"
+          pushd "${BUILD_DIR}"
+          (
+            set -ex
+            export CXXFLAGS="${CXXFLAGS} -std=c++${STD}"
+            cmake -DCMAKE_BUILD_TYPE="${BUILD}"          \
+                  -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
+                  -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
+          )
+          popd
         done
       done
-    )
-  - popd
+    done
+
+script:
+  - |
+    for STD in "${STDS[@]}"; do
+      for BUILD in "${BUILDS[@]}"; do
+        for EX in "${EXS[@]}"; do
+          BUILD_DIR="build-${STD}-${BUILD}-${EX}"
+          mkdir "${BUILD_DIR}"
+          pushd "${BUILD_DIR}"
+          (
+            set -ex
+            cmake --build . -- -k -j 2
+            ctest --output-on-failure
+          )
+          popd
+        done
+      done
+    done
 
 notifications:
   email: false

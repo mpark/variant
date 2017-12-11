@@ -7,11 +7,6 @@
 
 cmake_minimum_required(VERSION 3.6.3)
 
-set(CMAKE_CXX_STANDARD 14 CACHE STRING
-    "The C++ standard with which to build the tests.")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 option(MPARK_VARIANT_EXCEPTIONS
        "Build the tests with exceptions support." ON)
 

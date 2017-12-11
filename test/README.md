@@ -29,12 +29,6 @@ This directory contains the tests for __MPark.Variant__.
 
 ## CMake Variables
 
-  -  __`MPARK_VARIANT_CXX_STANDARD`__:`STRING` (__default__: `14`)
-
-     The C++ standard with which to build the tests.
-
-     __NOTE__: The __libc++__ `std::variant` tests are built with `-std=c++17`.
-
   -  __`MPARK_VARIANT_EXCEPTIONS`__:`BOOL` (__default__: `ON`)
 
      Build the tests with exceptions support.
@@ -48,5 +42,5 @@ mkdir build
 cd build
 cmake -DMPARK_VARIANT_INCLUDE_TESTS="mpark;libc++" ..
 cmake --build .
-ctest -V
+ctest --output-on-failure
 ```
