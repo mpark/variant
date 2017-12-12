@@ -23,8 +23,9 @@
 [travis]: https://travis-ci.org/mpark/variant
 [appveyor]: https://ci.appveyor.com/project/mpark/variant
 [license]: https://github.com/mpark/variant/blob/master/LICENSE.md
-[godbolt]: https://godbolt.org/g/NJ1nh4
-[wandbox]: https://wandbox.org/permlink/DKO6yFxjr9ejei8m
+[godbolt]: https://godbolt.org/g/1qYDAK
+[wandbox]: https://wandbox.org/permlink/QV3gZ2KQQNwgoFIB
+
 
 ## Benchmark
 
