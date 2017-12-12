@@ -613,8 +613,15 @@ namespace mpark {
 
       template <typename F, typename... Vs>
       struct fdiagonal {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4268)
+#endif
         static constexpr FDiagonal<F, Vs...> value =
             base::make_fdiagonal<F, Vs...>();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
       };
 
       template <typename F, typename... Vs>
@@ -625,8 +632,15 @@ namespace mpark {
 
       template <typename F, typename... Vs>
       struct fmatrix {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4268)
+#endif
         static constexpr FMatrix<F, Vs...> value =
             base::make_fmatrix<F, Vs...>();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
       };
 
       template <typename F, typename... Vs>
