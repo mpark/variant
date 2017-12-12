@@ -1,6 +1,10 @@
 build:
   verbosity: detailed
 
+branches:
+  only:
+    - master
+
 clone_depth: 1
 
 install:
@@ -9,60 +13,51 @@ install:
 environment:
   matrix:
     - GENERATOR: Visual Studio 14 2015 Win64
-      EXCEPTIONS: ON
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    # Clang/LLVM
     - GENERATOR: Visual Studio 14 2015 Win64
-      EXCEPTIONS: OFF
+      TOOLSET: LLVM-vs2014
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     # /std:c++14
     - GENERATOR: Visual Studio 15 2017 Win64
       CXXFLAGS: /std:c++14 /permissive-
-      EXCEPTIONS: ON
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    - GENERATOR: Visual Studio 15 2017 Win64
-      CXXFLAGS: /std:c++14 /permissive-
-      EXCEPTIONS: OFF
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # /std:c++latest
     - GENERATOR: Visual Studio 15 2017 Win64
       CXXFLAGS: /std:c++latest /permissive-
-      EXCEPTIONS: ON
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-    - GENERATOR: Visual Studio 15 2017 Win64
-      CXXFLAGS: /std:c++latest /permissive-
-      EXCEPTIONS: OFF
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
-    # Clang/LLVM
-    - GENERATOR: Visual Studio 14 2015 Win64
-      TOOLSET: LLVM-vs2014
-      EXCEPTIONS: ON
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - GENERATOR: Visual Studio 14 2015 Win64
-      TOOLSET: LLVM-vs2014
-      EXCEPTIONS: OFF
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 platform: x64
 
-configuration:
-  - Debug
-  - Release
-
-branches:
-  only:
-    - master
-
 build_script:
-  - mkdir build
-  - cd build
   - ps: |
+      $env:CXXFLAGS = $env:CXXFLAGS + ' /W4'
+
+      mkdir build-ON
+      cd build-ON
       if (Test-Path env:TOOLSET) {
-        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_EXCEPTIONS="$env:EXCEPTIONS" -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_EXCEPTIONS=ON -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
       } else {
-        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_EXCEPTIONS="$env:EXCEPTIONS" -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_EXCEPTIONS=ON -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
       }
-  - cmake --build . --config %CONFIGURATION%
-  - ctest -V
+      cmake --build . --config Debug
+      ctest --output-on-failure --build-config Debug
+      cmake --build . --config Release
+      ctest --output-on-failure --build-config Release
+      cd ..
+
+      mkdir build-OFF
+      cd build-OFF
+      if (Test-Path env:TOOLSET) {
+        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_EXCEPTIONS=OFF -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+      } else {
+        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_EXCEPTIONS=OFF -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
+      }
+      cmake --build . --config Debug
+      ctest --output-on-failure --build-config Debug
+      cmake --build . --config Release
+      ctest --output-on-failure --build-config Release
+      cd ..
