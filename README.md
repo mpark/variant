@@ -130,9 +130,9 @@ The following compilers are continously tested:
 | Clang Xcode 6.4                        | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                         |
 | Clang Xcode 7.3                        | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                                  |
 | Clang Xcode 8.3                        | Darwin Kernel Version 16.6.0 (OS X 10.12.5) | Apple LLVM version 8.1.0 (clang-802.0.42)                                                  |
-| Visual Studio 14 2015                  | Visual Studio 2015 with Update 3            | MSVC 19.0.24215.1  | Microsoft (R) Build Engine version 14.0.25420.1                       |
-| Visual Studio 15 2017                  | Visual Studio 2017                          | MSVC 19.11.25547.0 | Microsoft (R) Build Engine version 15.4.8.50001                       |
-| Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio 2015 with Update 3            | Clang 4.0.0        | Microsoft (R) Build Engine version 14.0.25420.1                       |
+| Visual Studio 14 2015                  | Visual Studio 2015 with Update 3            | MSVC 19.0.24215.1  (Microsoft (R) Build Engine version 14.0.25420.1)                       |
+| Visual Studio 15 2017                  | Visual Studio 2017                          | MSVC 19.11.25547.0 (Microsoft (R) Build Engine version 15.4.8.50001)                       |
+| Visual Studio 14 2015 (__Clang/LLVM__) | Visual Studio 2015 with Update 3            | Clang 4.0.0        (Microsoft (R) Build Engine version 14.0.25420.1)                       |
 
 #### NOTES
   - __GCC 4.8__/__4.9__: `constexpr` support is not available for `visit` and relational operators.
