@@ -66,10 +66,6 @@ cmake_minimum_required(VERSION 3.6.3)
 
 project(HelloWorld CXX)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 add_subdirectory(3rdparty/variant)
 
 add_executable(hello-world hello_world.cpp)
@@ -97,11 +93,7 @@ cmake_minimum_required(VERSION 3.6.3)
 
 project(HelloWorld CXX)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-find_package(mpark_variant 1.2.0 REQUIRED)
+find_package(mpark_variant 1.3.0 REQUIRED)
 
 add_executable(hello-world hello_world.cpp)
 target_link_libraries(hello-world mpark_variant)
