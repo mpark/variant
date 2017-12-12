@@ -120,6 +120,7 @@ The following compilers are continously tested:
 
 | Compiler                               | Operating System                            | Version String                                                                          |
 |----------------------------------------|---------------------------------------------|-----------------------------------------------------------------------------------------|
+| GCC 4.8.5                              | Ubuntu 14.04.5 LTS                          | g++-4.8 (Ubuntu 4.8.5-2ubuntu1~14.04.1) 4.8.5                                           |
 | GCC 4.9.4                              | Ubuntu 14.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4                                           |
 | GCC 5.4.1                              | Ubuntu 14.04.5 LTS                          | g++-5 (Ubuntu 5.4.1-2ubuntu1~14.04) 5.4.1 20160904                                      |
 | GCC 6.3.0                              | Ubuntu 14.04.5 LTS                          | g++-6 (Ubuntu/Linaro 6.3.0-18ubuntu2~14.04) 6.3.0 20170519                              |
