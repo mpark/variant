@@ -490,7 +490,6 @@ namespace mpark {
     namespace visitation {
 
       struct base {
-        private:
         template <typename T>
         inline static constexpr const T &at(const T &elem) {
           return elem;
@@ -607,26 +606,51 @@ namespace mpark {
                   lib::index_sequence<>,
                   lib::make_index_sequence<lib::decay_t<Vs>::size()>...>{}())
 #endif
+      };  // namespace base
 
-        public:
+      template <typename F, typename... Vs>
+      using FDiagonal = decltype(base::make_fdiagonal<F, Vs...>());
+
+      template <typename F, typename... Vs>
+      struct fdiagonal {
+        static constexpr FDiagonal<F, Vs...> value =
+            base::make_fdiagonal<F, Vs...>();
+      };
+
+      template <typename F, typename... Vs>
+      constexpr FDiagonal<F, Vs...> fdiagonal<F, Vs...>::value;
+
+      template <typename F, typename... Vs>
+      using FMatrix = decltype(base::make_fmatrix<F, Vs...>());
+
+      template <typename F, typename... Vs>
+      struct fmatrix {
+        static constexpr FMatrix<F, Vs...> value =
+            base::make_fmatrix<F, Vs...>();
+      };
+
+      template <typename F, typename... Vs>
+      constexpr FMatrix<F, Vs...> fmatrix<F, Vs...>::value;
+
+      struct alt {
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              at(make_fdiagonal<Visitor &&,
-                                decltype(as_base(lib::forward<Vs>(vs)))...>(),
-                 index)(lib::forward<Visitor>(visitor),
-                        as_base(lib::forward<Vs>(vs))...))
+          DECLTYPE_AUTO_RETURN(base::at(
+              fdiagonal<Visitor &&,
+                        decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              index)(lib::forward<Visitor>(visitor),
+                     as_base(lib::forward<Vs>(vs))...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              at(make_fmatrix<Visitor &&,
-                              decltype(as_base(lib::forward<Vs>(vs)))...>(),
-                 vs.index()...)(lib::forward<Visitor>(visitor),
-                                as_base(lib::forward<Vs>(vs))...))
+          DECLTYPE_AUTO_RETURN(base::at(
+              fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
       };
 
       struct variant {
@@ -674,15 +698,15 @@ namespace mpark {
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
           DECLTYPE_AUTO_RETURN(
-              base::visit_alt_at(index,
-                                 lib::forward<Visitor>(visitor),
-                                 lib::forward<Vs>(vs).impl_...))
+              alt::visit_alt_at(index,
+                                lib::forward<Visitor>(visitor),
+                                lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(base::visit_alt(lib::forward<Visitor>(visitor),
-                                               lib::forward<Vs>(vs).impl_...))
+          DECLTYPE_AUTO_RETURN(alt::visit_alt(lib::forward<Visitor>(visitor),
+                                              lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value_at(std::size_t index,
@@ -868,7 +892,7 @@ namespace mpark {
         ~destructor() { destroy(); },
         inline void destroy() noexcept {
           if (!this->valueless_by_exception()) {
-            visitation::base::visit_alt(dtor{}, *this);
+            visitation::alt::visit_alt(dtor{}, *this);
           }
           this->index_ = static_cast<index_t>(-1);
         });
@@ -910,7 +934,7 @@ namespace mpark {
       inline static void generic_construct(constructor &lhs, Rhs &&rhs) {
         lhs.destroy();
         if (!rhs.valueless_by_exception()) {
-          visitation::base::visit_alt_at(
+          visitation::alt::visit_alt_at(
               rhs.index(),
 #ifdef MPARK_GENERIC_LAMBDAS
               [](auto &lhs_alt, auto &&rhs_alt) {
@@ -1069,7 +1093,7 @@ namespace mpark {
         } else if (that.valueless_by_exception()) {
           this->destroy();
         } else {
-          visitation::base::visit_alt_at(
+          visitation::alt::visit_alt_at(
               that.index(),
 #ifdef MPARK_GENERIC_LAMBDAS
               [this](auto &this_alt, auto &&that_alt) {
@@ -1181,19 +1205,19 @@ namespace mpark {
         if (this->valueless_by_exception() && that.valueless_by_exception()) {
           // do nothing.
         } else if (this->index() == that.index()) {
-          visitation::base::visit_alt_at(this->index(),
+          visitation::alt::visit_alt_at(this->index(),
 #ifdef MPARK_GENERIC_LAMBDAS
-                                         [](auto &this_alt, auto &that_alt) {
-                                           using std::swap;
-                                           swap(this_alt.value,
-                                                that_alt.value);
-                                         }
+                                        [](auto &this_alt, auto &that_alt) {
+                                          using std::swap;
+                                          swap(this_alt.value,
+                                               that_alt.value);
+                                        }
 #else
-                                         swapper{}
+                                        swapper{}
 #endif
-                                         ,
-                                         *this,
-                                         that);
+                                        ,
+                                        *this,
+                                        that);
         } else {
           impl *lhs = this;
           impl *rhs = lib::addressof(that);
