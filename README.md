@@ -120,7 +120,6 @@ The following compilers are continously tested:
 | GCC 5.4.1                              | Ubuntu 14.04.5 LTS                          | g++-5 (Ubuntu 5.4.1-2ubuntu1~14.04) 5.4.1 20160904                                         |
 | GCC 6.3.0                              | Ubuntu 14.04.5 LTS                          | g++-6 (Ubuntu/Linaro 6.3.0-18ubuntu2~14.04) 6.3.0 20170519                                 |
 | GCC 7.2.0                              | Ubuntu 14.04.5 LTS                          | g++-7 (Ubuntu 7.2.0-1ubuntu1~14.04) 7.2.0                                                  |
-| Clang 3.5.0                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.5.0-4ubuntu2~trusty2 (tags/RELEASE_350/final) (based on LLVM 3.5.0) |
 | Clang 3.6.2                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.6.2-svn240577-1~exp1 (branches/release_36) (based on LLVM 3.6.2)    |
 | Clang 3.7.1                            | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.7.1-svn253571-1~exp1 (branches/release_37) (based on LLVM 3.7.1)    |
 | Clang 3.8.0                            | Ubuntu 14.04.5 LTS                          | clang version 3.8.0-2ubuntu3~trusty5 (tags/RELEASE_380/final)                              |
