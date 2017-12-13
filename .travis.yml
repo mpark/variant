@@ -147,7 +147,6 @@ before_install:
       bash cmake-3.8.2-Linux-x86_64.sh --skip-license --prefix="${DEPS}"
       export PATH="${DEPS}/bin:${PATH}"
     fi
-  - export CXXFLAGS="-Wall -Wextra -Werror -pedantic-errors"
   - STDS=(${STDS//;/ })
   - BUILDS=(Debug Release)
   - EXS=(ON OFF)
@@ -162,7 +161,7 @@ install:
           pushd "${BUILD_DIR}"
           (
             set -ex
-            export CXXFLAGS="${CXXFLAGS} -std=c++${STD}"
+            export CXXFLAGS="-std=c++${STD}"
             cmake -DCMAKE_BUILD_TYPE="${BUILD}"          \
                   -DMPARK_VARIANT_EXCEPTIONS="${EX}"     \
                   -DMPARK_VARIANT_INCLUDE_TESTS="${TESTS}" ..
