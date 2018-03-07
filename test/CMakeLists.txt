@@ -19,6 +19,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
   add_compile_options(-pedantic-errors)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-Wnoexcept)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
    CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
   add_compile_options(-Qunused-arguments)
