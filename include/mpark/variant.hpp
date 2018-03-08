@@ -491,13 +491,13 @@ namespace mpark {
 
       struct base {
         template <typename T>
-        inline static constexpr const T &at(const T &elem) {
+        inline static constexpr const T &at(const T &elem) noexcept {
           return elem;
         }
 
         template <typename T, std::size_t N, typename... Is>
         inline static constexpr const lib::remove_all_extents_t<T> &at(
-            const lib::array<T, N> &elems, std::size_t i, Is... is) {
+            const lib::array<T, N> &elems, std::size_t i, Is... is) noexcept {
           return at(elems[i], is...);
         }
 
@@ -1520,7 +1520,7 @@ namespace mpark {
   namespace detail {
     template <std::size_t I, typename V>
     struct generic_get_impl {
-      constexpr generic_get_impl(int) {}
+      constexpr generic_get_impl(int) noexcept {}
 
       constexpr AUTO_REFREF operator()(V &&v) const
         AUTO_REFREF_RETURN(
@@ -1814,14 +1814,14 @@ namespace mpark {
     namespace hash {
 
       template <typename H, typename K>
-      constexpr bool meets_requirements() {
+      constexpr bool meets_requirements() noexcept {
         return std::is_copy_constructible<H>::value &&
                std::is_move_constructible<H>::value &&
                lib::is_invocable_r<std::size_t, H, const K &>::value;
       }
 
       template <typename K>
-      constexpr bool is_enabled() {
+      constexpr bool is_enabled() noexcept {
         using H = std::hash<K>;
         return meets_requirements<H, K>() &&
                std::is_default_constructible<H>::value &&

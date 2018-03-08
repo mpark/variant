@@ -302,7 +302,7 @@ namespace mpark {
       // <memory>
 #ifdef MPARK_BUILTIN_ADDRESSOF
       template <typename T>
-      inline constexpr T *addressof(T &arg) {
+      inline constexpr T *addressof(T &arg) noexcept {
         return __builtin_addressof(arg);
       }
 #else
@@ -327,19 +327,19 @@ namespace mpark {
         using has_addressof = bool_constant<has_addressof_impl::impl<T>()>;
 
         template <typename T>
-        inline constexpr T *addressof(T &arg, std::true_type) {
+        inline constexpr T *addressof(T &arg, std::true_type) noexcept {
           return std::addressof(arg);
         }
 
         template <typename T>
-        inline constexpr T *addressof(T &arg, std::false_type) {
+        inline constexpr T *addressof(T &arg, std::false_type) noexcept {
           return &arg;
         }
 
       }  // namespace detail
 
       template <typename T>
-      inline constexpr T *addressof(T &arg) {
+      inline constexpr T *addressof(T &arg) noexcept {
         return detail::addressof(arg, detail::has_addressof<T>{});
       }
 #endif
