@@ -15,10 +15,7 @@
 
 #include "config.hpp"
 
-#define RETURN(...)                                          \
-  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { \
-    return __VA_ARGS__;                                      \
-  }
+#define RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
 namespace mpark {
   namespace lib {
