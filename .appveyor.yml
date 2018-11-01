@@ -11,6 +11,7 @@ build:
 branches:
   only:
     - master
+    - ci
 
 clone_depth: 1
 
@@ -22,49 +23,17 @@ environment:
     - GENERATOR: Visual Studio 14 2015 Win64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    # Clang/LLVM
-    - GENERATOR: Visual Studio 14 2015 Win64
-      TOOLSET: LLVM-vs2014
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
     # /std:c++14
     - GENERATOR: Visual Studio 15 2017 Win64
-      CXXFLAGS: /std:c++14 /permissive-
+      CXXFLAGS: /std:c++14 /permissive- /W4
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # /std:c++latest
     - GENERATOR: Visual Studio 15 2017 Win64
-      CXXFLAGS: /std:c++latest /permissive-
+      CXXFLAGS: /std:c++latest /permissive- /W4
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
 platform: x64
 
 build_script:
-  - ps: |
-      $env:CXXFLAGS = $env:CXXFLAGS + ' /W4'
-
-      mkdir build-ON
-      cd build-ON
-      if (Test-Path env:TOOLSET) {
-        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_EXCEPTIONS=ON -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
-      } else {
-        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_EXCEPTIONS=ON -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
-      }
-      cmake --build . --config Debug
-      ctest --output-on-failure --build-config Debug
-      cmake --build . --config Release
-      ctest --output-on-failure --build-config Release
-      cd ..
-
-      mkdir build-OFF
-      cd build-OFF
-      if (Test-Path env:TOOLSET) {
-        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" -DMPARK_VARIANT_EXCEPTIONS=OFF -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
-      } else {
-        cmake -G "$env:GENERATOR" -DMPARK_VARIANT_EXCEPTIONS=OFF -DMPARK_VARIANT_INCLUDE_TESTS="mpark" ..
-      }
-      cmake --build . --config Debug
-      ctest --output-on-failure --build-config Debug
-      cmake --build . --config Release
-      ctest --output-on-failure --build-config Release
-      cd ..
+  - ps: python support/appveyor.py
