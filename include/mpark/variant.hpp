@@ -489,6 +489,44 @@ namespace mpark {
 
     namespace visitation {
 
+      template <typename R, bool b, typename... Vs>
+      struct Switch;
+
+      template <typename R, typename F, typename... Vs>
+      struct Switch<R, false, F, Vs...> {
+      template <std::size_t B = 0, std::size_t... Is, typename... Vs_>
+        static constexpr R switch_(std::index_sequence<Is...>, F&& , Vs&&... , Vs_&&... ) { __builtin_unreachable(); }
+      };
+
+      template <typename R, typename F, typename... Vs>
+      struct Switch<R, true, F, Vs...> {
+      template <std::size_t B = 0, std::size_t... Is>
+        static constexpr R switch_(std::index_sequence<Is...>, F&& f, Vs&&... vs) {
+          static_assert(B == 0);
+          return lib::invoke(lib::forward<F>(f), (access::base::get_alt<Is>(lib::forward<Vs>(vs)))...);
+      }
+
+      template <std::size_t B = 0, std::size_t... Is, typename V_, typename... Vs_>
+      static constexpr R switch_(std::index_sequence<Is...>, F&& f, Vs&&... vs, V_&& v_, Vs_&&... vs_) {
+        constexpr std::size_t size = v_.size();
+        #define SWITCH_CASE(I) \
+            case B+I: return Switch<R, B+I < size, F, Vs..., V_>::switch_(std::index_sequence<Is..., B+I>{}, lib::forward<F>(f), lib::forward<Vs>(vs)..., lib::forward<V_>(v_), lib::forward<Vs_>(vs_)...);
+
+        switch (v_.index()) {
+          SWITCH_CASE(0)
+          SWITCH_CASE(1)
+          default: return Switch<R, B+2 < size, F, Vs...>::template switch_<B+2>(std::index_sequence<Is...>{}, lib::forward<F>(f), lib::forward<Vs>(vs)..., lib::forward<V_>(v_), lib::forward<Vs_>(vs_)...);
+          #undef SWITCH_CASE
+        }
+      }
+      };
+
+      template <typename F, typename... Vs>
+      constexpr DECLTYPE_AUTO switch_visit(F&& f, Vs&&... vs) {
+        using R = decltype(lib::invoke(lib::forward<F>(f), (access::base::get_alt<0>(lib::forward<Vs>(vs)))...));
+        return Switch<R, true, F>::switch_(std::index_sequence<>{},  lib::forward<F>(f), lib::forward<Vs>(vs)...);
+      }
+
       struct base {
         template <typename T>
         inline static constexpr const T &at(const T &elem) noexcept {
@@ -659,12 +697,10 @@ namespace mpark {
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
-                                                        Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(base::at(
-              fmatrix<Visitor &&,
-                      decltype(as_base(lib::forward<Vs>(vs)))...>::value,
-              vs.index()...)(lib::forward<Visitor>(visitor),
-                             as_base(lib::forward<Vs>(vs))...))
+                                                        Vs &&... vs) {
+          return switch_visit(lib::forward<Visitor>(visitor),
+                              lib::forward<Vs>(vs)...);
+        }
       };
 
       struct variant {
@@ -827,6 +863,7 @@ namespace mpark {
       inline constexpr std::size_t index() const noexcept {
         return valueless_by_exception() ? variant_npos : index_;
       }
+      inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
       protected:
       using data_t = recursive_union<DestructibleTrait, 0, Ts...>;
@@ -841,7 +878,6 @@ namespace mpark {
       friend inline constexpr data_t &&data(base &&b) { return lib::move(b).data_; }
       friend inline constexpr const data_t &&data(const base &&b) { return lib::move(b).data_; }
 
-      inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
       data_t data_;
       index_t index_;
