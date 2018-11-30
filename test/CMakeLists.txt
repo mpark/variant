@@ -82,7 +82,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   set(MPARK_VARIANT_LLVM_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/llvm-build)
 
   ExternalProject_Add(llvm
-    GIT_REPOSITORY    http://llvm.org/git/llvm.git
+    GIT_REPOSITORY    https://git.llvm.org/git/llvm.git
     GIT_SHALLOW       1
     CMAKE_ARGS        -DCMAKE_BUILD_TYPE=Release
                       -DLIBCXX_ENABLE_EXCEPTIONS=${MPARK_VARIANT_EXCEPTIONS}
@@ -100,7 +100,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   set(MPARK_VARIANT_LIBCXX_BINARY_DIR ${MPARK_VARIANT_LLVM_BINARY_DIR}/projects/libcxx)
 
   ExternalProject_Add(libcxx-download
-    GIT_REPOSITORY    http://llvm.org/git/libcxx.git
+    GIT_REPOSITORY    https://git.llvm.org/git/libcxx.git
     GIT_SHALLOW       1
     DEPENDS           llvm-download
     SOURCE_DIR        ${MPARK_VARIANT_LIBCXX_SOURCE_DIR}
@@ -114,7 +114,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
   set(MPARK_VARIANT_LIBCXXABI_BINARY_DIR ${MPARK_VARIANT_LLVM_BINARY_DIR}/projects/libcxxabi)
 
   ExternalProject_Add(libcxxabi-download
-    GIT_REPOSITORY    http://llvm.org/git/libcxxabi.git
+    GIT_REPOSITORY    https://git.llvm.org/git/libcxxabi.git
     GIT_SHALLOW       1
     DEPENDS           llvm-download
     SOURCE_DIR        ${MPARK_VARIANT_LIBCXXABI_SOURCE_DIR}
