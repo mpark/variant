@@ -15,7 +15,7 @@
 
 #include "config.hpp"
 
-#define RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+#define MPARK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
 namespace mpark {
   namespace lib {
@@ -118,7 +118,7 @@ namespace mpark {
       struct equal_to {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) == lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) == lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -128,7 +128,7 @@ namespace mpark {
       struct not_equal_to {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) != lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) != lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -138,7 +138,7 @@ namespace mpark {
       struct less {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) < lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) < lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -148,7 +148,7 @@ namespace mpark {
       struct greater {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) > lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) > lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -158,7 +158,7 @@ namespace mpark {
       struct less_equal {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) <= lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) <= lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -168,7 +168,7 @@ namespace mpark {
       struct greater_equal {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) >= lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) >= lib::forward<Rhs>(rhs))
       };
 #endif
     }  // namespace cpp14
@@ -234,26 +234,26 @@ namespace mpark {
 #endif
       template <typename F, typename... As>
       inline constexpr auto invoke(F &&f, As &&... as)
-          RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
+          MPARK_RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
       template <typename B, typename T, typename D>
       inline constexpr auto invoke(T B::*pmv, D &&d)
-          RETURN(lib::forward<D>(d).*pmv)
+          MPARK_RETURN(lib::forward<D>(d).*pmv)
 
       template <typename Pmv, typename Ptr>
       inline constexpr auto invoke(Pmv pmv, Ptr &&ptr)
-          RETURN((*lib::forward<Ptr>(ptr)).*pmv)
+          MPARK_RETURN((*lib::forward<Ptr>(ptr)).*pmv)
 
       template <typename B, typename T, typename D, typename... As>
       inline constexpr auto invoke(T B::*pmf, D &&d, As &&... as)
-          RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
+          MPARK_RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
 
       template <typename Pmf, typename Ptr, typename... As>
       inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
-          RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
+          MPARK_RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
 
       namespace detail {
 
@@ -441,6 +441,6 @@ namespace mpark {
   }  // namespace lib
 }  // namespace mpark
 
-#undef RETURN
+#undef MPARK_RETURN
 
 #endif  // MPARK_LIB_HPP
