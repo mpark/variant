@@ -1613,11 +1613,26 @@ namespace mpark {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
 
+  namespace detail {
+    template <typename RelOp>
+    struct convert_to_bool {
+      template <typename Lhs, typename Rhs>
+      inline constexpr bool operator()(Lhs &&lhs, Rhs &&rhs) const {
+        static_assert(std::is_convertible<lib::invoke_result_t<RelOp, Lhs, Rhs>,
+                                          bool>::value,
+                      "relational operators must return a type"
+                      " implicitly convertible to bool");
+        return lib::invoke(
+            RelOp{}, lib::forward<Lhs>(lhs), lib::forward<Rhs>(rhs));
+      }
+    };
+  }  // namespace detail
+
   template <typename... Ts>
   inline constexpr bool operator==(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::equal_to;
+    using equal_to = detail::convert_to_bool<lib::equal_to>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -1633,7 +1648,7 @@ namespace mpark {
   inline constexpr bool operator!=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::not_equal_to;
+    using not_equal_to = detail::convert_to_bool<lib::not_equal_to>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return true;
     if (lhs.valueless_by_exception()) return false;
@@ -1649,7 +1664,7 @@ namespace mpark {
   inline constexpr bool operator<(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::less;
+    using less = detail::convert_to_bool<lib::less>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -1668,7 +1683,7 @@ namespace mpark {
   inline constexpr bool operator>(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::greater;
+    using greater = detail::convert_to_bool<lib::greater>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return false;
     if (rhs.valueless_by_exception()) return true;
@@ -1687,7 +1702,7 @@ namespace mpark {
   inline constexpr bool operator<=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::less_equal;
+    using less_equal = detail::convert_to_bool<lib::less_equal>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return true;
     if (rhs.valueless_by_exception()) return false;
@@ -1707,7 +1722,7 @@ namespace mpark {
   inline constexpr bool operator>=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::greater_equal;
+    using greater_equal = detail::convert_to_bool<lib::greater_equal>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return true;
     if (lhs.valueless_by_exception()) return false;
