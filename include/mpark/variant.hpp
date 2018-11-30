@@ -863,12 +863,12 @@ namespace mpark {
     };
 
 #if defined(_MSC_VER) && _MSC_VER < 1910
-#define INHERITING_CTOR(type, base)               \
+#define MPARK_INHERITING_CTOR(type, base)         \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
       : base(lib::forward<Args>(args)...) {}
 #else
-#define INHERITING_CTOR(type, base) using base::base;
+#define MPARK_INHERITING_CTOR(type, base) using base::base;
 #endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
@@ -881,7 +881,7 @@ namespace mpark {
     using super = base<destructible_trait, Ts...>;                        \
                                                                           \
     public:                                                               \
-    INHERITING_CTOR(destructor, super)                                    \
+    MPARK_INHERITING_CTOR(destructor, super)                              \
     using super::operator=;                                               \
                                                                           \
     destructor(const destructor &) = default;                             \
@@ -923,7 +923,7 @@ namespace mpark {
       using super = destructor<Traits>;
 
       public:
-      INHERITING_CTOR(constructor, super)
+      MPARK_INHERITING_CTOR(constructor, super)
       using super::operator=;
 
       protected:
@@ -976,7 +976,7 @@ namespace mpark {
     using super = constructor<traits<Ts...>>;                                \
                                                                              \
     public:                                                                  \
-    INHERITING_CTOR(move_constructor, super)                                 \
+    MPARK_INHERITING_CTOR(move_constructor, super)                           \
     using super::operator=;                                                  \
                                                                              \
     move_constructor(const move_constructor &) = default;                    \
@@ -1014,7 +1014,7 @@ namespace mpark {
     using super = move_constructor<traits<Ts...>>;                           \
                                                                              \
     public:                                                                  \
-    INHERITING_CTOR(copy_constructor, super)                                 \
+    MPARK_INHERITING_CTOR(copy_constructor, super)                           \
     using super::operator=;                                                  \
                                                                              \
     definition                                                               \
@@ -1046,7 +1046,7 @@ namespace mpark {
       using super = copy_constructor<Traits>;
 
       public:
-      INHERITING_CTOR(assignment, super)
+      MPARK_INHERITING_CTOR(assignment, super)
       using super::operator=;
 
       template <std::size_t I, typename... Args>
@@ -1134,7 +1134,7 @@ namespace mpark {
     using super = assignment<traits<Ts...>>;                             \
                                                                          \
     public:                                                              \
-    INHERITING_CTOR(move_assignment, super)                              \
+    MPARK_INHERITING_CTOR(move_assignment, super)                        \
     using super::operator=;                                              \
                                                                          \
     move_assignment(const move_assignment &) = default;                  \
@@ -1174,7 +1174,7 @@ namespace mpark {
     using super = move_assignment<traits<Ts...>>;                        \
                                                                          \
     public:                                                              \
-    INHERITING_CTOR(copy_assignment, super)                              \
+    MPARK_INHERITING_CTOR(copy_assignment, super)                        \
     using super::operator=;                                              \
                                                                          \
     copy_assignment(const copy_assignment &) = default;                  \
@@ -1206,7 +1206,7 @@ namespace mpark {
       using super = copy_assignment<traits<Ts...>>;
 
       public:
-      INHERITING_CTOR(impl, super)
+      MPARK_INHERITING_CTOR(impl, super)
       using super::operator=;
 
       template <std::size_t I, typename Arg>
@@ -1276,6 +1276,8 @@ namespace mpark {
                }[this->index()];
       }
     };
+
+#undef MPARK_INHERITING_CTOR
 
     template <std::size_t I, typename T>
     struct overload_leaf {
