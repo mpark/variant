@@ -242,7 +242,8 @@ namespace std {
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
-#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304 && \
+    !(defined(_MSC_VER) && _MSC_VER <= 1915)
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
@@ -328,7 +329,7 @@ namespace mpark {
 #include <utility>
 
 
-#define RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+#define MPARK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
 namespace mpark {
   namespace lib {
@@ -431,7 +432,7 @@ namespace mpark {
       struct equal_to {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) == lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) == lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -441,7 +442,7 @@ namespace mpark {
       struct not_equal_to {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) != lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) != lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -451,7 +452,7 @@ namespace mpark {
       struct less {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) < lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) < lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -461,7 +462,7 @@ namespace mpark {
       struct greater {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) > lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) > lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -471,7 +472,7 @@ namespace mpark {
       struct less_equal {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) <= lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) <= lib::forward<Rhs>(rhs))
       };
 #endif
 
@@ -481,7 +482,7 @@ namespace mpark {
       struct greater_equal {
         template <typename Lhs, typename Rhs>
         inline constexpr auto operator()(Lhs &&lhs, Rhs &&rhs) const
-          RETURN(lib::forward<Lhs>(lhs) >= lib::forward<Rhs>(rhs))
+          MPARK_RETURN(lib::forward<Lhs>(lhs) >= lib::forward<Rhs>(rhs))
       };
 #endif
     }  // namespace cpp14
@@ -547,26 +548,26 @@ namespace mpark {
 #endif
       template <typename F, typename... As>
       inline constexpr auto invoke(F &&f, As &&... as)
-          RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
+          MPARK_RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
 
       template <typename B, typename T, typename D>
       inline constexpr auto invoke(T B::*pmv, D &&d)
-          RETURN(lib::forward<D>(d).*pmv)
+          MPARK_RETURN(lib::forward<D>(d).*pmv)
 
       template <typename Pmv, typename Ptr>
       inline constexpr auto invoke(Pmv pmv, Ptr &&ptr)
-          RETURN((*lib::forward<Ptr>(ptr)).*pmv)
+          MPARK_RETURN((*lib::forward<Ptr>(ptr)).*pmv)
 
       template <typename B, typename T, typename D, typename... As>
       inline constexpr auto invoke(T B::*pmf, D &&d, As &&... as)
-          RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
+          MPARK_RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
 
       template <typename Pmf, typename Ptr, typename... As>
       inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
-          RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
+          MPARK_RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
 
       namespace detail {
 
@@ -679,7 +680,7 @@ namespace mpark {
     using size_constant = std::integral_constant<std::size_t, N>;
 
     template <std::size_t I, typename T>
-    struct indexed_type : size_constant<I>, identity<T> {};
+    struct indexed_type : size_constant<I> { using type = T; };
 
     template <bool... Bs>
     using all = std::is_same<integer_sequence<bool, true, Bs...>,
@@ -754,7 +755,7 @@ namespace mpark {
   }  // namespace lib
 }  // namespace mpark
 
-#undef RETURN
+#undef MPARK_RETURN
 
 #endif  // MPARK_LIB_HPP
 
@@ -793,7 +794,7 @@ namespace mpark {
 
   class bad_variant_access : public std::exception {
     public:
-    virtual const char *what() const noexcept { return "bad_variant_access"; }
+    virtual const char *what() const noexcept override { return "bad_variant_access"; }
   };
 
   [[noreturn]] inline void throw_bad_variant_access() {
@@ -851,7 +852,7 @@ namespace mpark {
   template <std::size_t I, typename... Ts>
   struct variant_alternative<I, variant<Ts...>> {
     static_assert(I < sizeof...(Ts),
-                  "Index out of bounds in std::variant_alternative<>");
+                  "index out of bounds in `std::variant_alternative<>`");
     using type = lib::type_pack_element_t<I, Ts...>;
   };
 
@@ -1416,12 +1417,12 @@ namespace mpark {
     };
 
 #if defined(_MSC_VER) && _MSC_VER < 1910
-#define INHERITING_CTOR(type, base)               \
+#define MPARK_INHERITING_CTOR(type, base)         \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
       : base(lib::forward<Args>(args)...) {}
 #else
-#define INHERITING_CTOR(type, base) using base::base;
+#define MPARK_INHERITING_CTOR(type, base) using base::base;
 #endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
@@ -1434,7 +1435,7 @@ namespace mpark {
     using super = base<destructible_trait, Ts...>;                        \
                                                                           \
     public:                                                               \
-    INHERITING_CTOR(destructor, super)                                    \
+    MPARK_INHERITING_CTOR(destructor, super)                              \
     using super::operator=;                                               \
                                                                           \
     destructor(const destructor &) = default;                             \
@@ -1476,7 +1477,7 @@ namespace mpark {
       using super = destructor<Traits>;
 
       public:
-      INHERITING_CTOR(constructor, super)
+      MPARK_INHERITING_CTOR(constructor, super)
       using super::operator=;
 
       protected:
@@ -1529,7 +1530,7 @@ namespace mpark {
     using super = constructor<traits<Ts...>>;                                \
                                                                              \
     public:                                                                  \
-    INHERITING_CTOR(move_constructor, super)                                 \
+    MPARK_INHERITING_CTOR(move_constructor, super)                           \
     using super::operator=;                                                  \
                                                                              \
     move_constructor(const move_constructor &) = default;                    \
@@ -1567,7 +1568,7 @@ namespace mpark {
     using super = move_constructor<traits<Ts...>>;                           \
                                                                              \
     public:                                                                  \
-    INHERITING_CTOR(copy_constructor, super)                                 \
+    MPARK_INHERITING_CTOR(copy_constructor, super)                           \
     using super::operator=;                                                  \
                                                                              \
     definition                                                               \
@@ -1599,7 +1600,7 @@ namespace mpark {
       using super = copy_constructor<Traits>;
 
       public:
-      INHERITING_CTOR(assignment, super)
+      MPARK_INHERITING_CTOR(assignment, super)
       using super::operator=;
 
       template <std::size_t I, typename... Args>
@@ -1687,7 +1688,7 @@ namespace mpark {
     using super = assignment<traits<Ts...>>;                             \
                                                                          \
     public:                                                              \
-    INHERITING_CTOR(move_assignment, super)                              \
+    MPARK_INHERITING_CTOR(move_assignment, super)                        \
     using super::operator=;                                              \
                                                                          \
     move_assignment(const move_assignment &) = default;                  \
@@ -1727,7 +1728,7 @@ namespace mpark {
     using super = move_assignment<traits<Ts...>>;                        \
                                                                          \
     public:                                                              \
-    INHERITING_CTOR(copy_assignment, super)                              \
+    MPARK_INHERITING_CTOR(copy_assignment, super)                        \
     using super::operator=;                                              \
                                                                          \
     copy_assignment(const copy_assignment &) = default;                  \
@@ -1759,7 +1760,7 @@ namespace mpark {
       using super = copy_assignment<traits<Ts...>>;
 
       public:
-      INHERITING_CTOR(impl, super)
+      MPARK_INHERITING_CTOR(impl, super)
       using super::operator=;
 
       template <std::size_t I, typename Arg>
@@ -1829,6 +1830,8 @@ namespace mpark {
                }[this->index()];
       }
     };
+
+#undef MPARK_INHERITING_CTOR
 
     template <std::size_t I, typename T>
     struct overload_leaf {
@@ -2166,11 +2169,26 @@ namespace mpark {
     return get_if<detail::find_index_checked<T, Ts...>::value>(v);
   }
 
+  namespace detail {
+    template <typename RelOp>
+    struct convert_to_bool {
+      template <typename Lhs, typename Rhs>
+      inline constexpr bool operator()(Lhs &&lhs, Rhs &&rhs) const {
+        static_assert(std::is_convertible<lib::invoke_result_t<RelOp, Lhs, Rhs>,
+                                          bool>::value,
+                      "relational operators must return a type"
+                      " implicitly convertible to bool");
+        return lib::invoke(
+            RelOp{}, lib::forward<Lhs>(lhs), lib::forward<Rhs>(rhs));
+      }
+    };
+  }  // namespace detail
+
   template <typename... Ts>
   inline constexpr bool operator==(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::equal_to;
+    using equal_to = detail::convert_to_bool<lib::equal_to>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -2186,7 +2204,7 @@ namespace mpark {
   inline constexpr bool operator!=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::not_equal_to;
+    using not_equal_to = detail::convert_to_bool<lib::not_equal_to>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.index() != rhs.index()) return true;
     if (lhs.valueless_by_exception()) return false;
@@ -2202,7 +2220,7 @@ namespace mpark {
   inline constexpr bool operator<(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::less;
+    using less = detail::convert_to_bool<lib::less>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return false;
     if (lhs.valueless_by_exception()) return true;
@@ -2221,7 +2239,7 @@ namespace mpark {
   inline constexpr bool operator>(const variant<Ts...> &lhs,
                                   const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::greater;
+    using greater = detail::convert_to_bool<lib::greater>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return false;
     if (rhs.valueless_by_exception()) return true;
@@ -2240,7 +2258,7 @@ namespace mpark {
   inline constexpr bool operator<=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::less_equal;
+    using less_equal = detail::convert_to_bool<lib::less_equal>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (lhs.valueless_by_exception()) return true;
     if (rhs.valueless_by_exception()) return false;
@@ -2260,7 +2278,7 @@ namespace mpark {
   inline constexpr bool operator>=(const variant<Ts...> &lhs,
                                    const variant<Ts...> &rhs) {
     using detail::visitation::variant;
-    using lib::greater_equal;
+    using greater_equal = detail::convert_to_bool<lib::greater_equal>;
 #ifdef MPARK_CPP14_CONSTEXPR
     if (rhs.valueless_by_exception()) return true;
     if (lhs.valueless_by_exception()) return false;
