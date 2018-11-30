@@ -248,9 +248,7 @@ namespace mpark {
     throw bad_variant_access{};
 #else
     std::terminate();
-#ifdef MPARK_BUILTIN_UNREACHABLE
-    __builtin_unreachable();
-#endif
+    MPARK_BUILTIN_UNREACHABLE;
 #endif
   }
 

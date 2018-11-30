@@ -31,6 +31,10 @@
 #endif
 
 #if __has_builtin(__builtin_unreachable)
+#define MPARK_BUILTIN_UNREACHABLE __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define MPARK_BUILTIN_UNREACHABLE __assume(false)
+#else
 #define MPARK_BUILTIN_UNREACHABLE
 #endif
 
