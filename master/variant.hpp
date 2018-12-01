@@ -235,6 +235,10 @@ namespace std {
 #endif
 
 #if __has_builtin(__builtin_unreachable)
+#define MPARK_BUILTIN_UNREACHABLE __builtin_unreachable()
+#elif defined(_MSC_VER)
+#define MPARK_BUILTIN_UNREACHABLE __assume(false)
+#else
 #define MPARK_BUILTIN_UNREACHABLE
 #endif
 
@@ -802,9 +806,7 @@ namespace mpark {
     throw bad_variant_access{};
 #else
     std::terminate();
-#ifdef MPARK_BUILTIN_UNREACHABLE
-    __builtin_unreachable();
-#endif
+    MPARK_BUILTIN_UNREACHABLE;
 #endif
   }
 
