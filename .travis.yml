@@ -107,8 +107,8 @@ jobs:
       osx_image: xcode8.3
 
     - stage: deploy
-      before_install:
-      install:
+      name: "Single Header"
+      if: branch = master
       before_script:
         - git config --global user.name "Travis CI"
         - git config --global user.email "<>"
