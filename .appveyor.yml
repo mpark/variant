@@ -21,6 +21,7 @@ install:
 environment:
   matrix:
     - GENERATOR: Visual Studio 14 2015 Win64
+      CXXFLAGS: /permissive- /W4
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     # /std:c++14
