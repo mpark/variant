@@ -19,7 +19,7 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang" OR
    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   add_compile_options(-Wall)
   add_compile_options(-Wextra)
-  add_compile_options(-pedantic)
+  add_compile_options(-pedantic-errors)
 endif()
 
 include(CheckCXXCompilerFlag)
