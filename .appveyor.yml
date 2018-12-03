@@ -11,7 +11,7 @@ build:
 branches:
   only:
     - master
-    - ci
+    - dev
 
 clone_depth: 1
 
