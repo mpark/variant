@@ -23,6 +23,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-Wnoexcept)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  add_compile_options(-wd4577)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
    CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
   add_compile_options(-Qunused-arguments)
@@ -35,8 +39,8 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
   add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
   add_definitions(-DGTEST_HAS_STD_TUPLE=1)
 
-  add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/googletest/googletest
-                   ${CMAKE_BINARY_DIR}/3rdparty/googletest/googletest)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/googletest
+                   ${CMAKE_BINARY_DIR}/3rdparty/googletest)
 
   config_compiler_and_linker()
 
