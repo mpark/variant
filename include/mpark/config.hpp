@@ -30,7 +30,7 @@
 #define MPARK_BUILTIN_ADDRESSOF
 #endif
 
-#if __has_builtin(__builtin_unreachable)
+#if __has_builtin(__builtin_unreachable) || defined(__GNUC__)
 #define MPARK_BUILTIN_UNREACHABLE __builtin_unreachable()
 #elif defined(_MSC_VER)
 #define MPARK_BUILTIN_UNREACHABLE __assume(false)
