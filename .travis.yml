@@ -140,6 +140,7 @@ install:
       export CC="${CC}-${VER}"
       export CXX="${CXX}-${VER}"
     fi
+    ${CXX} --version
 
 script:
   - python support/travis.py
