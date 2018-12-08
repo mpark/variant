@@ -11,7 +11,8 @@ import subprocess
 
 result = {}
 
-for cxx_version in os.environ['CXX_VERSIONS'].split(';'):
+cxx_versions = os.environ['CXX_VERSIONS'].split(';')
+for cxx_version in cxx_versions:
   os.environ['CXXFLAGS'] = '-std=c++{}'.format(cxx_version)
   for build_type in ['Debug', 'Release']:
     for exceptions in ['OFF', 'ON']:
@@ -20,10 +21,15 @@ for cxx_version in os.environ['CXX_VERSIONS'].split(';'):
       os.mkdir(build_dir)
       os.chdir(build_dir)
       result[config] = [['configure', None], ['build', None], ['test', None]]
+
+      tests = os.environ['TESTS'].split(';')
+      if cxx_version != '17' and 'libc++' in tests:
+        tests.remove('libc++')
+
       result[config][0][1] = subprocess.call([
         'cmake', '-DCMAKE_BUILD_TYPE={}'.format(build_type),
                  '-DMPARK_VARIANT_EXCEPTIONS={}'.format(exceptions),
-                 '-DMPARK_VARIANT_INCLUDE_TESTS={}'.format(os.environ['TESTS']),
+                 '-DMPARK_VARIANT_INCLUDE_TESTS={}'.format(';'.join(tests)),
                  '..',
       ])
       if result[config][0][1] == 0:

@@ -113,28 +113,28 @@ the location (e.g., `cmake .. -DCMAKE_PREFIX_PATH=/opt`).
 This library requires a standard conformant __C++11__ compiler.
 The following compilers are continously tested:
 
-| Compiler              | Operating System                            | Version String                                                                          |
-| --------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------- |
-| GCC 4.8.5             | Ubuntu 14.04.5 LTS                          | g++-4.8 (Ubuntu 4.8.5-4ubuntu8~14.04.2) 4.8.5                                           |
-| GCC 4.9.4             | Ubuntu 14.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4                                           |
-| GCC 5.5.0             | Ubuntu 14.04.5 LTS                          | g++-5 (Ubuntu 5.5.0-12ubuntu1~14.04) 5.5.0 20171010                                     |
-| GCC 6.5.0             | Ubuntu 14.04.5 LTS                          | g++-6 (Ubuntu 6.5.0-2ubuntu1~14.04.1) 6.5.0 20181026                                    |
-| GCC 7.3.0             | Ubuntu 14.04.5 LTS                          | g++-7 (Ubuntu 7.3.0-21ubuntu1~14.04) 7.3.0                                              |
-| GCC 8.1.0             | Ubuntu 14.04.5 LTS                          | g++-8 (Ubuntu 8.1.0-5ubuntu1~14.04) 8.1.0                                               |
-| Clang 3.6.2           | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.6.2-svn240577-1~exp1 (branches/release_36) (based on LLVM 3.6.2) |
-| Clang 3.7.1           | Ubuntu 14.04.5 LTS                          | Ubuntu clang version 3.7.1-svn253571-1~exp1 (branches/release_37) (based on LLVM 3.7.1) |
-| Clang 3.8.0           | Ubuntu 14.04.5 LTS                          | clang version 3.8.0-2ubuntu3~trusty5 (tags/RELEASE_380/final)                           |
-| Clang 3.9.1           | Ubuntu 14.04.5 LTS                          | clang version 3.9.1-4ubuntu3~14.04.3 (tags/RELEASE_391/rc2)                             |
-| Clang 4.0.1           | Ubuntu 14.04.5 LTS                          | clang version 4.0.1-svn305264-1~exp1 (branches/release_40)                              |
-| Clang 5.0.2           | Ubuntu 14.04.5 LTS                          | clang version 5.0.2-svn328729-1~exp1~20180509123505.100 (branches/release_50)           |
-| Clang 6.0.1           | Ubuntu 14.04.5 LTS                          | clang version 6.0.1-svn334776-1~exp1~20181018153052.112 (branches/release_60)           |
-| Clang 7.0.0           | Ubuntu 14.04.5 LTS                          | clang version 7.0.0-svn345923-1~exp1~20181102032948.33 (branches/release_70)            |
-| Clang Xcode 6.4       | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                      |
-| Clang Xcode 7.3       | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                               |
-| Clang Xcode 8.3       | Darwin Kernel Version 16.6.0 (OS X 10.12.5) | Apple LLVM version 8.1.0 (clang-802.0.42)                                               |
-| Clang Xcode 9.4       | Darwin Kernel Version 17.4.0 (OS X 10.13.3) | Apple LLVM version 9.1.0 (clang-902.0.39.2)                                             |
-| Visual Studio 14 2015 | Visual Studio 2015 with Update 3            | MSVC 19.0.24241.7                                                                       |
-| Visual Studio 15 2017 | Visual Studio 2017                          | MSVC 19.15.26732.1                                                                      |
+| Compiler              | Operating System                            | Version String                                                                     |
+| --------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------- |
+| GCC 4.8.5             | Ubuntu 16.04.5 LTS                          | g++-4.8 (Ubuntu 4.8.5-4ubuntu8~16.04.1) 4.8.5                                      |
+| GCC 4.9.4             | Ubuntu 16.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~16.04) 4.9.4                                        |
+| GCC 5.5.0             | Ubuntu 16.04.5 LTS                          | g++-5 (Ubuntu 5.5.0-12ubuntu1~16.04) 5.5.0 20171010                                |
+| GCC 6.5.0             | Ubuntu 16.04.5 LTS                          | g++-6 (Ubuntu 6.5.0-2ubuntu1~16.04) 6.5.0 20181026                                 |
+| GCC 7.4.0             | Ubuntu 16.04.5 LTS                          | g++-7 (Ubuntu 7.4.0-1ubuntu1~16.04~ppa1) 7.4.0                                     |
+| GCC 8.1.0             | Ubuntu 16.04.5 LTS                          | g++-8 (Ubuntu 8.1.0-5ubuntu1~16.04) 8.1.0                                          |
+| Clang 3.6.2           | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.6.2-3ubuntu2 (tags/RELEASE_362/final) (based on LLVM 3.6.2) |
+| Clang 3.7.1           | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.7.1-2ubuntu2 (tags/RELEASE_371/final) (based on LLVM 3.7.1) |
+| Clang 3.8.0           | Ubuntu 16.04.5 LTS                          | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)                              |
+| Clang 3.9.1           | Ubuntu 16.04.5 LTS                          | clang version 3.9.1-4ubuntu3~16.04.2 (tags/RELEASE_391/rc2)                        |
+| Clang 4.0.0           | Ubuntu 16.04.5 LTS                          | clang version 4.0.0-1ubuntu1~16.04.2 (tags/RELEASE_400/rc1)                        |
+| Clang 5.0.0           | Ubuntu 16.04.5 LTS                          | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)                             |
+| Clang 6.0.0           | Ubuntu 16.04.5 LTS                          | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)                      |
+| Clang 7.0.1           | Ubuntu 16.04.5 LTS                          | clang version 7.0.1-svn347285-1\~exp1\~20181124105320.40 (branches/release_70)     |
+| Clang Xcode 6.4       | Darwin Kernel Version 14.5.0 (OS X 10.10.3) | Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)                 |
+| Clang Xcode 7.3       | Darwin Kernel Version 15.6.0 (OS X 10.10.5) | Apple LLVM version 7.3.0 (clang-703.0.31)                                          |
+| Clang Xcode 8.3       | Darwin Kernel Version 16.6.0 (OS X 10.12.5) | Apple LLVM version 8.1.0 (clang-802.0.42)                                          |
+| Clang Xcode 9.4       | Darwin Kernel Version 17.4.0 (OS X 10.13.3) | Apple LLVM version 9.1.0 (clang-902.0.39.2)                                        |
+| Visual Studio 14 2015 | Visual Studio 2015 with Update 3            | MSVC 19.0.24241.7                                                                  |
+| Visual Studio 15 2017 | Visual Studio 2017                          | MSVC 19.15.26732.1                                                                 |
 
 #### NOTES
   - __GCC 4.8__/__4.9__: `constexpr` support is not available for `visit` and relational operators.
