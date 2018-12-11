@@ -10,30 +10,6 @@ cmake_minimum_required(VERSION 3.6.3)
 option(MPARK_VARIANT_EXCEPTIONS
        "Build the tests with exceptions support." ON)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR
-   CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR
-   CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-Wall)
-  add_compile_options(-Werror)
-  add_compile_options(-Wextra)
-  add_compile_options(-pedantic-errors)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  add_compile_options(-Wnoexcept)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  add_compile_options(-wd4577)
-endif()
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-   CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC")
-  add_compile_options(-Qunused-arguments)
-  add_compile_options(-Wno-deprecated-declarations)
-  add_compile_options(-Wno-unknown-argument)
-endif()
-
 if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
 
   add_definitions(-DGTEST_HAS_TR1_TUPLE=0)
@@ -48,6 +24,11 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     set(compile_flags ${cxx_strict})
   else()
     set(compile_flags ${cxx_no_exception})
+  endif()
+
+  if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR
+     (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_SIMULATE_ID STREQUAL "MSVC"))
+    set(compile_flags "${compile_flags} /wd4577")
   endif()
 
   set(MPARK_TESTS
