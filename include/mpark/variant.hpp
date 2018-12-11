@@ -1814,19 +1814,12 @@ namespace mpark {
                                                  lib::forward<Vs>(vs)...))
 #endif
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnoexcept"
-#endif
   template <typename... Ts>
   inline auto swap(variant<Ts...> &lhs,
                    variant<Ts...> &rhs) noexcept(noexcept(lhs.swap(rhs)))
       -> decltype(lhs.swap(rhs)) {
     lhs.swap(rhs);
   }
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
 
   namespace detail {
 

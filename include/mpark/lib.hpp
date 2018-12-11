@@ -207,15 +207,8 @@ namespace mpark {
 
           template <typename T, bool = is_swappable<T>::value>
           struct is_nothrow_swappable {
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnoexcept"
-#endif
             static constexpr bool value =
                 noexcept(swap(std::declval<T &>(), std::declval<T &>()));
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif
           };
 
           template <typename T>
