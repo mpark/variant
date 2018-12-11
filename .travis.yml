@@ -24,109 +24,116 @@ env:
 jobs:
   include:
     # ubuntu 16.04, gcc-4.8
-    - env: VER=4.8 CXX_VERSIONS="11;1y" TESTS="mpark"
+    - env: VER=4.8 STDFLAGS="-std=c++11 -std=c++1y" TESTS="mpark"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-4.8"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-4.8", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, gcc-4.9
-    - env: VER=4.9 CXX_VERSIONS="11;14" TESTS="mpark"
+    - env: VER=4.9 STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-4.9"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-4.9", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, gcc-5
-    - env: VER=5 CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: VER=5 STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-5"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-5", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, gcc-6
-    - env: VER=6 CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: VER=6 STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-6"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-6", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, gcc-7
-    - env: VER=7 CXX_VERSIONS="11;14;17" TESTS="mpark;libc++"
+    - env: VER=7 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-7"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-7", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, gcc-8
-    - env: VER=8 CXX_VERSIONS="11;14;17" TESTS="mpark;libc++"
+    - env: VER=8 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
       compiler: gcc
       os: linux
-      addons: { apt: { packages: ["g++-8"], sources: ["ubuntu-toolchain-r-test"] } }
+      addons: { apt: { packages: ["g++-8", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
 
     # ubuntu 16.04, clang-3.6
-    - env: VER=3.6 CXX_VERSIONS="11;14" TESTS="mpark"
+    - env: VER=3.6 STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-3.6"] } }
+      addons: { apt: { packages: ["clang-3.6", "ninja-build"] } }
 
     # ubuntu 16.04, clang-3.7
-    - env: VER=3.7 CXX_VERSIONS="11;14" TESTS="mpark"
+    - env: VER=3.7 STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-3.7"] } }
+      addons: { apt: { packages: ["clang-3.7", "ninja-build"] } }
 
     # ubuntu 16.04, clang-3.8
-    - env: VER=3.8 CXX_VERSIONS="11;14" TESTS="mpark"
+    - env: VER=3.8 STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-3.8"] } }
+      addons: { apt: { packages: ["clang-3.8", "ninja-build"] } }
 
     # ubuntu 16.04, clang-3.9
-    - env: VER=3.9 CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: VER=3.9 STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-3.9"] } }
+      addons: { apt: { packages: ["clang-3.9", "ninja-build"] } }
 
     # ubuntu 16.04, clang-4.0
-    - env: VER=4.0 CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: VER=4.0 STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-4.0"] } }
+      addons: { apt: { packages: ["clang-4.0", "ninja-build"] } }
 
     # ubuntu 16.04, clang-5.0
-    - env: VER=5.0 CXX_VERSIONS="11;14;17" TESTS="mpark;libc++"
+    - env: VER=5.0 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-5.0"] } }
+      addons: { apt: { packages: ["clang-5.0", "ninja-build"] } }
 
     # ubuntu 16.04, clang-6.0
-    - env: VER=6.0 CXX_VERSIONS="11;14;17" TESTS="mpark;libc++"
+    - env: VER=6.0 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-6.0"] } }
+      addons: { apt: { packages: ["clang-6.0", "ninja-build"] } }
 
     # ubuntu 16.04, clang-7
-    - env: VER=7 CXX_VERSIONS="11;14;17" TESTS="mpark;libc++"
+    - env: VER=7 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
       compiler: clang
       os: linux
-      addons: { apt: { packages: ["clang-7"], sources: ["llvm-toolchain-xenial-7"] } }
+      addons: { apt: { packages: ["clang-7", "ninja-build"],
+                       sources: ["llvm-toolchain-xenial-7"] } }
 
     # OS X Yosemite 10.10
-    - env: CXX_VERSIONS="11;14" TESTS="mpark"
+    - env: STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode6.4
 
     # OS X El Capitan 10.11
-    - env: CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode7.3
 
     # OS X Sierra 10.12
-    - env: CXX_VERSIONS="11;14;1z" TESTS="mpark"
+    - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode8.3
 
     # OS X High Sierra 10.13
-    - env: CXX_VERSIONS="11;14;17" TESTS="mpark"
+    - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark"
       compiler: clang
       os: osx
       osx_image: xcode9.4
@@ -134,6 +141,7 @@ jobs:
     - stage: deploy
       name: "Single Header"
       if: branch = master
+      install: skip
       before_script:
         - git config --global user.name "Travis CI"
         - git config --global user.email "<>"
@@ -154,13 +162,15 @@ jobs:
         - popd
 
 install:
-  # Install newer CMake on OS X.
+  # Upgrade CMake and install Ninja on OS X.
   - |
     if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
       brew update
       brew upgrade cmake
+      brew install ninja
     fi
   - cmake --version
+  - ninja --version
   # Set the correct `CC` and `CXX` environment variables.
   - |
     if [ -n "${VER}" ]; then
@@ -170,7 +180,7 @@ install:
   - ${CXX} --version
 
 script:
-  - python support/travis.py
+  - python support/ninja.py
 
 notifications:
   email: false
