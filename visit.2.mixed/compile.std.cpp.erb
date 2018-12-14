@@ -5,16 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_LIST_SIZE 50
-#include <boost/variant.hpp>
-#undef BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#undef BOOST_MPL_LIMIT_LIST_SIZE
+#include <variant>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -24,10 +20,10 @@ int main() {
   (0...env[:repeat]).map { |i|
     x_alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
     y_alts = (n - 1).downto(0).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  boost::variant<#{x_alts}>\n"        \
+    "  std::variant<#{x_alts}>\n"          \
     "      xv#{i}(S<#{i}>{}),\n"           \
     "      xw#{i}(S<#{(n - 1) + i}>{});\n" \
-    "  boost::variant<#{y_alts}>\n"        \
+    "  std::variant<#{y_alts}>\n"          \
     "      yv#{i}(S<#{i}>{}),\n"           \
     "      yw#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
@@ -35,10 +31,10 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  boost::apply_visitor(V{}, xv#{i}, yv#{i});\n" \
-    "  boost::apply_visitor(V{}, xv#{i}, yw#{i});\n" \
-    "  boost::apply_visitor(V{}, xw#{i}, yv#{i});\n" \
-    "  boost::apply_visitor(V{}, xw#{i}, yw#{i});"
+    "  std::visit(Vis{}, xv#{i}, yv#{i});\n" \
+    "  std::visit(Vis{}, xv#{i}, yw#{i});\n" \
+    "  std::visit(Vis{}, xw#{i}, yv#{i});\n" \
+    "  std::visit(Vis{}, xw#{i}, yw#{i});"
   }.join("\n")
 %>
 #endif

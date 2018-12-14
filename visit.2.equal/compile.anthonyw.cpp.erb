@@ -5,12 +5,13 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <eggs/variant.hpp>
+#include <functional>
+#include <variant>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -19,18 +20,18 @@ int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  eggs::variant<#{alts}>\n" \
-    "      v#{i}(S<#{i}>{}),\n"  \
+    "  std::experimental::variant<#{alts}>\n" \
+    "      v#{i}(S<#{i}>{}),\n"               \
     "      w#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  eggs::apply(V{}, v#{i}, v#{i});\n" \
-    "  eggs::apply(V{}, v#{i}, w#{i});\n" \
-    "  eggs::apply(V{}, w#{i}, v#{i});\n" \
-    "  eggs::apply(V{}, w#{i}, w#{i});"
+    "  std::experimental::visit(Vis{}, v#{i}, v#{i});\n" \
+    "  std::experimental::visit(Vis{}, v#{i}, w#{i});\n" \
+    "  std::experimental::visit(Vis{}, w#{i}, v#{i});\n" \
+    "  std::experimental::visit(Vis{}, w#{i}, w#{i});"
   }.join("\n")
 %>
 #endif

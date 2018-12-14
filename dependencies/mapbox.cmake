@@ -22,13 +22,24 @@ if (MPARK_VARIANT_INCLUDE_MAPBOX_BENCHMARKS)
   ExternalProject_Get_Property(mapbox SOURCE_DIR)
   set(mapbox_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(mapbox_add_dataset dataset repeat range)
-    metabench_add_dataset(${dataset} mapbox.cpp.erb ${range}
+  function(mapbox_add_compile_benchmark dataset repeat range)
+    metabench_add_dataset(${dataset} compile.mapbox.cpp.erb ${range}
                           NAME mapbox ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${mapbox_INCLUDE_DIRS})
     add_dependencies(${dataset} mapbox)
   endfunction()
+
+  function(mapbox_add_execute_benchmark benchmark)
+    add_executable(${benchmark} execute.mapbox.cpp)
+    target_include_directories(${benchmark} PUBLIC ${mapbox_INCLUDE_DIRS})
+    target_link_libraries(${benchmark} PUBLIC benchmark_main)
+    add_test(${benchmark} ${benchmark} --benchmark_color=true)
+    add_dependencies(${benchmark} mapbox)
+  endfunction()
 else()
-  function(mapbox_add_dataset)
+  function(mapbox_add_compile_benchmark)
+  endfunction()
+
+  function(mapbox_add_execute_benchmark)
   endfunction()
 endif()

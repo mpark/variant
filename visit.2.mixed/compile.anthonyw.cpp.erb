@@ -5,12 +5,13 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <mpark/variant.hpp>
+#include <functional>
+#include <variant>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -20,21 +21,21 @@ int main() {
   (0...env[:repeat]).map { |i|
     x_alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
     y_alts = (n - 1).downto(0).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  mpark::variant<#{x_alts}>\n"        \
-    "      xv#{i}(S<#{i}>{}),\n"           \
-    "      xw#{i}(S<#{(n - 1) + i}>{});\n" \
-    "  mpark::variant<#{y_alts}>\n"        \
-    "      yv#{i}(S<#{i}>{}),\n"           \
+    "  std::experimental::variant<#{x_alts}>\n" \
+    "      xv#{i}(S<#{i}>{}),\n"                \
+    "      xw#{i}(S<#{(n - 1) + i}>{});\n"      \
+    "  std::experimental::variant<#{y_alts}>\n" \
+    "      yv#{i}(S<#{i}>{}),\n"                \
     "      yw#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  mpark::visit(V{}, xv#{i}, yv#{i});\n" \
-    "  mpark::visit(V{}, xv#{i}, yw#{i});\n" \
-    "  mpark::visit(V{}, xw#{i}, yv#{i});\n" \
-    "  mpark::visit(V{}, xw#{i}, yw#{i});"
+    "  std::experimental::visit(Vis{}, xv#{i}, yv#{i});\n" \
+    "  std::experimental::visit(Vis{}, xv#{i}, yw#{i});\n" \
+    "  std::experimental::visit(Vis{}, xw#{i}, yv#{i});\n" \
+    "  std::experimental::visit(Vis{}, xw#{i}, yw#{i});"
   }.join("\n")
 %>
 #endif

@@ -5,13 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <functional>
-#include <variant>
+#include <eggs/variant.hpp>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -21,21 +20,21 @@ int main() {
   (0...env[:repeat]).map { |i|
     x_alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
     y_alts = (n - 1).downto(0).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  std::experimental::variant<#{x_alts}>\n" \
-    "      xv#{i}(S<#{i}>{}),\n"                \
-    "      xw#{i}(S<#{(n - 1) + i}>{});\n"      \
-    "  std::experimental::variant<#{y_alts}>\n" \
-    "      yv#{i}(S<#{i}>{}),\n"                \
+    "  eggs::variant<#{x_alts}>\n"         \
+    "      xv#{i}(S<#{i}>{}),\n"           \
+    "      xw#{i}(S<#{(n - 1) + i}>{});\n" \
+    "  eggs::variant<#{y_alts}>\n"         \
+    "      yv#{i}(S<#{i}>{}),\n"           \
     "      yw#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  std::experimental::visit(V{}, xv#{i}, yv#{i});\n" \
-    "  std::experimental::visit(V{}, xv#{i}, yw#{i});\n" \
-    "  std::experimental::visit(V{}, xw#{i}, yv#{i});\n" \
-    "  std::experimental::visit(V{}, xw#{i}, yw#{i});"
+    "  eggs::apply(Vis{}, xv#{i}, yv#{i});\n" \
+    "  eggs::apply(Vis{}, xv#{i}, yw#{i});\n" \
+    "  eggs::apply(Vis{}, xw#{i}, yv#{i});\n" \
+    "  eggs::apply(Vis{}, xw#{i}, yw#{i});"
   }.join("\n")
 %>
 #endif

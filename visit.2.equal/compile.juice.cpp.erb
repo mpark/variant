@@ -5,16 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_LIST_SIZE 50
-#include <boost/variant.hpp>
-#undef BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#undef BOOST_MPL_LIMIT_LIST_SIZE
+#include <juice/variant.hpp>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -23,7 +19,7 @@ int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  boost::variant<#{alts}>\n" \
+    "  juice::variant<#{alts}>\n" \
     "      v#{i}(S<#{i}>{}),\n"   \
     "      w#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
@@ -31,10 +27,10 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  boost::apply_visitor(V{}, v#{i}, v#{i});\n" \
-    "  boost::apply_visitor(V{}, v#{i}, w#{i});\n" \
-    "  boost::apply_visitor(V{}, w#{i}, v#{i});\n" \
-    "  boost::apply_visitor(V{}, w#{i}, w#{i});"
+    "  juice::visit(Vis{}, v#{i}, v#{i});\n" \
+    "  juice::visit(Vis{}, v#{i}, w#{i});\n" \
+    "  juice::visit(Vis{}, w#{i}, v#{i});\n" \
+    "  juice::visit(Vis{}, v#{i}, v#{i});"
   }.join("\n")
 %>
 #endif

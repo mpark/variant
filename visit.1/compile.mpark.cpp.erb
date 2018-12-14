@@ -5,12 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <juice/variant.hpp>
+#include <mpark/variant.hpp>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T>
   void operator()(T) const {}
 };
@@ -19,13 +19,13 @@ int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  juice::variant<#{alts}> v#{i}(S<#{i}>{});"
+    "  mpark::variant<#{alts}> v#{i}(S<#{i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  juice::visit(V{}, v#{i});"
+    "  mpark::visit(Vis{}, v#{i});"
   }.join("\n")
 %>
 #endif

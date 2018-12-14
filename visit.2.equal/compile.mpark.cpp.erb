@@ -5,12 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <mapbox/variant.hpp>
+#include <mpark/variant.hpp>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -19,18 +19,18 @@ int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  mapbox::util::variant<#{alts}>\n" \
-    "      v#{i}(S<#{i}>{}),\n"          \
+    "  mpark::variant<#{alts}>\n" \
+    "      v#{i}(S<#{i}>{}),\n"   \
     "      w#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  mapbox::util::apply_visitor(V{}, v#{i}, v#{i});\n" \
-    "  mapbox::util::apply_visitor(V{}, v#{i}, w#{i});\n" \
-    "  mapbox::util::apply_visitor(V{}, w#{i}, v#{i});\n" \
-    "  mapbox::util::apply_visitor(V{}, w#{i}, w#{i});"
+    "  mpark::visit(Vis{}, v#{i}, v#{i});\n" \
+    "  mpark::visit(Vis{}, v#{i}, w#{i});\n" \
+    "  mpark::visit(Vis{}, w#{i}, v#{i});\n" \
+    "  mpark::visit(Vis{}, w#{i}, w#{i});"
   }.join("\n")
 %>
 #endif

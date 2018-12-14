@@ -22,13 +22,24 @@ if (MPARK_VARIANT_INCLUDE_EGGS_BENCHMARKS)
   ExternalProject_Get_Property(eggs SOURCE_DIR)
   set(eggs_INCLUDE_DIRS ${SOURCE_DIR}/include)
 
-  function(eggs_add_dataset dataset repeat range)
-    metabench_add_dataset(${dataset} eggs.cpp.erb ${range}
+  function(eggs_add_compile_benchmark dataset repeat range)
+    metabench_add_dataset(${dataset} compile.eggs.cpp.erb ${range}
                           NAME eggs ENV "{repeat: ${repeat}}")
     target_include_directories(${dataset} PUBLIC ${eggs_INCLUDE_DIRS})
     add_dependencies(${dataset} eggs)
   endfunction()
+
+  function(eggs_add_execute_benchmark benchmark)
+    add_executable(${benchmark} execute.eggs.cpp)
+    target_include_directories(${benchmark} PUBLIC ${eggs_INCLUDE_DIRS})
+    target_link_libraries(${benchmark} PUBLIC benchmark_main)
+    add_test(${benchmark} ${benchmark} --benchmark_color=true)
+    add_dependencies(${benchmark} eggs)
+  endfunction()
 else()
-  function(eggs_add_dataset)
+  function(eggs_add_compile_benchmark)
+  endfunction()
+
+  function(eggs_add_execute_benchmark)
   endfunction()
 endif()

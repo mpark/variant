@@ -5,33 +5,27 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <functional>
 #include <variant>
 
 template <int>
 struct S {};
 
-struct V {
-  template <typename T, typename U>
-  void operator()(T, U) const {}
+struct Vis {
+  template <typename T>
+  void operator()(T) const {}
 };
 
 int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  std::experimental::variant<#{alts}>\n" \
-    "      v#{i}(S<#{i}>{}),\n"               \
-    "      w#{i}(S<#{(n - 1) + i}>{});"
+    "  std::variant<#{alts}> v#{i}(S<#{i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  std::experimental::visit(V{}, v#{i}, v#{i});\n" \
-    "  std::experimental::visit(V{}, v#{i}, w#{i});\n" \
-    "  std::experimental::visit(V{}, w#{i}, v#{i});\n" \
-    "  std::experimental::visit(V{}, w#{i}, w#{i});"
+    "  std::visit(Vis{}, v#{i});"
   }.join("\n")
 %>
 #endif

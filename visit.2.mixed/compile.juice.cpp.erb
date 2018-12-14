@@ -10,7 +10,7 @@
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -31,10 +31,10 @@ int main() {
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  juice::visit(V{}, xv#{i}, yv#{i});\n" \
-    "  juice::visit(V{}, xv#{i}, yw#{i});\n" \
-    "  juice::visit(V{}, xw#{i}, yv#{i});\n" \
-    "  juice::visit(V{}, xw#{i}, yw#{i});"
+    "  juice::visit(Vis{}, xv#{i}, yv#{i});\n" \
+    "  juice::visit(Vis{}, xv#{i}, yw#{i});\n" \
+    "  juice::visit(Vis{}, xw#{i}, yv#{i});\n" \
+    "  juice::visit(Vis{}, xw#{i}, yw#{i});"
   }.join("\n")
 %>
 #endif

@@ -5,12 +5,12 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-#include <mpark/variant.hpp>
+#include <boost/variant2/variant.hpp>
 
 template <int>
 struct S {};
 
-struct V {
+struct Vis {
   template <typename T, typename U>
   void operator()(T, U) const {}
 };
@@ -19,18 +19,18 @@ int main() {
 <%=
   (0...env[:repeat]).map { |i|
     alts = (0...n).map { |alt| "S<#{alt + i}>" }.join(", ")
-    "  mpark::variant<#{alts}>\n" \
-    "      v#{i}(S<#{i}>{}),\n"   \
+    "  boost::variant2::variant<#{alts}>\n" \
+    "      v#{i}(S<#{i}>{}),\n"             \
     "      w#{i}(S<#{(n - 1) + i}>{});"
   }.join("\n")
 %>
 #if defined(METABENCH)
 <%=
   (0...env[:repeat]).map { |i|
-    "  mpark::visit(V{}, v#{i}, v#{i});\n" \
-    "  mpark::visit(V{}, v#{i}, w#{i});\n" \
-    "  mpark::visit(V{}, w#{i}, v#{i});\n" \
-    "  mpark::visit(V{}, w#{i}, w#{i});"
+    "  boost::variant2::visit(Vis{}, v#{i}, v#{i});\n" \
+    "  boost::variant2::visit(Vis{}, v#{i}, w#{i});\n" \
+    "  boost::variant2::visit(Vis{}, w#{i}, v#{i});\n" \
+    "  boost::variant2::visit(Vis{}, w#{i}, w#{i});"
   }.join("\n")
 %>
 #endif

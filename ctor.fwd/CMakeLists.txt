@@ -15,19 +15,19 @@ set(range "[1] + (5...30).step(5).to_a + (30...50).step(10).to_a + \
            (50...150).step(25).to_a + (150..300).step(50).to_a")
 
 set(datasets)
-add_dataset(datasets anthonyw ${name} ${repeat} ${range})
-add_dataset(datasets eggs     ${name} ${repeat} ${range})
-add_dataset(datasets juice    ${name} ${repeat} ${range})
-add_dataset(datasets mapbox   ${name} ${repeat} ${range})
-add_dataset(datasets mpark    ${name} ${repeat} ${range})
-add_dataset(datasets pdimov   ${name} ${repeat} ${range})
-add_dataset(datasets std      ${name} ${repeat} ${range})
-add_dataset(datasets boost    ${name} ${repeat}
-            "[1] + (5...30).step(5).to_a + (30..50).step(10).to_a")
+add_compile_benchmark(datasets anthonyw ${name} ${repeat} ${range})
+add_compile_benchmark(datasets boost    ${name} ${repeat}
+                      "[1] + (5...30).step(5).to_a + (30..50).step(10).to_a")
+add_compile_benchmark(datasets eggs     ${name} ${repeat} ${range})
+add_compile_benchmark(datasets juice    ${name} ${repeat} ${range})
+add_compile_benchmark(datasets mapbox   ${name} ${repeat} ${range})
+add_compile_benchmark(datasets mpark    ${name} ${repeat} ${range})
+add_compile_benchmark(datasets pdimov   ${name} ${repeat} ${range})
+add_compile_benchmark(datasets std      ${name} ${repeat} ${range})
 
 # Add a binary size chart
 metabench_add_chart(
-  benchmark.binary_size.${name}
+  chart.binary_size.${name}
   ALL
   ASPECT EXECUTABLE_SIZE
   TITLE ${title}
@@ -38,7 +38,7 @@ metabench_add_chart(
 
 # Add a compile time chart
 metabench_add_chart(
-  benchmark.compile_time.${name}
+  chart.compile_time.${name}
   ALL
   ASPECT COMPILATION_TIME
   TITLE ${title}

@@ -242,9 +242,10 @@ install:
   - mkdir build
   - pushd build
   - cmake ${CMAKE_OPTIONS} ..
-  - TARGETS=($(cmake --build . --target help | grep -E "benchmark\.[[:alnum:]_]+\.${BENCHMARK}" | cut -d " " -f 2 | sort))
+  - COMPILE_TARGETS=($(cmake --build . --target help | grep -E "chart\.(binary_size|compile_time)\.${BENCHMARK}$" | cut -d " " -f 2 | sort))
+  - EXECUTE_TARGETS=($(cmake --build . --target help | grep -E "execute\.${BENCHMARK}" | cut -d " " -f 2 | sort))
   - |
-    for TARGET in ${TARGETS[@]}; do
+    for TARGET in ${COMPILE_TARGETS[@]} ${EXECUTE_TARGETS[@]}; do
       cmake --build . --target ${TARGET}
     done
   - popd
@@ -254,16 +255,16 @@ before_script:
   - git config --global user.email "<>"
   - travis_retry git clone https://$GITHUB_TOKEN@github.com/mpark/variant --depth 1 --branch=gh-pages gh-pages &>/dev/null
   - |
-    for TARGET in ${TARGETS[@]}; do
-      category="$(echo ${TARGET} | cut -d '.' -f 2)"
-      name="$(echo ${TARGET} | cut -d '.' -f 3-)"
+    for COMPILE_TARGET in ${COMPILE_TARGETS[@]}; do
+      category="$(echo ${COMPILE_TARGET} | cut -d '.' -f 2)"
+      name="$(echo ${COMPILE_TARGET} | cut -d '.' -f 3-)"
       src="build/${name}"
       out="gh-pages/_${category}/${CC}/${name}"
 
       rm -rf ${out}
       mkdir -p ${out}
 
-      # Add a YAML front matter to every chart and every JSON file (for Jekyll).
+      # Add a YAML front matter to every chart (for Jekyll).
       {
         echo "---"
         echo "compiler: ${CC}"
@@ -271,14 +272,6 @@ before_script:
         echo "---"
         cat ${src}/${category}.html
       } > ${out}/index.html
-
-      for dataset in ${src}/*.json; do
-        {
-          echo "---"
-          echo "---"
-          cat ${dataset}
-        } > ${out}/$(basename ${dataset})
-      done
     done
 
 script:
@@ -286,6 +279,10 @@ script:
   - git add --all .
   - git commit -m "Update benchmark '${BENCHMARK}' for '${CC}'."
   - travis_retry git pull --rebase && git push origin gh-pages &>/dev/null
+  - popd
+
+  - pushd build
+  - ctest -R "execute\.${BENCHMARK}" -V
   - popd
 
 notifications:
