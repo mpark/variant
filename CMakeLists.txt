@@ -127,6 +127,10 @@ macro(add_compile_benchmark datasets lib name repeat range)
   if (TARGET ${dataset})
     list(APPEND ${datasets} ${dataset})
   endif()
+
+  if (TARGET ${dataset}-dev)
+    list(APPEND ${datasets} ${dataset}-dev)
+  endif()
 endmacro()
 
 set(BENCHMARK_ENABLE_TESTING CACHE BOOL OFF)
