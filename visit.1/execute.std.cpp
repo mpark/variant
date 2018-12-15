@@ -12,7 +12,7 @@
 template <int>
 struct S {};
 
-using Var = std::variant<
+using V = std::variant<
     S<0>, S<1>, S<2>, S<3>, S<4>, S<5>, S<6>, S<7>, S<8>, S<9>,
     S<10>, S<11>, S<12>, S<13>, S<14>, S<15>, S<16>, S<17>, S<18>, S<19>,
     S<20>, S<21>, S<22>, S<23>, S<24>, S<25>, S<26>, S<27>, S<28>, S<29>,
@@ -24,15 +24,12 @@ struct Vis {
 };
 
 static void BM_Visit1(benchmark::State& state) {
-  Var var0(S<0>{});
-  Var var1(S<10>{});
-  Var var2(S<20>{});
-  Var var3(S<30>{});
+  V v0(S<0>{}), v1(S<10>{}), v2(S<20>{}), v3(S<30>{});
   for (auto _ : state) {
-    std::visit(Vis{}, var0);
-    std::visit(Vis{}, var1);
-    std::visit(Vis{}, var2);
-    std::visit(Vis{}, var3);
+    std::visit(Vis{}, v0);
+    std::visit(Vis{}, v1);
+    std::visit(Vis{}, v2);
+    std::visit(Vis{}, v3);
   }
 }
 

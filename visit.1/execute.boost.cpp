@@ -28,10 +28,7 @@ struct Vis {
 };
 
 static void BM_Visit1(benchmark::State& state) {
-  V v0(S<0>{});
-  V v1(S<10>{});
-  V v2(S<20>{});
-  V v3(S<30>{});
+  V v0(S<0>{}), v1(S<10>{}), v2(S<20>{}), v3(S<30>{});
   for (auto _ : state) {
     boost::apply_visitor(Vis{}, v0);
     boost::apply_visitor(Vis{}, v1);

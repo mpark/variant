@@ -46,6 +46,11 @@ metabench_add_chart(
   OUTPUT compile_time.html
 )
 
+add_execute_benchmark(anthonyw ${name})
 add_execute_benchmark(boost ${name})
+add_execute_benchmark(eggs ${name})
+add_execute_benchmark(juice ${name})
+add_execute_benchmark(mapbox ${name})
 add_execute_benchmark(mpark ${name})
+add_execute_benchmark(pdimov ${name})
 add_execute_benchmark(std ${name})
