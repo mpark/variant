@@ -14,7 +14,7 @@
 template <int>
 struct S {};
 
-struct Vis {
+struct Vis : public boost::static_visitor<> {
   template <typename T>
   void operator()(T) const {}
 };

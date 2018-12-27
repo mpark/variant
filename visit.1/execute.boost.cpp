@@ -22,7 +22,7 @@ using V = boost::variant<
     S<20>, S<21>, S<22>, S<23>, S<24>, S<25>, S<26>, S<27>, S<28>, S<29>,
     S<30>, S<31>, S<32>, S<33>, S<34>, S<35>, S<36>, S<37>, S<38>, S<39>>;
 
-struct Vis {
+struct Vis : public boost::static_visitor<> {
   template <typename T>
   void operator()(T) const {}
 };
