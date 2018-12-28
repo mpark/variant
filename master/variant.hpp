@@ -1036,34 +1036,38 @@ namespace mpark {
         struct dispatcher<false, R, ITs...> {
 #ifdef MPARK_CPP14_CONSTEXPR
           template <std::size_t B, typename F, typename... Vs>
-          static constexpr R dispatch(F &&,
-                                      typename ITs::type &&...,
-                                      Vs &&...) {
+          [[noreturn]] static constexpr R dispatch(F &&,
+                                                   typename ITs::type &&...,
+                                                   Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t I, typename F, typename... Vs>
-          static constexpr R dispatch_case(F &&, Vs &&...) {
+          [[noreturn]] static constexpr R dispatch_case(F &&, Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t B, typename F, typename... Vs>
-          static constexpr R dispatch_at(std::size_t, F &&, Vs &&...) {
+          [[noreturn]] static constexpr R dispatch_at(std::size_t,
+                                                      F &&,
+                                                      Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 #else
           template <std::size_t B, typename F, typename... Vs>
-          static R dispatch(F &&, typename ITs::type &&..., Vs &&...) {
+          [[noreturn]] static R dispatch(F &&,
+                                         typename ITs::type &&...,
+                                         Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t I, typename F, typename... Vs>
-          static R dispatch_case(F &&, Vs &&...) {
+          [[noreturn]] static R dispatch_case(F &&, Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t B, typename F, typename... Vs>
-          static R dispatch_at(std::size_t, F &&, Vs &&...) {
+          [[noreturn]] static R dispatch_at(std::size_t, F &&, Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 #endif
