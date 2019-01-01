@@ -738,6 +738,17 @@ namespace mpark {
     template <typename T, bool>
     struct dependent_type : T {};
 
+    template <typename Is, std::size_t J>
+    struct push_back;
+
+    template <typename Is, std::size_t J>
+    using push_back_t = typename push_back<Is, J>::type;
+
+    template <std::size_t... Is, std::size_t J>
+    struct push_back<index_sequence<Is...>, J> {
+      using type = index_sequence<Is..., J>;
+    };
+
   }  // namespace lib
 }  // namespace mpark
 
@@ -1028,288 +1039,181 @@ namespace mpark {
     namespace visitation {
 
       struct base {
+        template <typename T>
+        inline static constexpr const T &at(const T &elem) noexcept {
+          return elem;
+        }
 
-        template <bool B, typename R, typename... ITs>
-        struct dispatcher;
+        template <typename T, std::size_t N, typename... Is>
+        inline static constexpr const lib::remove_all_extents_t<T> &at(
+            const lib::array<T, N> &elems, std::size_t i, Is... is) noexcept {
+          return at(elems[i], is...);
+        }
 
-        template <typename R, typename... ITs>
-        struct dispatcher<false, R, ITs...> {
-#ifdef MPARK_CPP14_CONSTEXPR
-          template <std::size_t B, typename F, typename... Vs>
-          [[noreturn]] static constexpr R dispatch(F &&,
-                                                   typename ITs::type &&...,
-                                                   Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
+        template <typename F, typename... Fs>
+        inline static constexpr int visit_visitor_return_type_check() {
+          static_assert(lib::all<std::is_same<F, Fs>::value...>::value,
+                        "`mpark::visit` requires the visitor to have a single "
+                        "return type.");
+          return 0;
+        }
 
-          template <std::size_t I, typename F, typename... Vs>
-          [[noreturn]] static constexpr R dispatch_case(F &&, Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
+        template <typename... Fs>
+        inline static constexpr lib::array<
+            lib::common_type_t<lib::decay_t<Fs>...>,
+            sizeof...(Fs)>
+        make_farray(Fs &&... fs) {
+          using result = lib::array<lib::common_type_t<lib::decay_t<Fs>...>,
+                                    sizeof...(Fs)>;
+          return visit_visitor_return_type_check<lib::decay_t<Fs>...>(),
+                 result{{lib::forward<Fs>(fs)...}};
+        }
 
-          template <std::size_t B, typename F, typename... Vs>
-          [[noreturn]] static constexpr R dispatch_at(std::size_t,
-                                                      F &&,
-                                                      Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
-#else
-          template <std::size_t B, typename F, typename... Vs>
-          [[noreturn]] static R dispatch(F &&,
-                                         typename ITs::type &&...,
-                                         Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
-
-          template <std::size_t I, typename F, typename... Vs>
-          [[noreturn]] static R dispatch_case(F &&, Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
-
-          template <std::size_t B, typename F, typename... Vs>
-          [[noreturn]] static R dispatch_at(std::size_t, F &&, Vs &&...) {
-            MPARK_BUILTIN_UNREACHABLE;
-          }
-#endif
+        template <std::size_t... Is>
+        struct dispatcher {
+          template <typename F, typename... Vs>
+          struct impl {
+            inline static constexpr DECLTYPE_AUTO dispatch(F f, Vs... vs)
+              DECLTYPE_AUTO_RETURN(lib::invoke(
+                  static_cast<F>(f),
+                  access::base::get_alt<Is>(static_cast<Vs>(vs))...))
+          };
         };
 
-        template <typename R, typename... ITs>
-        struct dispatcher<true, R, ITs...> {
-          template <std::size_t B, typename F>
-          static constexpr R dispatch(F &&f,
-                                      typename ITs::type &&... visited_vs) {
-            return lib::invoke(
-                lib::forward<F>(f),
-                access::base::get_alt<ITs::value>(
-                    lib::forward<typename ITs::type>(visited_vs))...);
-          }
+        template <typename F, typename... Vs, std::size_t... Is>
+        inline static constexpr AUTO make_dispatch(lib::index_sequence<Is...>)
+          AUTO_RETURN(&dispatcher<Is...>::template impl<F, Vs...>::dispatch)
 
-          template <std::size_t B, typename F, typename V, typename... Vs>
-          static constexpr R dispatch(F &&f,
-                                      typename ITs::type &&... visited_vs,
-                                      V &&v,
-                                      Vs &&... vs) {
-#define MPARK_DISPATCH(I)                                                   \
-  dispatcher<(I < lib::decay_t<V>::size()),                                 \
-             R,                                                             \
-             ITs...,                                                        \
-             lib::indexed_type<I, V>>::                                     \
-      template dispatch<0>(lib::forward<F>(f),                              \
-                           lib::forward<typename ITs::type>(visited_vs)..., \
-                           lib::forward<V>(v),                              \
-                           lib::forward<Vs>(vs)...)
+        template <std::size_t I, typename F, typename... Vs>
+        inline static constexpr AUTO make_fdiagonal_impl()
+          AUTO_RETURN(make_dispatch<F, Vs...>(
+              lib::index_sequence<lib::indexed_type<I, Vs>::value...>{}))
 
-#define MPARK_DEFAULT(I)                                                      \
-  dispatcher<(I < lib::decay_t<V>::size()), R, ITs...>::template dispatch<I>( \
-      lib::forward<F>(f),                                                     \
-      lib::forward<typename ITs::type>(visited_vs)...,                        \
-      lib::forward<V>(v),                                                     \
-      lib::forward<Vs>(vs)...)
+        template <typename F, typename... Vs, std::size_t... Is>
+        inline static constexpr AUTO make_fdiagonal_impl(
+            lib::index_sequence<Is...>)
+          AUTO_RETURN(make_farray(make_fdiagonal_impl<Is, F, Vs...>()...))
 
-#ifdef MPARK_CPP14_CONSTEXPR
-            switch (v.index()) {
-              case B + 0: return MPARK_DISPATCH(B + 0);
-              case B + 1: return MPARK_DISPATCH(B + 1);
-              case B + 2: return MPARK_DISPATCH(B + 2);
-              case B + 3: return MPARK_DISPATCH(B + 3);
-              case B + 4: return MPARK_DISPATCH(B + 4);
-              case B + 5: return MPARK_DISPATCH(B + 5);
-              case B + 6: return MPARK_DISPATCH(B + 6);
-              case B + 7: return MPARK_DISPATCH(B + 7);
-              case B + 8: return MPARK_DISPATCH(B + 8);
-              case B + 9: return MPARK_DISPATCH(B + 9);
-              case B + 10: return MPARK_DISPATCH(B + 10);
-              case B + 11: return MPARK_DISPATCH(B + 11);
-              case B + 12: return MPARK_DISPATCH(B + 12);
-              case B + 13: return MPARK_DISPATCH(B + 13);
-              case B + 14: return MPARK_DISPATCH(B + 14);
-              case B + 15: return MPARK_DISPATCH(B + 15);
-              case B + 16: return MPARK_DISPATCH(B + 16);
-              case B + 17: return MPARK_DISPATCH(B + 17);
-              case B + 18: return MPARK_DISPATCH(B + 18);
-              case B + 19: return MPARK_DISPATCH(B + 19);
-              case B + 20: return MPARK_DISPATCH(B + 20);
-              case B + 21: return MPARK_DISPATCH(B + 21);
-              case B + 22: return MPARK_DISPATCH(B + 22);
-              case B + 23: return MPARK_DISPATCH(B + 23);
-              case B + 24: return MPARK_DISPATCH(B + 24);
-              case B + 25: return MPARK_DISPATCH(B + 25);
-              case B + 26: return MPARK_DISPATCH(B + 26);
-              case B + 27: return MPARK_DISPATCH(B + 27);
-              case B + 28: return MPARK_DISPATCH(B + 28);
-              case B + 29: return MPARK_DISPATCH(B + 29);
-              case B + 30: return MPARK_DISPATCH(B + 30);
-              case B + 31: return MPARK_DISPATCH(B + 31);
-              default: return MPARK_DEFAULT(B + 32);
-            }
+        template <typename F, typename V, typename... Vs>
+        inline static constexpr /* auto * */ auto make_fdiagonal()
+            -> decltype(make_fdiagonal_impl<F, V, Vs...>(
+                lib::make_index_sequence<lib::decay_t<V>::size()>{})) {
+          static_assert(lib::all<(lib::decay_t<V>::size() ==
+                                  lib::decay_t<Vs>::size())...>::value,
+                        "all of the variants must be the same size.");
+          return make_fdiagonal_impl<F, V, Vs...>(
+              lib::make_index_sequence<lib::decay_t<V>::size()>{});
+        }
+
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
+        template <typename F, typename... Vs, typename Is>
+        inline static constexpr auto make_fmatrix_impl(Is is) {
+          return make_dispatch<F, Vs...>(is);
+        }
+
+        template <typename F,
+                  typename... Vs,
+                  typename Is,
+                  std::size_t... Js,
+                  typename... Ls>
+        inline static constexpr auto make_fmatrix_impl(
+            Is, lib::index_sequence<Js...>, Ls... ls) {
+          return make_farray(make_fmatrix_impl<F, Vs...>(
+              lib::push_back_t<Is, Js>{}, ls...)...);
+        }
+
+        template <typename F, typename... Vs>
+        inline static constexpr auto make_fmatrix() {
+          return make_fmatrix_impl<F, Vs...>(
+              lib::index_sequence<>{},
+              lib::make_index_sequence<lib::decay_t<Vs>::size()>{}...);
+        }
 #else
-            return v.index() == B + 0 ? MPARK_DISPATCH(B + 0)
-                 : v.index() == B + 1 ? MPARK_DISPATCH(B + 1)
-                 : v.index() == B + 2 ? MPARK_DISPATCH(B + 2)
-                 : v.index() == B + 3 ? MPARK_DISPATCH(B + 3)
-                 : v.index() == B + 4 ? MPARK_DISPATCH(B + 4)
-                 : v.index() == B + 5 ? MPARK_DISPATCH(B + 5)
-                 : v.index() == B + 6 ? MPARK_DISPATCH(B + 6)
-                 : v.index() == B + 7 ? MPARK_DISPATCH(B + 7)
-                 : v.index() == B + 8 ? MPARK_DISPATCH(B + 8)
-                 : v.index() == B + 9 ? MPARK_DISPATCH(B + 9)
-                 : v.index() == B + 10 ? MPARK_DISPATCH(B + 10)
-                 : v.index() == B + 11 ? MPARK_DISPATCH(B + 11)
-                 : v.index() == B + 12 ? MPARK_DISPATCH(B + 12)
-                 : v.index() == B + 13 ? MPARK_DISPATCH(B + 13)
-                 : v.index() == B + 14 ? MPARK_DISPATCH(B + 14)
-                 : v.index() == B + 15 ? MPARK_DISPATCH(B + 15)
-                 : v.index() == B + 16 ? MPARK_DISPATCH(B + 16)
-                 : v.index() == B + 17 ? MPARK_DISPATCH(B + 17)
-                 : v.index() == B + 18 ? MPARK_DISPATCH(B + 18)
-                 : v.index() == B + 19 ? MPARK_DISPATCH(B + 19)
-                 : v.index() == B + 20 ? MPARK_DISPATCH(B + 20)
-                 : v.index() == B + 21 ? MPARK_DISPATCH(B + 21)
-                 : v.index() == B + 22 ? MPARK_DISPATCH(B + 22)
-                 : v.index() == B + 23 ? MPARK_DISPATCH(B + 23)
-                 : v.index() == B + 24 ? MPARK_DISPATCH(B + 24)
-                 : v.index() == B + 25 ? MPARK_DISPATCH(B + 25)
-                 : v.index() == B + 26 ? MPARK_DISPATCH(B + 26)
-                 : v.index() == B + 27 ? MPARK_DISPATCH(B + 27)
-                 : v.index() == B + 28 ? MPARK_DISPATCH(B + 28)
-                 : v.index() == B + 29 ? MPARK_DISPATCH(B + 29)
-                 : v.index() == B + 30 ? MPARK_DISPATCH(B + 30)
-                 : v.index() == B + 31 ? MPARK_DISPATCH(B + 31)
-                 : MPARK_DEFAULT(B + 32);
-#endif
+        template <typename F, typename... Vs>
+        struct make_fmatrix_impl {
+          template <typename...>
+          struct impl;
 
-#undef MPARK_DEFAULT
-#undef MPARK_DISPATCH
-          }
+          template <typename Is>
+          struct impl<Is> {
+            inline constexpr AUTO operator()() const
+              AUTO_RETURN(make_dispatch<F, Vs...>(Is{}))
+          };
 
-          template <std::size_t I, typename F, typename... Vs>
-          static constexpr R dispatch_case(F &&f, Vs &&... vs) {
-            return lib::invoke(
-                lib::forward<F>(f),
-                access::base::get_alt<I>(lib::forward<Vs>(vs))...);
-          }
-
-          template <std::size_t B, typename F, typename V, typename... Vs>
-          static constexpr R dispatch_at(std::size_t index,
-                                         F &&f,
-                                         V &&v,
-                                         Vs &&... vs) {
-            static_assert(lib::all<(lib::decay_t<V>::size() ==
-                                    lib::decay_t<Vs>::size())...>::value,
-                          "all of the variants must be the same size.");
-#define MPARK_DISPATCH_AT(I)                                               \
-  dispatcher<(I < lib::decay_t<V>::size()), R>::template dispatch_case<I>( \
-      lib::forward<F>(f), lib::forward<V>(v), lib::forward<Vs>(vs)...)
-
-#define MPARK_DEFAULT(I)                                                 \
-  dispatcher<(I < lib::decay_t<V>::size()), R>::template dispatch_at<I>( \
-      index, lib::forward<F>(f), lib::forward<V>(v), lib::forward<Vs>(vs)...)
-
-#ifdef MPARK_CPP14_CONSTEXPR
-            switch (index) {
-              case B + 0: return MPARK_DISPATCH_AT(B + 0);
-              case B + 1: return MPARK_DISPATCH_AT(B + 1);
-              case B + 2: return MPARK_DISPATCH_AT(B + 2);
-              case B + 3: return MPARK_DISPATCH_AT(B + 3);
-              case B + 4: return MPARK_DISPATCH_AT(B + 4);
-              case B + 5: return MPARK_DISPATCH_AT(B + 5);
-              case B + 6: return MPARK_DISPATCH_AT(B + 6);
-              case B + 7: return MPARK_DISPATCH_AT(B + 7);
-              case B + 8: return MPARK_DISPATCH_AT(B + 8);
-              case B + 9: return MPARK_DISPATCH_AT(B + 9);
-              case B + 10: return MPARK_DISPATCH_AT(B + 10);
-              case B + 11: return MPARK_DISPATCH_AT(B + 11);
-              case B + 12: return MPARK_DISPATCH_AT(B + 12);
-              case B + 13: return MPARK_DISPATCH_AT(B + 13);
-              case B + 14: return MPARK_DISPATCH_AT(B + 14);
-              case B + 15: return MPARK_DISPATCH_AT(B + 15);
-              case B + 16: return MPARK_DISPATCH_AT(B + 16);
-              case B + 17: return MPARK_DISPATCH_AT(B + 17);
-              case B + 18: return MPARK_DISPATCH_AT(B + 18);
-              case B + 19: return MPARK_DISPATCH_AT(B + 19);
-              case B + 20: return MPARK_DISPATCH_AT(B + 20);
-              case B + 21: return MPARK_DISPATCH_AT(B + 21);
-              case B + 22: return MPARK_DISPATCH_AT(B + 22);
-              case B + 23: return MPARK_DISPATCH_AT(B + 23);
-              case B + 24: return MPARK_DISPATCH_AT(B + 24);
-              case B + 25: return MPARK_DISPATCH_AT(B + 25);
-              case B + 26: return MPARK_DISPATCH_AT(B + 26);
-              case B + 27: return MPARK_DISPATCH_AT(B + 27);
-              case B + 28: return MPARK_DISPATCH_AT(B + 28);
-              case B + 29: return MPARK_DISPATCH_AT(B + 29);
-              case B + 30: return MPARK_DISPATCH_AT(B + 30);
-              case B + 31: return MPARK_DISPATCH_AT(B + 31);
-              default: return MPARK_DEFAULT(B + 32);
-            }
-#else
-            return index == B + 0 ? MPARK_DISPATCH_AT(B + 0)
-                 : index == B + 1 ? MPARK_DISPATCH_AT(B + 1)
-                 : index == B + 2 ? MPARK_DISPATCH_AT(B + 2)
-                 : index == B + 3 ? MPARK_DISPATCH_AT(B + 3)
-                 : index == B + 4 ? MPARK_DISPATCH_AT(B + 4)
-                 : index == B + 5 ? MPARK_DISPATCH_AT(B + 5)
-                 : index == B + 6 ? MPARK_DISPATCH_AT(B + 6)
-                 : index == B + 7 ? MPARK_DISPATCH_AT(B + 7)
-                 : index == B + 8 ? MPARK_DISPATCH_AT(B + 8)
-                 : index == B + 9 ? MPARK_DISPATCH_AT(B + 9)
-                 : index == B + 10 ? MPARK_DISPATCH_AT(B + 10)
-                 : index == B + 11 ? MPARK_DISPATCH_AT(B + 11)
-                 : index == B + 12 ? MPARK_DISPATCH_AT(B + 12)
-                 : index == B + 13 ? MPARK_DISPATCH_AT(B + 13)
-                 : index == B + 14 ? MPARK_DISPATCH_AT(B + 14)
-                 : index == B + 15 ? MPARK_DISPATCH_AT(B + 15)
-                 : index == B + 16 ? MPARK_DISPATCH_AT(B + 16)
-                 : index == B + 17 ? MPARK_DISPATCH_AT(B + 17)
-                 : index == B + 18 ? MPARK_DISPATCH_AT(B + 18)
-                 : index == B + 19 ? MPARK_DISPATCH_AT(B + 19)
-                 : index == B + 20 ? MPARK_DISPATCH_AT(B + 20)
-                 : index == B + 21 ? MPARK_DISPATCH_AT(B + 21)
-                 : index == B + 22 ? MPARK_DISPATCH_AT(B + 22)
-                 : index == B + 23 ? MPARK_DISPATCH_AT(B + 23)
-                 : index == B + 24 ? MPARK_DISPATCH_AT(B + 24)
-                 : index == B + 25 ? MPARK_DISPATCH_AT(B + 25)
-                 : index == B + 26 ? MPARK_DISPATCH_AT(B + 26)
-                 : index == B + 27 ? MPARK_DISPATCH_AT(B + 27)
-                 : index == B + 28 ? MPARK_DISPATCH_AT(B + 28)
-                 : index == B + 29 ? MPARK_DISPATCH_AT(B + 29)
-                 : index == B + 30 ? MPARK_DISPATCH_AT(B + 30)
-                 : index == B + 31 ? MPARK_DISPATCH_AT(B + 31)
-                 : MPARK_DEFAULT(B + 32);
-#endif
-
-#undef MPARK_DEFAULT
-#undef MPARK_DISPATCH_AT
-          }
+          template <typename Is, std::size_t... Js, typename... Ls>
+          struct impl<Is, lib::index_sequence<Js...>, Ls...> {
+            inline constexpr AUTO operator()() const
+              AUTO_RETURN(
+                  make_farray(impl<lib::push_back_t<Is, Js>, Ls...>{}()...))
+          };
         };
 
+        template <typename F, typename... Vs>
+        inline static constexpr AUTO make_fmatrix()
+          AUTO_RETURN(
+              typename make_fmatrix_impl<F, Vs...>::template impl<
+                  lib::index_sequence<>,
+                  lib::make_index_sequence<lib::decay_t<Vs>::size()>...>{}())
+#endif
       };  // namespace base
 
-      struct alt {
-        template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
-                                                        Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              base::dispatcher<true,
-                               decltype(
-                                   lib::invoke(lib::forward<Visitor>(visitor),
-                                               access::base::get_alt<0>(
-                                                   lib::forward<Vs>(vs))...))>::
-                  template dispatch<0>(lib::forward<Visitor>(visitor),
-                                       lib::forward<Vs>(vs)...))
+      template <typename F, typename... Vs>
+      using FDiagonal = decltype(base::make_fdiagonal<F, Vs...>());
 
+      template <typename F, typename... Vs>
+      struct fdiagonal {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4268)
+#endif
+        static constexpr FDiagonal<F, Vs...> value =
+            base::make_fdiagonal<F, Vs...>();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+      };
+
+      template <typename F, typename... Vs>
+      constexpr FDiagonal<F, Vs...> fdiagonal<F, Vs...>::value;
+
+      template <typename F, typename... Vs>
+      using FMatrix = decltype(base::make_fmatrix<F, Vs...>());
+
+      template <typename F, typename... Vs>
+      struct fmatrix {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4268)
+#endif
+        static constexpr FMatrix<F, Vs...> value =
+            base::make_fmatrix<F, Vs...>();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+      };
+
+      template <typename F, typename... Vs>
+      constexpr FMatrix<F, Vs...> fmatrix<F, Vs...>::value;
+
+      struct alt {
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              base::dispatcher<true,
-                               decltype(
-                                   lib::invoke(lib::forward<Visitor>(visitor),
-                                               access::base::get_alt<0>(
-                                                   lib::forward<Vs>(vs))...))>::
-                  template dispatch_at<0>(index,
-                                          lib::forward<Visitor>(visitor),
-                                          lib::forward<Vs>(vs)...))
+          DECLTYPE_AUTO_RETURN(base::at(
+              fdiagonal<Visitor &&,
+                        decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              index)(lib::forward<Visitor>(visitor),
+                     as_base(lib::forward<Vs>(vs))...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
+                                                        Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(base::at(
+              fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
       };
 
       struct variant {
@@ -1353,12 +1257,6 @@ namespace mpark {
 
         public:
         template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
-                                                        Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(alt::visit_alt(lib::forward<Visitor>(visitor),
-                                              lib::forward<Vs>(vs).impl_...))
-
-        template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
@@ -1368,11 +1266,10 @@ namespace mpark {
                                 lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_value(Visitor &&visitor,
-                                                          Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              visit_alt(make_value_visitor(lib::forward<Visitor>(visitor)),
-                        lib::forward<Vs>(vs)...))
+        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
+                                                        Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(alt::visit_alt(lib::forward<Visitor>(visitor),
+                                              lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value_at(std::size_t index,
@@ -1382,6 +1279,13 @@ namespace mpark {
               visit_alt_at(index,
                            make_value_visitor(lib::forward<Visitor>(visitor)),
                            lib::forward<Vs>(vs)...))
+
+        template <typename Visitor, typename... Vs>
+        inline static constexpr DECLTYPE_AUTO visit_value(Visitor &&visitor,
+                                                          Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(
+              visit_alt(make_value_visitor(lib::forward<Visitor>(visitor)),
+                        lib::forward<Vs>(vs)...))
       };
 
     }  // namespace visitation
