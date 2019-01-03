@@ -7,30 +7,55 @@
 
 #include <benchmark/benchmark.h>
 
+#include <cstddef>
+#include <type_traits>
+#include <vector>
+
 #include <mapbox/variant.hpp>
 
-template <int>
-struct S {};
+#include "../lib.hpp"
 
-using V = mapbox::util::variant<
-    S<0>, S<1>, S<2>, S<3>, S<4>, S<5>, S<6>, S<7>, S<8>, S<9>,
-    S<10>, S<11>, S<12>, S<13>, S<14>, S<15>, S<16>, S<17>, S<18>, S<19>,
-    S<20>, S<21>, S<22>, S<23>, S<24>, S<25>, S<26>, S<27>, S<28>, S<29>,
-    S<30>, S<31>, S<32>, S<33>, S<34>, S<35>, S<36>, S<37>, S<38>, S<39>>;
+template <std::size_t I>
+using size_constant = std::integral_constant<std::size_t, I>;
 
-struct Vis {
-  template <typename T>
-  void operator()(T) const {}
+template <std::size_t... Is>
+using variants = std::vector<mapbox::util::variant<size_constant<Is>...>>;
+
+template <std::size_t... Is>
+variants<Is...> make_variants(lib::index_sequence<Is...>) {
+  variants<Is...> vs;
+  for (std::size_t i = 0; i < 5000 / sizeof...(Is); ++i) {
+    int dummy[] = {(vs.push_back(size_constant<Is>{}), 0)...};
+    (void)dummy;
+  }
+  return vs;
+}
+
+struct visitor {
+  template <std::size_t I>
+  constexpr std::size_t operator()(size_constant<I>) const {
+    return I;
+  }
 };
 
-static void BM_Visit1(benchmark::State& state) {
-  V v0(S<0>{}), v1(S<10>{}), v2(S<20>{}), v3(S<30>{});
+template <std::size_t N>
+static void visit1(benchmark::State &state) {
+  auto vs = make_variants(lib::make_index_sequence<N>{});
   for (auto _ : state) {
-    v0.match(Vis{});
-    v1.match(Vis{});
-    v2.match(Vis{});
-    v3.match(Vis{});
+    int sum = 0;
+    for (const auto &v : vs) {
+      sum += v.match(visitor{});
+    }
+    benchmark::DoNotOptimize(sum);
   }
 }
 
-BENCHMARK(BM_Visit1);
+BENCHMARK_TEMPLATE(visit1, 1);
+BENCHMARK_TEMPLATE(visit1, 2);
+BENCHMARK_TEMPLATE(visit1, 3);
+BENCHMARK_TEMPLATE(visit1, 5);
+BENCHMARK_TEMPLATE(visit1, 8);
+BENCHMARK_TEMPLATE(visit1, 15);
+BENCHMARK_TEMPLATE(visit1, 32);
+BENCHMARK_TEMPLATE(visit1, 65);
+BENCHMARK_TEMPLATE(visit1, 128);
