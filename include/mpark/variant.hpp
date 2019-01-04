@@ -533,27 +533,6 @@ namespace mpark {
         inline static constexpr AUTO make_dispatch(lib::index_sequence<Is...>)
           AUTO_RETURN(&dispatcher<Is...>::template impl<F, Vs...>::dispatch)
 
-        template <std::size_t I, typename F, typename... Vs>
-        inline static constexpr AUTO make_fdiagonal_impl()
-          AUTO_RETURN(make_dispatch<F, Vs...>(
-              lib::index_sequence<lib::indexed_type<I, Vs>::value...>{}))
-
-        template <typename F, typename... Vs, std::size_t... Is>
-        inline static constexpr AUTO make_fdiagonal_impl(
-            lib::index_sequence<Is...>)
-          AUTO_RETURN(make_farray(make_fdiagonal_impl<Is, F, Vs...>()...))
-
-        template <typename F, typename V, typename... Vs>
-        inline static constexpr /* auto * */ auto make_fdiagonal()
-            -> decltype(make_fdiagonal_impl<F, V, Vs...>(
-                lib::make_index_sequence<lib::decay_t<V>::size()>{})) {
-          static_assert(lib::all<(lib::decay_t<V>::size() ==
-                                  lib::decay_t<Vs>::size())...>::value,
-                        "all of the variants must be the same size.");
-          return make_fdiagonal_impl<F, V, Vs...>(
-              lib::make_index_sequence<lib::decay_t<V>::size()>{});
-        }
-
 #ifdef MPARK_RETURN_TYPE_DEDUCTION
         template <typename F, typename... Vs, typename Is>
         inline static constexpr auto make_fmatrix_impl(Is is) {
@@ -604,29 +583,31 @@ namespace mpark {
                   lib::index_sequence<>,
                   lib::make_index_sequence<lib::decay_t<Vs>::size()>...>{}())
 #endif
-      };  // namespace base
 
-      template <typename F, typename... Vs>
-      using FDiagonal = decltype(base::make_fdiagonal<F, Vs...>());
+        template <std::size_t I, typename F, typename... Vs>
+        inline static constexpr AUTO make_fdiagonal_impl()
+          AUTO_RETURN(make_dispatch<F, Vs...>(
+              lib::index_sequence<lib::indexed_type<I, Vs>::value...>{}))
 
-      template <typename F, typename... Vs>
-      struct fdiagonal {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
-        static constexpr FDiagonal<F, Vs...> value =
-            base::make_fdiagonal<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+        template <typename F, typename... Vs, std::size_t... Is>
+        inline static constexpr AUTO make_fdiagonal_impl(
+            lib::index_sequence<Is...>)
+          AUTO_RETURN(make_farray(make_fdiagonal_impl<Is, F, Vs...>()...))
+
+        template <typename F, typename V, typename... Vs>
+        inline static constexpr /* auto * */ auto make_fdiagonal()
+            -> decltype(make_fdiagonal_impl<F, V, Vs...>(
+                lib::make_index_sequence<lib::decay_t<V>::size()>{})) {
+          static_assert(lib::all<(lib::decay_t<V>::size() ==
+                                  lib::decay_t<Vs>::size())...>::value,
+                        "all of the variants must be the same size.");
+          return make_fdiagonal_impl<F, V, Vs...>(
+              lib::make_index_sequence<lib::decay_t<V>::size()>{});
+        }
       };
 
       template <typename F, typename... Vs>
-      constexpr FDiagonal<F, Vs...> fdiagonal<F, Vs...>::value;
-
-      template <typename F, typename... Vs>
-      using FMatrix = decltype(base::make_fmatrix<F, Vs...>());
+      using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
       template <typename F, typename... Vs>
       struct fmatrix {
@@ -634,7 +615,7 @@ namespace mpark {
 #pragma warning(push)
 #pragma warning(disable : 4268)
 #endif
-        static constexpr FMatrix<F, Vs...> value =
+        static constexpr fmatrix_t<F, Vs...> value =
             base::make_fmatrix<F, Vs...>();
 #ifdef _MSC_VER
 #pragma warning(pop)
@@ -642,9 +623,37 @@ namespace mpark {
       };
 
       template <typename F, typename... Vs>
-      constexpr FMatrix<F, Vs...> fmatrix<F, Vs...>::value;
+      constexpr fmatrix_t<F, Vs...> fmatrix<F, Vs...>::value;
+
+      template <typename F, typename... Vs>
+      using fdiagonal_t = decltype(base::make_fdiagonal<F, Vs...>());
+
+      template <typename F, typename... Vs>
+      struct fdiagonal {
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4268)
+#endif
+        static constexpr fdiagonal_t<F, Vs...> value =
+            base::make_fdiagonal<F, Vs...>();
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+      };
+
+      template <typename F, typename... Vs>
+      constexpr fdiagonal_t<F, Vs...> fdiagonal<F, Vs...>::value;
 
       struct alt {
+        template <typename Visitor, typename... Vs>
+        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
+                                                        Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(base::at(
+              fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
+
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
@@ -654,15 +663,6 @@ namespace mpark {
                         decltype(as_base(lib::forward<Vs>(vs)))...>::value,
               index)(lib::forward<Visitor>(visitor),
                      as_base(lib::forward<Vs>(vs))...))
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
-                                                        Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(base::at(
-              fmatrix<Visitor &&,
-                      decltype(as_base(lib::forward<Vs>(vs)))...>::value,
-              vs.index()...)(lib::forward<Visitor>(visitor),
-                             as_base(lib::forward<Vs>(vs))...))
       };
 
       struct variant {
@@ -706,6 +706,12 @@ namespace mpark {
 
         public:
         template <typename Visitor, typename... Vs>
+        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
+                                                        Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(alt::visit_alt(lib::forward<Visitor>(visitor),
+                                              lib::forward<Vs>(vs).impl_...))
+
+        template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
@@ -715,10 +721,11 @@ namespace mpark {
                                 lib::forward<Vs>(vs).impl_...))
 
         template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
-                                                        Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(alt::visit_alt(lib::forward<Visitor>(visitor),
-                                              lib::forward<Vs>(vs).impl_...))
+        inline static constexpr DECLTYPE_AUTO visit_value(Visitor &&visitor,
+                                                          Vs &&... vs)
+          DECLTYPE_AUTO_RETURN(
+              visit_alt(make_value_visitor(lib::forward<Visitor>(visitor)),
+                        lib::forward<Vs>(vs)...))
 
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_value_at(std::size_t index,
@@ -728,13 +735,6 @@ namespace mpark {
               visit_alt_at(index,
                            make_value_visitor(lib::forward<Visitor>(visitor)),
                            lib::forward<Vs>(vs)...))
-
-        template <typename Visitor, typename... Vs>
-        inline static constexpr DECLTYPE_AUTO visit_value(Visitor &&visitor,
-                                                          Vs &&... vs)
-          DECLTYPE_AUTO_RETURN(
-              visit_alt(make_value_visitor(lib::forward<Visitor>(visitor)),
-                        lib::forward<Vs>(vs)...))
       };
 
     }  // namespace visitation
