@@ -13,6 +13,10 @@
 #error "MPark.Variant requires C++11 support."
 #endif
 
+#ifndef __has_attribute
+#define __has_attribute(x) 0
+#endif
+
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
@@ -23,6 +27,14 @@
 
 #ifndef __has_feature
 #define __has_feature(x) 0
+#endif
+
+#if __has_attribute(always_inline) || defined(__GNUC__)
+#define MPARK_ALWAYS_INLINE __attribute__((__always_inline__)) inline
+#elif defined(_MSC_VER)
+#define MPARK_ALWAYS_INLINE __forceinline
+#else
+#define MPARK_ALWAYS_INLINE inline
 #endif
 
 #if __has_builtin(__builtin_addressof) || \
