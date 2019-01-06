@@ -217,6 +217,10 @@ namespace std {
 #error "MPark.Variant requires C++11 support."
 #endif
 
+#ifndef __has_attribute
+#define __has_attribute(x) 0
+#endif
+
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
@@ -227,6 +231,14 @@ namespace std {
 
 #ifndef __has_feature
 #define __has_feature(x) 0
+#endif
+
+#if __has_attribute(always_inline) || defined(__GNUC__)
+#define MPARK_ALWAYS_INLINE __attribute__((__always_inline__)) inline
+#elif defined(_MSC_VER)
+#define MPARK_ALWAYS_INLINE __forceinline
+#else
+#define MPARK_ALWAYS_INLINE inline
 #endif
 
 #if __has_builtin(__builtin_addressof) || \
@@ -1051,20 +1063,20 @@ namespace mpark {
         template <typename R, typename... ITs>
         struct dispatcher<false, R, ITs...> {
           template <std::size_t B, typename F, typename... Vs>
-          [[gnu::always_inline]] [[noreturn]] inline static constexpr R
-          dispatch(F &&, typename ITs::type &&..., Vs &&...) {
+          MPARK_ALWAYS_INLINE static constexpr R dispatch(
+              F &&, typename ITs::type &&..., Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t I, typename F, typename... Vs>
-          [[gnu::always_inline]] [[noreturn]] inline static constexpr R
-          dispatch_case(F &&, Vs &&...) {
+          MPARK_ALWAYS_INLINE static constexpr R dispatch_case(F &&, Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
 
           template <std::size_t B, typename F, typename... Vs>
-          [[gnu::always_inline]] [[noreturn]] inline static constexpr R
-          dispatch_at(std::size_t, F &&, Vs &&...) {
+          MPARK_ALWAYS_INLINE static constexpr R dispatch_at(std::size_t,
+                                                             F &&,
+                                                             Vs &&...) {
             MPARK_BUILTIN_UNREACHABLE;
           }
         };
@@ -1072,7 +1084,7 @@ namespace mpark {
         template <typename R, typename... ITs>
         struct dispatcher<true, R, ITs...> {
           template <std::size_t B, typename F>
-          [[gnu::always_inline]] inline static constexpr R dispatch(
+          MPARK_ALWAYS_INLINE static constexpr R dispatch(
               F &&f, typename ITs::type &&... visited_vs) {
             return lib::invoke(
                 lib::forward<F>(f),
@@ -1081,7 +1093,7 @@ namespace mpark {
           }
 
           template <std::size_t B, typename F, typename V, typename... Vs>
-          [[gnu::always_inline]] inline static constexpr R dispatch(
+          MPARK_ALWAYS_INLINE static constexpr R dispatch(
               F &&f, typename ITs::type &&... visited_vs, V &&v, Vs &&... vs) {
 #define MPARK_DISPATCH(I)                                                   \
   dispatcher<(I < lib::decay_t<V>::size()),                                 \
@@ -1141,16 +1153,18 @@ namespace mpark {
           }
 
           template <std::size_t I, typename F, typename... Vs>
-          [[gnu::always_inline]] inline static constexpr R dispatch_case(
-              F &&f, Vs &&... vs) {
+          MPARK_ALWAYS_INLINE static constexpr R dispatch_case(F &&f,
+                                                               Vs &&... vs) {
             return lib::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<I>(lib::forward<Vs>(vs))...);
           }
 
           template <std::size_t B, typename F, typename V, typename... Vs>
-          [[gnu::always_inline]] inline static constexpr R dispatch_at(
-              std::size_t index, F &&f, V &&v, Vs &&... vs) {
+          MPARK_ALWAYS_INLINE static constexpr R dispatch_at(std::size_t index,
+                                                             F &&f,
+                                                             V &&v,
+                                                             Vs &&... vs) {
             static_assert(lib::all<(lib::decay_t<V>::size() ==
                                     lib::decay_t<Vs>::size())...>::value,
                           "all of the variants must be the same size.");
@@ -1218,61 +1232,86 @@ namespace mpark {
         inline static constexpr lib::array<
             lib::common_type_t<lib::decay_t<Ts>...>,
             sizeof...(Ts)>
-        make_array(Ts &&... elems) {
-          return {{lib::forward<Ts>(elems)...}};
+        make_farray(Ts &&... elems) {
+          using R = lib::array<lib::common_type_t<lib::decay_t<Ts>...>,
+                               sizeof...(Ts)>;
+          return R{{lib::forward<Ts>(elems)...}};
         }
 
         template <typename F, typename... Vs>
         struct make_fmatrix_impl {
           template <std::size_t... Is>
-          [[gnu::always_inline]] inline static constexpr dispatch_result_t<
-              F,
-              Vs...>
-          dispatch(F &&f, Vs &&... vs) {
-            return lib::invoke(
-                lib::forward<F>(f),
-                access::base::get_alt<Is>(lib::forward<Vs>(vs))...);
+          struct dispatcher {
+            inline static constexpr dispatch_result_t<F, Vs...> dispatch(
+                F &&f, Vs &&... vs) {
+              return lib::invoke(
+                  lib::forward<F>(f),
+                  access::base::get_alt<Is>(lib::forward<Vs>(vs))...);
+            }
+          };
+
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
+          template <std::size_t... Is>
+          inline static constexpr auto impl(lib::index_sequence<Is...>) {
+            return &dispatcher<Is...>::dispatch;
           }
 
+          template <typename Is, std::size_t... Js, typename... Ls>
+          inline static constexpr auto impl(Is,
+                                            lib::index_sequence<Js...>,
+                                            Ls... ls) {
+            return make_farray(impl(lib::push_back_t<Is, Js>{}, ls...)...);
+          }
+#else
           template <typename...>
           struct impl;
 
           template <std::size_t... Is>
           struct impl<lib::index_sequence<Is...>> {
             inline constexpr AUTO operator()() const
-              AUTO_RETURN(&dispatch<Is...>)
+              AUTO_RETURN(&dispatcher<Is...>::dispatch)
           };
 
           template <typename Is, std::size_t... Js, typename... Ls>
           struct impl<Is, lib::index_sequence<Js...>, Ls...> {
             inline constexpr AUTO operator()() const
               AUTO_RETURN(
-                  make_array(impl<lib::push_back_t<Is, Js>, Ls...>{}()...))
+                  make_farray(impl<lib::push_back_t<Is, Js>, Ls...>{}()...))
           };
+#endif
         };
 
+#ifdef MPARK_RETURN_TYPE_DEDUCTION
+        template <typename F, typename... Vs>
+        inline static constexpr auto make_fmatrix() {
+          return make_fmatrix_impl<F, Vs...>::impl(
+              lib::index_sequence<>{},
+              lib::make_index_sequence<lib::decay_t<Vs>::size()>{}...);
+        }
+#else
         template <typename F, typename... Vs>
         inline static constexpr AUTO make_fmatrix()
           AUTO_RETURN(
               typename make_fmatrix_impl<F, Vs...>::template impl<
                   lib::index_sequence<>,
                   lib::make_index_sequence<lib::decay_t<Vs>::size()>...>{}())
+#endif
 
         template <typename F, typename... Vs>
         struct make_fdiagonal_impl {
           template <std::size_t I>
-          [[gnu::always_inline]] inline static constexpr dispatch_result_t<
-              F,
-              Vs...>
-          dispatch(F &&f, Vs &&... vs) {
-            return lib::invoke(
-                lib::forward<F>(f),
-                access::base::get_alt<I>(lib::forward<Vs>(vs))...);
-          }
+          struct dispatcher {
+            inline static constexpr dispatch_result_t<F, Vs...> dispatch(
+                F &&f, Vs &&... vs) {
+              return lib::invoke(
+                  lib::forward<F>(f),
+                  access::base::get_alt<I>(lib::forward<Vs>(vs))...);
+            }
+          };
 
           template <std::size_t... Is>
           inline static constexpr AUTO impl(lib::index_sequence<Is...>)
-            AUTO_RETURN(make_array(&dispatch<Is>...))
+            AUTO_RETURN(make_farray(&dispatcher<Is>::dispatch...))
         };
 
         template <typename F, typename V, typename... Vs>
@@ -1343,7 +1382,7 @@ namespace mpark {
                                        as_base(lib::forward<Vs>(vs))...))
 #else
           DECLTYPE_AUTO_RETURN(base::at(
-              fmatrix<Visitor,
+              fmatrix<Visitor &&,
                       decltype(as_base(lib::forward<Vs>(vs)))...>::value,
               vs.index()...)(lib::forward<Visitor>(visitor),
                              as_base(lib::forward<Vs>(vs))...))
@@ -1365,7 +1404,7 @@ namespace mpark {
                                           as_base(lib::forward<Vs>(vs))...))
 #else
           DECLTYPE_AUTO_RETURN(base::at(
-              fdiagonal<Visitor,
+              fdiagonal<Visitor &&,
                         decltype(as_base(lib::forward<Vs>(vs)))...>::value,
               index)(lib::forward<Visitor>(visitor),
                      as_base(lib::forward<Vs>(vs))...))
