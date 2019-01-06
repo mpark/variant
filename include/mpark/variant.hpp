@@ -1116,9 +1116,9 @@ namespace mpark {
 
       template <std::size_t I, typename T, typename... Args>
       inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
-        ::new (static_cast<void *>(lib::addressof(a)))
+        auto *result = ::new (static_cast<void *>(lib::addressof(a)))
             alt<I, T>(in_place_t{}, lib::forward<Args>(args)...);
-        return a.value;
+        return result->value;
       }
 
       template <typename Rhs>
