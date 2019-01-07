@@ -140,7 +140,7 @@ jobs:
 
     - stage: deploy
       name: "Single Header"
-      if: branch = master
+      if: branch = master AND type = push
       install: skip
       before_script:
         - git config --global user.name "Travis CI"
