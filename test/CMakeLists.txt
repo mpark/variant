@@ -44,6 +44,7 @@ if(MPARK_VARIANT_INCLUDE_MPARK_TESTS)
     get
     hash
     intro
+    issue
     json
     mod
     relops
