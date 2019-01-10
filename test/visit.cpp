@@ -13,6 +13,11 @@
 
 #include <gtest/gtest.h>
 
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 200704 && \
+    !(__GNUC__ == 4 && __GNUC_MINOR__ == 9)
+#define MPARK_VARIANT_CONSTEXPR_VISIT
+#endif
+
 namespace lib = mpark::lib;
 
 enum Qual { LRef, ConstLRef, RRef, ConstRRef };
@@ -48,7 +53,7 @@ TEST(Visit, ConstVarMutType) {
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
-#if !defined(__GNUC__) || __GNUC__ >= 5
+#ifdef MPARK_VARIANT_CONSTEXPR_VISIT
   /* constexpr */ {
     constexpr mpark::variant<int> cv(42);
     static_assert(42 == mpark::get<int>(cv), "");
@@ -66,7 +71,7 @@ TEST(Visit, ConstVarConstType) {
   EXPECT_EQ(ConstLRef, mpark::visit(get_qual(), v));
   EXPECT_EQ(ConstRRef, mpark::visit(get_qual(), lib::move(v)));
 
-#if !defined(__GNUC__) || __GNUC__ >= 5
+#ifdef MPARK_VARIANT_CONSTEXPR_VISIT
   /* constexpr */ {
     constexpr mpark::variant<const int> cv(42);
     static_assert(42 == mpark::get<const int>(cv), "");
@@ -92,7 +97,7 @@ TEST(Visit_Homogeneous, Double) {
   mpark::variant<int, std::string> v("hello"), w("world!");
   EXPECT_EQ("helloworld!", mpark::visit(concat{}, v, w));
 
-#if !defined(__GNUC__) || __GNUC__ >= 5
+#ifdef MPARK_VARIANT_CONSTEXPR_VISIT
   /* constexpr */ {
     constexpr mpark::variant<int, double> cv(101), cw(202), cx(3.3);
     struct add_ints {
