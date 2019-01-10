@@ -493,6 +493,27 @@ namespace mpark {
             lib::invoke(std::declval<Visitor>(),
                         access::base::get_alt<0>(std::declval<Vs>())...));
 
+        template <typename Expected>
+        struct expected {
+          template <typename Actual>
+          inline static constexpr bool but_got() {
+            return std::is_same<Expected, Actual>::value;
+          }
+        };
+
+        template <typename Expected, typename Actual>
+        struct visit_return_type_check {
+          static_assert(
+              expected<Expected>::template but_got<Actual>(),
+              "`visit` requires the visitor to have a single return type");
+
+          template <typename Visitor, typename... Alts>
+          inline static constexpr DECLTYPE_AUTO invoke(Visitor &&visitor,
+                                                       Alts &&... alts)
+            DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
+                                             lib::forward<Alts>(alts)...))
+        };
+
 #ifdef MPARK_CPP14_CONSTEXPR
         template <bool B, typename R, typename... ITs>
         struct dispatcher;
@@ -523,7 +544,12 @@ namespace mpark {
           template <std::size_t B, typename F>
           MPARK_ALWAYS_INLINE static constexpr R dispatch(
               F &&f, typename ITs::type &&... visited_vs) {
-            return lib::invoke(
+            using Expected = R;
+            using Actual = decltype(lib::invoke(
+                lib::forward<F>(f),
+                access::base::get_alt<ITs::value>(
+                    lib::forward<typename ITs::type>(visited_vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<ITs::value>(
                     lib::forward<typename ITs::type>(visited_vs))...);
@@ -592,7 +618,11 @@ namespace mpark {
           template <std::size_t I, typename F, typename... Vs>
           MPARK_ALWAYS_INLINE static constexpr R dispatch_case(F &&f,
                                                                Vs &&... vs) {
-            return lib::invoke(
+            using Expected = R;
+            using Actual = decltype(
+                lib::invoke(lib::forward<F>(f),
+                            access::base::get_alt<I>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<I>(lib::forward<Vs>(vs))...);
           }
@@ -665,22 +695,23 @@ namespace mpark {
           return at(elems[i], is...);
         }
 
-        template <typename... Ts>
-        inline static constexpr lib::array<
-            lib::common_type_t<lib::decay_t<Ts>...>,
-            sizeof...(Ts)>
-        make_farray(Ts &&... elems) {
-          using R = lib::array<lib::common_type_t<lib::decay_t<Ts>...>,
-                               sizeof...(Ts)>;
-          return R{{lib::forward<Ts>(elems)...}};
+        template <typename F, typename... Fs>
+        inline static constexpr lib::array<lib::decay_t<F>, sizeof...(Fs) + 1>
+        make_farray(F &&f, Fs &&... fs) {
+          return {{lib::forward<F>(f), lib::forward<Fs>(fs)...}};
         }
 
         template <typename F, typename... Vs>
         struct make_fmatrix_impl {
+
           template <std::size_t... Is>
           inline static constexpr dispatch_result_t<F, Vs...> dispatch(
               F &&f, Vs &&... vs) {
-            return lib::invoke(
+            using Expected = dispatch_result_t<F, Vs...>;
+            using Actual = decltype(lib::invoke(
+                lib::forward<F>(f),
+                access::base::get_alt<Is>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<Is>(lib::forward<Vs>(vs))...);
           }
@@ -737,7 +768,11 @@ namespace mpark {
           template <std::size_t I>
           inline static constexpr dispatch_result_t<F, Vs...> dispatch(
               F &&f, Vs &&... vs) {
-            return lib::invoke(
+            using Expected = dispatch_result_t<F, Vs...>;
+            using Actual = decltype(
+                lib::invoke(lib::forward<F>(f),
+                            access::base::get_alt<I>(lib::forward<Vs>(vs))...));
+            return visit_return_type_check<Expected, Actual>::invoke(
                 lib::forward<F>(f),
                 access::base::get_alt<I>(lib::forward<Vs>(vs))...);
           }
@@ -848,9 +883,8 @@ namespace mpark {
         private:
         template <typename Visitor, typename... Values>
         struct visit_exhaustive_visitor_check {
-          static_assert(
-              lib::is_invocable<Visitor, Values...>::value,
-              "`mpark::visit` requires the visitor to be exhaustive.");
+          static_assert(lib::is_invocable<Visitor, Values...>::value,
+                        "`visit` requires the visitor to be exhaustive.");
 
 #ifdef _MSC_VER
 #pragma warning(push)
