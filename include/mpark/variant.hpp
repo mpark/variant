@@ -881,22 +881,23 @@ namespace mpark {
 
       struct variant {
         private:
+        template <typename Visitor>
+        struct visitor {
+          template <typename... Values>
+          inline static constexpr bool does_not_handle() {
+            return lib::is_invocable<Visitor, Values...>::value;
+          }
+        };
+
         template <typename Visitor, typename... Values>
-        struct visit_exhaustive_visitor_check {
-          static_assert(lib::is_invocable<Visitor, Values...>::value,
+        struct visit_exhaustiveness_check {
+          static_assert(visitor<Visitor>::template does_not_handle<Values...>(),
                         "`visit` requires the visitor to be exhaustive.");
 
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4100)
-#endif
-          inline constexpr DECLTYPE_AUTO operator()(Visitor &&visitor,
-                                                    Values &&... values) const
+          inline static constexpr DECLTYPE_AUTO invoke(Visitor &&visitor,
+                                                       Values &&... values)
             DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
                                              lib::forward<Values>(values)...))
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
         };
 
         template <typename Visitor>
@@ -906,11 +907,11 @@ namespace mpark {
           template <typename... Alts>
           inline constexpr DECLTYPE_AUTO operator()(Alts &&... alts) const
             DECLTYPE_AUTO_RETURN(
-                visit_exhaustive_visitor_check<
+                visit_exhaustiveness_check<
                     Visitor,
-                    decltype((lib::forward<Alts>(alts).value))...>{}(
-                    lib::forward<Visitor>(visitor_),
-                    lib::forward<Alts>(alts).value...))
+                    decltype((lib::forward<Alts>(alts).value))...>::
+                    invoke(lib::forward<Visitor>(visitor_),
+                           lib::forward<Alts>(alts).value...))
         };
 
         template <typename Visitor>
