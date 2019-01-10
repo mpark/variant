@@ -55,7 +55,7 @@
 #endif
 
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304 && \
-    !(defined(_MSC_VER) && _MSC_VER <= 1915)
+    !(defined(_MSC_VER) && _MSC_VER <= 1916)
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
