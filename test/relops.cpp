@@ -7,6 +7,8 @@
 
 #include <mpark/variant.hpp>
 
+#include <string>
+
 #include <gtest/gtest.h>
 
 #include "util.hpp"

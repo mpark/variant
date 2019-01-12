@@ -7,7 +7,6 @@
 
 #include <mpark/variant.hpp>
 
-#include <cassert>
 #include <string>
 #include <sstream>
 
