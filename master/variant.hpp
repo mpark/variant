@@ -258,8 +258,7 @@ namespace std {
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
-#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304 && \
-    !(defined(_MSC_VER) && _MSC_VER <= 1915)
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
@@ -942,9 +941,11 @@ namespace mpark {
 
 #ifdef MPARK_CPP14_CONSTEXPR
     template <typename... Traits>
-    inline constexpr Trait common_trait(Traits... traits) {
+    inline constexpr Trait common_trait(Traits... traits_) {
       Trait result = Trait::TriviallyAvailable;
-      for (Trait t : {traits...}) {
+      lib::array<Trait, sizeof...(Traits)> traits = {{traits_...}};
+      for (std::size_t i = 0; i < sizeof...(Traits); ++i) {
+        Trait t = traits[i];
         if (static_cast<int>(t) > static_cast<int>(result)) {
           result = t;
         }
@@ -1036,8 +1037,13 @@ namespace mpark {
       struct base {
         template <std::size_t I, typename V>
         inline static constexpr AUTO_REFREF get_alt(V &&v)
+#ifdef _MSC_VER
+          AUTO_REFREF_RETURN(recursive_union::get_alt(
+              lib::forward<V>(v).data_, in_place_index_t<I>{}))
+#else
           AUTO_REFREF_RETURN(recursive_union::get_alt(
               data(lib::forward<V>(v)), in_place_index_t<I>{}))
+#endif
       };
 
       struct variant {
@@ -1049,6 +1055,10 @@ namespace mpark {
     }  // namespace access
 
     namespace visitation {
+
+#if defined(MPARK_CPP14_CONSTEXPR) && !defined(_MSC_VER)
+#define MPARK_VARIANT_SWITCH_VISIT
+#endif
 
       struct base {
         template <typename Visitor, typename... Vs>
@@ -1077,7 +1087,7 @@ namespace mpark {
                                              lib::forward<Alts>(alts)...))
         };
 
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
         template <bool B, typename R, typename... ITs>
         struct dispatcher;
 
@@ -1358,7 +1368,7 @@ namespace mpark {
 #endif
       };
 
-#ifndef MPARK_CPP14_CONSTEXPR
+#ifndef MPARK_VARIANT_SWITCH_VISIT
       template <typename F, typename... Vs>
       using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
@@ -1402,7 +1412,7 @@ namespace mpark {
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
@@ -1423,7 +1433,7 @@ namespace mpark {
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
