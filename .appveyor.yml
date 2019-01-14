@@ -19,13 +19,20 @@ platform: x64
 
 environment:
   matrix:
-    # Visual Studio
+    # Visual Studio 2015
     - GENERATOR: Visual Studio 14 2015 Win64
       TESTS: mpark
       SCRIPT: support/vs.py
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    # /std:c++14
+    # Previous Visual Studio 2017
+    - GENERATOR: Visual Studio 15 2017 Win64
+      STDFLAGS: /std:c++14 /std:c++17 /std:c++latest
+      TESTS: mpark
+      SCRIPT: support/vs.py
+      APPVEYOR_BUILD_WORKER_IMAGE: Previous Visual Studio 2017
+
+    # Visual Studio 2017
     - GENERATOR: Visual Studio 15 2017 Win64
       STDFLAGS: /std:c++14 /std:c++17 /std:c++latest
       TESTS: mpark
