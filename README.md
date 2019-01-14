@@ -119,7 +119,7 @@ The following compilers are continously tested:
 | GCC 4.9.4                              | Ubuntu 16.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~16.04) 4.9.4                                        |
 | GCC 5.5.0                              | Ubuntu 16.04.5 LTS                          | g++-5 (Ubuntu 5.5.0-12ubuntu1~16.04) 5.5.0 20171010                                |
 | GCC 6.5.0                              | Ubuntu 16.04.5 LTS                          | g++-6 (Ubuntu 6.5.0-2ubuntu1~16.04) 6.5.0 20181026                                 |
-| GCC 7.4.0                              | Ubuntu 16.04.5 LTS                          | g++-7 (Ubuntu 7.4.0-1ubuntu1~16.04~ppa1) 7.4.0                                     |
+| GCC 7.4.0                              | Ubuntu 16.04.5 LTS                          | g++-7 (Ubuntu 7.4.0-1ubuntu1\~16.04\~ppa1) 7.4.0                                   |
 | GCC 8.1.0                              | Ubuntu 16.04.5 LTS                          | g++-8 (Ubuntu 8.1.0-5ubuntu1~16.04) 8.1.0                                          |
 | Clang 3.6.2                            | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.6.2-3ubuntu2 (tags/RELEASE_362/final) (based on LLVM 3.6.2) |
 | Clang 3.7.1                            | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.7.1-2ubuntu2 (tags/RELEASE_371/final) (based on LLVM 3.7.1) |
