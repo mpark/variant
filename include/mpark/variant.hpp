@@ -494,6 +494,10 @@ namespace mpark {
 
     namespace visitation {
 
+#if defined(MPARK_CPP14_CONSTEXPR) && !defined(_MSC_VER)
+#define MPARK_VARIANT_SWITCH_VISIT
+#endif
+
       struct base {
         template <typename Visitor, typename... Vs>
         using dispatch_result_t = decltype(
@@ -521,7 +525,7 @@ namespace mpark {
                                              lib::forward<Alts>(alts)...))
         };
 
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
         template <bool B, typename R, typename... ITs>
         struct dispatcher;
 
@@ -802,7 +806,7 @@ namespace mpark {
 #endif
       };
 
-#ifndef MPARK_CPP14_CONSTEXPR
+#ifndef MPARK_VARIANT_SWITCH_VISIT
       template <typename F, typename... Vs>
       using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
@@ -846,7 +850,7 @@ namespace mpark {
         template <typename Visitor, typename... Vs>
         inline static constexpr DECLTYPE_AUTO visit_alt(Visitor &&visitor,
                                                         Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
@@ -867,7 +871,7 @@ namespace mpark {
         inline static constexpr DECLTYPE_AUTO visit_alt_at(std::size_t index,
                                                            Visitor &&visitor,
                                                            Vs &&... vs)
-#ifdef MPARK_CPP14_CONSTEXPR
+#ifdef MPARK_VARIANT_SWITCH_VISIT
           DECLTYPE_AUTO_RETURN(
               base::dispatcher<
                   true,
