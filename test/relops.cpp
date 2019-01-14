@@ -11,12 +11,9 @@
 
 #include <gtest/gtest.h>
 
-#include "util.hpp"
+#include <mpark/config.hpp>
 
-#if defined(__cpp_constexpr) && __cpp_constexpr >= 200704 && \
-    !(__GNUC__ == 4 && __GNUC_MINOR__ == 9)
-#define MPARK_VARIANT_CONSTEXPR_RELOPS
-#endif
+#include "util.hpp"
 
 TEST(Rel, SameTypeSameValue) {
   mpark::variant<int, std::string> v(0), w(0);
@@ -35,7 +32,7 @@ TEST(Rel, SameTypeSameValue) {
   EXPECT_TRUE(w <= v);
   EXPECT_TRUE(w >= v);
 
-#ifdef MPARK_VARIANT_CONSTEXPR_RELOPS
+#ifdef MPARK_CPP11_CONSTEXPR
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(0), cw(0);
     // `cv` op `cw`
@@ -73,7 +70,7 @@ TEST(Rel, SameTypeDiffValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
-#ifdef MPARK_VARIANT_CONSTEXPR_RELOPS
+#ifdef MPARK_CPP11_CONSTEXPR
   /* constexpr */ {
     constexpr mpark::variant<int, const char *> cv(0), cw(1);
     // `cv` op `cw`
@@ -111,7 +108,7 @@ TEST(Rel, DiffTypeSameValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
-#ifdef MPARK_VARIANT_CONSTEXPR_RELOPS
+#ifdef MPARK_CPP11_CONSTEXPR
   /* constexpr */ {
     constexpr mpark::variant<int, unsigned int> cv(0), cw(0u);
     // `cv` op `cw`
@@ -149,7 +146,7 @@ TEST(Rel, DiffTypeDiffValue) {
   EXPECT_FALSE(w <= v);
   EXPECT_TRUE(w >= v);
 
-#ifdef MPARK_VARIANT_CONSTEXPR_RELOPS
+#ifdef MPARK_CPP11_CONSTEXPR
   /* constexpr */  {
     constexpr mpark::variant<int, unsigned int> cv(0), cw(1u);
     // `cv` op `cw`

@@ -54,6 +54,11 @@
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 200704 && \
+    !(defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ == 9)
+#define MPARK_CPP11_CONSTEXPR
+#endif
+
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define MPARK_CPP14_CONSTEXPR
 #endif
@@ -85,6 +90,7 @@
 
 #if !defined(__GLIBCXX__) || __has_include(<codecvt>)  // >= libstdc++-5
 #define MPARK_TRIVIALITY_TYPE_TRAITS
+#define MPARK_INCOMPLETE_TYPE_TRAITS
 #endif
 
 #endif  // MPARK_CONFIG_HPP
