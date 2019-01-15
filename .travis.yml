@@ -114,12 +114,6 @@ jobs:
       addons: { apt: { packages: ["clang-7", "ninja-build"],
                        sources: ["llvm-toolchain-xenial-7"] } }
 
-    # OS X Yosemite 10.10
-    - env: STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
-      compiler: clang
-      os: osx
-      osx_image: xcode6.4
-
     # OS X El Capitan 10.11
     - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"
       compiler: clang
@@ -137,6 +131,12 @@ jobs:
       compiler: clang
       os: osx
       osx_image: xcode9.4
+
+    # OS X High Sierra 10.13
+    - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark"
+      compiler: clang
+      os: osx
+      osx_image: xcode10.1
 
     - stage: deploy
       name: "Single Header"
