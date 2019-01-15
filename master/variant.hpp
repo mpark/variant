@@ -258,6 +258,11 @@ namespace std {
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
+#if defined(__cpp_constexpr) && __cpp_constexpr >= 200704 && \
+    !(defined(__GNUC__) && __GNUC__ == 4 && __GNUC_MINOR__ == 9)
+#define MPARK_CPP11_CONSTEXPR
+#endif
+
 #if defined(__cpp_constexpr) && __cpp_constexpr >= 201304
 #define MPARK_CPP14_CONSTEXPR
 #endif
@@ -289,6 +294,7 @@ namespace std {
 
 #if !defined(__GLIBCXX__) || __has_include(<codecvt>)  // >= libstdc++-5
 #define MPARK_TRIVIALITY_TYPE_TRAITS
+#define MPARK_INCOMPLETE_TYPE_TRAITS
 #endif
 
 #endif  // MPARK_CONFIG_HPP
@@ -344,7 +350,8 @@ namespace mpark {
 #include <utility>
 
 
-#define MPARK_RETURN(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+#define MPARK_RETURN(...) \
+  noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
 
 namespace mpark {
   namespace lib {
@@ -534,48 +541,107 @@ namespace mpark {
             static constexpr bool value = decltype(test<T>(0))::value;
           };
 
-          template <typename T, bool = is_swappable<T>::value>
+          template <bool IsSwappable, typename T>
           struct is_nothrow_swappable {
             static constexpr bool value =
                 noexcept(swap(std::declval<T &>(), std::declval<T &>()));
           };
 
           template <typename T>
-          struct is_nothrow_swappable<T, false> : std::false_type {};
+          struct is_nothrow_swappable<false, T> : std::false_type {};
 
         }  // namespace swappable
       }  // namespace detail
 
       using detail::swappable::is_swappable;
-      using detail::swappable::is_nothrow_swappable;
+
+      template <typename T>
+      using is_nothrow_swappable =
+          detail::swappable::is_nothrow_swappable<is_swappable<T>::value, T>;
 
       // <functional>
+      namespace detail {
+
+        template <typename T>
+        struct is_reference_wrapper : std::false_type {};
+
+        template <typename T>
+        struct is_reference_wrapper<std::reference_wrapper<T>>
+            : std::true_type {};
+
+        template <bool, int>
+        struct Invoke;
+
+        template <>
+        struct Invoke<true /* pmf */, 0 /* is_base_of */> {
+          template <typename R, typename T, typename Arg, typename... Args>
+          inline static constexpr auto invoke(R T::*pmf, Arg &&arg, Args &&... args)
+            MPARK_RETURN((lib::forward<Arg>(arg).*pmf)(lib::forward<Args>(args)...))
+        };
+
+        template <>
+        struct Invoke<true /* pmf */, 1 /* is_reference_wrapper */> {
+          template <typename R, typename T, typename Arg, typename... Args>
+          inline static constexpr auto invoke(R T::*pmf, Arg &&arg, Args &&... args)
+            MPARK_RETURN((lib::forward<Arg>(arg).get().*pmf)(lib::forward<Args>(args)...))
+        };
+
+        template <>
+        struct Invoke<true /* pmf */, 2 /* otherwise */> {
+          template <typename R, typename T, typename Arg, typename... Args>
+          inline static constexpr auto invoke(R T::*pmf, Arg &&arg, Args &&... args)
+            MPARK_RETURN(((*lib::forward<Arg>(arg)).*pmf)(lib::forward<Args>(args)...))
+        };
+
+        template <>
+        struct Invoke<false /* pmo */, 0 /* is_base_of */> {
+          template <typename R, typename T, typename Arg>
+          inline static constexpr auto invoke(R T::*pmo, Arg &&arg)
+            MPARK_RETURN(lib::forward<Arg>(arg).*pmo)
+        };
+
+        template <>
+        struct Invoke<false /* pmo */, 1 /* is_reference_wrapper */> {
+          template <typename R, typename T, typename Arg>
+          inline static constexpr auto invoke(R T::*pmo, Arg &&arg)
+            MPARK_RETURN(lib::forward<Arg>(arg).get().*pmo)
+        };
+
+        template <>
+        struct Invoke<false /* pmo */, 2 /* otherwise */> {
+          template <typename R, typename T, typename Arg>
+          inline static constexpr auto invoke(R T::*pmo, Arg &&arg)
+              MPARK_RETURN((*lib::forward<Arg>(arg)).*pmo)
+        };
+
+        template <typename R, typename T, typename Arg, typename... Args>
+        inline constexpr auto invoke(R T::*f, Arg &&arg, Args &&... args)
+          MPARK_RETURN(
+              Invoke<std::is_function<R>::value,
+                     (std::is_base_of<T, lib::decay_t<Arg>>::value
+                          ? 0
+                          : is_reference_wrapper<lib::decay_t<Arg>>::value
+                                ? 1
+                                : 2)>::invoke(f,
+                                              lib::forward<Arg>(arg),
+                                              lib::forward<Args>(args)...))
+
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4100)
 #endif
-      template <typename F, typename... As>
-      inline constexpr auto invoke(F &&f, As &&... as)
-          MPARK_RETURN(lib::forward<F>(f)(lib::forward<As>(as)...))
+        template <typename F, typename... Args>
+        inline constexpr auto invoke(F &&f, Args &&... args)
+          MPARK_RETURN(lib::forward<F>(f)(lib::forward<Args>(args)...))
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+      }  // namespace detail
 
-      template <typename B, typename T, typename D>
-      inline constexpr auto invoke(T B::*pmv, D &&d)
-          MPARK_RETURN(lib::forward<D>(d).*pmv)
-
-      template <typename Pmv, typename Ptr>
-      inline constexpr auto invoke(Pmv pmv, Ptr &&ptr)
-          MPARK_RETURN((*lib::forward<Ptr>(ptr)).*pmv)
-
-      template <typename B, typename T, typename D, typename... As>
-      inline constexpr auto invoke(T B::*pmf, D &&d, As &&... as)
-          MPARK_RETURN((lib::forward<D>(d).*pmf)(lib::forward<As>(as)...))
-
-      template <typename Pmf, typename Ptr, typename... As>
-      inline constexpr auto invoke(Pmf pmf, Ptr &&ptr, As &&... as)
-          MPARK_RETURN(((*lib::forward<Ptr>(ptr)).*pmf)(lib::forward<As>(as)...))
+      template <typename F, typename... Args>
+      inline constexpr auto invoke(F &&f, Args &&... args)
+        MPARK_RETURN(detail::invoke(lib::forward<F>(f),
+                                    lib::forward<Args>(args)...))
 
       namespace detail {
 
@@ -624,6 +690,44 @@ namespace mpark {
 
       template <typename R, typename F, typename... Args>
       using is_invocable_r = detail::is_invocable_r<void, R, F, Args...>;
+
+      namespace detail {
+
+        template <bool Invocable, typename F, typename... Args>
+        struct is_nothrow_invocable {
+          static constexpr bool value =
+              noexcept(lib::invoke(std::declval<F>(), std::declval<Args>()...));
+        };
+
+        template <typename F, typename... Args>
+        struct is_nothrow_invocable<false, F, Args...> : std::false_type {};
+
+        template <bool Invocable, typename R, typename F, typename... Args>
+        struct is_nothrow_invocable_r {
+          private:
+          inline static R impl() {
+            return lib::invoke(std::declval<F>(), std::declval<Args>()...);
+          }
+
+          public:
+          static constexpr bool value = noexcept(impl());
+        };
+
+        template <typename R, typename F, typename... Args>
+        struct is_nothrow_invocable_r<false, R, F, Args...> : std::false_type {};
+
+      }  // namespace detail
+
+      template <typename F, typename... Args>
+      using is_nothrow_invocable = detail::
+          is_nothrow_invocable<is_invocable<F, Args...>::value, F, Args...>;
+
+      template <typename R, typename F, typename... Args>
+      using is_nothrow_invocable_r =
+          detail::is_nothrow_invocable_r<is_invocable_r<R, F, Args...>::value,
+                                         R,
+                                         F,
+                                         Args...>;
 
       // <memory>
 #ifdef MPARK_BUILTIN_ADDRESSOF
@@ -1368,21 +1472,15 @@ namespace mpark {
 #endif
       };
 
-#ifndef MPARK_VARIANT_SWITCH_VISIT
+#if !defined(MPARK_VARIANT_SWITCH_VISIT) && \
+    (!defined(_MSC_VER) || _MSC_VER >= 1910)
       template <typename F, typename... Vs>
       using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
       template <typename F, typename... Vs>
       struct fmatrix {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fmatrix_t<F, Vs...> value =
             base::make_fmatrix<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -1393,15 +1491,8 @@ namespace mpark {
 
       template <typename F, typename... Vs>
       struct fdiagonal {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fdiagonal_t<F, Vs...> value =
             base::make_fdiagonal<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -1421,10 +1512,16 @@ namespace mpark {
                                               lib::forward<Vs>(vs)))...>>::
                   template dispatch<0>(lib::forward<Visitor>(visitor),
                                        as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fmatrix<Visitor &&,
                       decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>(),
               vs.index()...)(lib::forward<Visitor>(visitor),
                              as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -1443,10 +1540,16 @@ namespace mpark {
                   template dispatch_at<0>(index,
                                           lib::forward<Visitor>(visitor),
                                           as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fdiagonal<Visitor &&,
                         decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              index)(lib::forward<Visitor>(visitor),
+                     as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fdiagonal<Visitor &&,
+                        decltype(as_base(lib::forward<Vs>(vs)))...>(),
               index)(lib::forward<Visitor>(visitor),
                      as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -1647,13 +1750,13 @@ namespace mpark {
 #endif
     };
 
-#if defined(_MSC_VER) && _MSC_VER < 1910
+#if !defined(_MSC_VER) || _MSC_VER >= 1910
+#define MPARK_INHERITING_CTOR(type, base) using base::base;
+#else
 #define MPARK_INHERITING_CTOR(type, base)         \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
       : base(lib::forward<Args>(args)...) {}
-#else
-#define MPARK_INHERITING_CTOR(type, base) using base::base;
 #endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
