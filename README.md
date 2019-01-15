@@ -134,7 +134,8 @@ The following compilers are continously tested:
 | Clang Xcode 9.4                        | Darwin Kernel Version 17.4.0 (OS X 10.13.3) | Apple LLVM version 9.1.0 (clang-902.0.39.2)                                        |
 | Clang Xcode 10.1                       | Darwin Kernel Version 17.7.0 (OS X 10.13.6) | Apple LLVM version 10.0.0 (clang-1000.11.45.5)                                     |
 | Visual Studio 14 2015                  | Visual Studio 2015 with Update 3            | MSVC 19.0.24241.7                                                                  |
-| Visual Studio 15 2017                  | Visual Studio 2017                          | MSVC 19.15.26732.1                                                                 |
+| Visual Studio 15 2017                  | Visual Studio 2017 with Update 8            | MSVC 19.15.26732.1                                                                 |
+| Visual Studio 15 2017                  | Visual Studio 2017 with Update 9            | MSVC 19.16.27025.1                                                                 |
 | Visual Studio 15 2017 (__Clang/LLVM__) | Visual Studio 2017                          | Clang 7.0.0                                                                        |
 
 #### NOTES
