@@ -91,7 +91,7 @@ def main():
             'code': open(header).read().strip()
         } for header in headers(directory)],
         'options': 'warning,optimize,c++14',
-        'compiler': 'clang-4.0.0',
+        'compiler': 'clang-7.0.0',
         'save': True,
         'compiler-option-raw': '-I.'
     })
