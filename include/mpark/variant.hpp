@@ -806,21 +806,15 @@ namespace mpark {
 #endif
       };
 
-#ifndef MPARK_VARIANT_SWITCH_VISIT
+#if !defined(MPARK_VARIANT_SWITCH_VISIT) && \
+    (!defined(_MSC_VER) || _MSC_VER >= 1910)
       template <typename F, typename... Vs>
       using fmatrix_t = decltype(base::make_fmatrix<F, Vs...>());
 
       template <typename F, typename... Vs>
       struct fmatrix {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fmatrix_t<F, Vs...> value =
             base::make_fmatrix<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -831,15 +825,8 @@ namespace mpark {
 
       template <typename F, typename... Vs>
       struct fdiagonal {
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable : 4268)
-#endif
         static constexpr fdiagonal_t<F, Vs...> value =
             base::make_fdiagonal<F, Vs...>();
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
       };
 
       template <typename F, typename... Vs>
@@ -859,10 +846,16 @@ namespace mpark {
                                               lib::forward<Vs>(vs)))...>>::
                   template dispatch<0>(lib::forward<Visitor>(visitor),
                                        as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fmatrix<Visitor &&,
                       decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              vs.index()...)(lib::forward<Visitor>(visitor),
+                             as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fmatrix<Visitor &&,
+                      decltype(as_base(lib::forward<Vs>(vs)))...>(),
               vs.index()...)(lib::forward<Visitor>(visitor),
                              as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -881,10 +874,16 @@ namespace mpark {
                   template dispatch_at<0>(index,
                                           lib::forward<Visitor>(visitor),
                                           as_base(lib::forward<Vs>(vs))...))
-#else
+#elif !defined(_MSC_VER) || _MSC_VER >= 1910
           DECLTYPE_AUTO_RETURN(base::at(
               fdiagonal<Visitor &&,
                         decltype(as_base(lib::forward<Vs>(vs)))...>::value,
+              index)(lib::forward<Visitor>(visitor),
+                     as_base(lib::forward<Vs>(vs))...))
+#else
+          DECLTYPE_AUTO_RETURN(base::at(
+              base::make_fdiagonal<Visitor &&,
+                        decltype(as_base(lib::forward<Vs>(vs)))...>(),
               index)(lib::forward<Visitor>(visitor),
                      as_base(lib::forward<Vs>(vs))...))
 #endif
@@ -1085,13 +1084,13 @@ namespace mpark {
 #endif
     };
 
-#if defined(_MSC_VER) && _MSC_VER < 1910
+#if !defined(_MSC_VER) || _MSC_VER >= 1910
+#define MPARK_INHERITING_CTOR(type, base) using base::base;
+#else
 #define MPARK_INHERITING_CTOR(type, base)         \
   template <typename... Args>                     \
   inline explicit constexpr type(Args &&... args) \
       : base(lib::forward<Args>(args)...) {}
-#else
-#define MPARK_INHERITING_CTOR(type, base) using base::base;
 #endif
 
     template <typename Traits, Trait = Traits::destructible_trait>
