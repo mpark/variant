@@ -122,3 +122,50 @@ TEST(Visit_Heterogenous, Quintuple) {
   mpark::variant<long, short> z(303L);
   EXPECT_EQ("101+202=303", mpark::visit(concat{}, v, w, x, y, z));
 }
+
+struct id {
+  template <typename Arg>
+  constexpr Arg operator()(Arg arg) const {
+    return arg;
+  }
+};
+
+TEST(VisitR, R) {
+  mpark::variant<int, long> v = 42L;
+  EXPECT_EQ(42, mpark::get<long>(v));
+  auto r = mpark::visit<std::size_t>(id{}, v);
+  static_assert(std::is_same<std::size_t, decltype(r)>::value, "");
+  EXPECT_EQ(42, r);
+
+#ifdef MPARK_CPP11_CONSTEXPR
+  /* constexpr */ {
+    constexpr mpark::variant<int, long> cv(42);
+    static_assert(42 == mpark::get<int>(cv), "");
+    constexpr auto cr = mpark::visit<std::size_t>(id{}, cv);
+    static_assert(std::is_same<decltype(cr), const std::size_t>::value, "");
+    static_assert(42 == cr, "");
+  }
+#endif
+}
+
+struct caller {
+  bool& called;
+
+  template <typename Arg>
+  Arg operator()(Arg arg) const {
+    called = true;
+    return arg;
+  }
+};
+
+TEST(VisitR, Void) {
+  mpark::variant<int, long> v = 42L;
+  EXPECT_EQ(42, mpark::get<long>(v));
+  bool called = false;
+  mpark::visit<void>(caller{called}, v);
+  EXPECT_TRUE(called);
+  static_assert(
+      std::is_same<void,
+                   decltype(mpark::visit<void>(caller{called}, v))>::value,
+      "");
+}

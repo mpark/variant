@@ -892,36 +892,14 @@ namespace mpark {
       struct variant {
         private:
         template <typename Visitor>
-        struct visitor {
-          template <typename... Values>
-          inline static constexpr bool does_not_handle() {
-            return lib::is_invocable<Visitor, Values...>::value;
-          }
-        };
-
-        template <typename Visitor, typename... Values>
-        struct visit_exhaustiveness_check {
-          static_assert(visitor<Visitor>::template does_not_handle<Values...>(),
-                        "`visit` requires the visitor to be exhaustive.");
-
-          inline static constexpr DECLTYPE_AUTO invoke(Visitor &&visitor,
-                                                       Values &&... values)
-            DECLTYPE_AUTO_RETURN(lib::invoke(lib::forward<Visitor>(visitor),
-                                             lib::forward<Values>(values)...))
-        };
-
-        template <typename Visitor>
         struct value_visitor {
           Visitor &&visitor_;
 
           template <typename... Alts>
           inline constexpr DECLTYPE_AUTO operator()(Alts &&... alts) const
             DECLTYPE_AUTO_RETURN(
-                visit_exhaustiveness_check<
-                    Visitor,
-                    decltype((lib::forward<Alts>(alts).value))...>::
-                    invoke(lib::forward<Visitor>(visitor_),
-                           lib::forward<Alts>(alts).value...))
+                lib::invoke(lib::forward<Visitor>(visitor_),
+                            lib::forward<Alts>(alts).value...))
         };
 
         template <typename Visitor>
@@ -2037,6 +2015,46 @@ namespace mpark {
         detail::visitation::variant::visit_value(lib::forward<Visitor>(visitor),
                                                  lib::forward<Vs>(vs)...))
 #endif
+
+  namespace detail {
+
+    template <typename R, typename Visitor>
+    struct explicit_visitor {
+      Visitor &&visitor_;
+
+      template <typename... Vs>
+      inline constexpr R operator()(Vs &&... vs) const {
+        return impl(std::is_void<R>{}, lib::forward<Vs>(vs)...);
+      }
+
+      private:
+      template <typename... Vs>
+#ifdef MPARK_CPP14_CONSTEXPR
+      constexpr inline void impl(std::true_type, Vs &&... vs) const {
+        lib::invoke(lib::forward<Visitor>(visitor_), lib::forward<Vs>(vs)...);
+      }
+#else
+      inline void impl(std::true_type, Vs &&... vs) const {
+        lib::invoke(lib::forward<Visitor>(visitor_), lib::forward<Vs>(vs)...);
+      }
+#endif
+
+
+      template <typename... Vs>
+      inline constexpr R impl(std::false_type, Vs &&... vs) const {
+        return lib::invoke(lib::forward<Visitor>(visitor_),
+                           lib::forward<Vs>(vs)...);
+      }
+    };
+
+  }  // namespace detail
+
+  template <typename R, typename Visitor, typename... Vs>
+  inline constexpr R visit(Visitor &&visitor, Vs&&... vs) {
+    return visit(
+        detail::explicit_visitor<R, Visitor>{lib::forward<Visitor>(visitor)},
+        lib::forward<Vs>(vs)...);
+  }
 
   template <typename... Ts>
   inline auto swap(variant<Ts...> &lhs,
