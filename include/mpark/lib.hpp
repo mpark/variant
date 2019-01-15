@@ -356,44 +356,6 @@ namespace mpark {
       template <typename R, typename F, typename... Args>
       using is_invocable_r = detail::is_invocable_r<void, R, F, Args...>;
 
-      namespace detail {
-
-        template <bool Invocable, typename F, typename... Args>
-        struct is_nothrow_invocable {
-          static constexpr bool value =
-              noexcept(lib::invoke(std::declval<F>(), std::declval<Args>()...));
-        };
-
-        template <typename F, typename... Args>
-        struct is_nothrow_invocable<false, F, Args...> : std::false_type {};
-
-        template <bool Invocable, typename R, typename F, typename... Args>
-        struct is_nothrow_invocable_r {
-          private:
-          inline static R impl() {
-            return lib::invoke(std::declval<F>(), std::declval<Args>()...);
-          }
-
-          public:
-          static constexpr bool value = noexcept(impl());
-        };
-
-        template <typename R, typename F, typename... Args>
-        struct is_nothrow_invocable_r<false, R, F, Args...> : std::false_type {};
-
-      }  // namespace detail
-
-      template <typename F, typename... Args>
-      using is_nothrow_invocable = detail::
-          is_nothrow_invocable<is_invocable<F, Args...>::value, F, Args...>;
-
-      template <typename R, typename F, typename... Args>
-      using is_nothrow_invocable_r =
-          detail::is_nothrow_invocable_r<is_invocable_r<R, F, Args...>::value,
-                                         R,
-                                         F,
-                                         Args...>;
-
       // <memory>
 #ifdef MPARK_BUILTIN_ADDRESSOF
       template <typename T>
