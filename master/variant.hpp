@@ -198,6 +198,7 @@ namespace std {
 #include <exception>
 #include <functional>
 #include <initializer_list>
+#include <limits>
 #include <new>
 #include <type_traits>
 #include <utility>
@@ -1657,13 +1658,21 @@ namespace mpark {
 
 #undef MPARK_VARIANT_RECURSIVE_UNION
 
-    using index_t = unsigned int;
+    template <typename... Ts>
+    using index_t = typename std::conditional<
+            sizeof...(Ts) < std::numeric_limits<unsigned char>::max(),
+            unsigned char,
+            typename std::conditional<
+                sizeof...(Ts) < std::numeric_limits<unsigned short>::max(),
+                unsigned short,
+                unsigned int>::type
+            >::type;
 
     template <Trait DestructibleTrait, typename... Ts>
     class base {
       public:
       inline explicit constexpr base(valueless_t tag) noexcept
-          : data_(tag), index_(static_cast<index_t>(-1)) {}
+          : data_(tag), index_(static_cast<index_t<Ts...>>(-1)) {}
 
       template <std::size_t I, typename... Args>
       inline explicit constexpr base(in_place_index_t<I>, Args &&... args)
@@ -1671,7 +1680,7 @@ namespace mpark {
             index_(I) {}
 
       inline constexpr bool valueless_by_exception() const noexcept {
-        return index_ == static_cast<index_t>(-1);
+        return index_ == static_cast<index_t<Ts...>>(-1);
       }
 
       inline constexpr std::size_t index() const noexcept {
@@ -1694,7 +1703,7 @@ namespace mpark {
       inline static constexpr std::size_t size() { return sizeof...(Ts); }
 
       data_t data_;
-      index_t index_;
+      index_t<Ts...> index_;
 
       friend struct access::base;
       friend struct visitation::base;
@@ -1748,7 +1757,7 @@ namespace mpark {
         Trait::TriviallyAvailable,
         ~destructor() = default;,
         inline void destroy() noexcept {
-          this->index_ = static_cast<index_t>(-1);
+          this->index_ = static_cast<index_t<Ts...>>(-1);
         });
 
     MPARK_VARIANT_DESTRUCTOR(
@@ -1758,7 +1767,7 @@ namespace mpark {
           if (!this->valueless_by_exception()) {
             visitation::alt::visit_alt(dtor{}, *this);
           }
-          this->index_ = static_cast<index_t>(-1);
+          this->index_ = static_cast<index_t<Ts...>>(-1);
         });
 
     MPARK_VARIANT_DESTRUCTOR(
