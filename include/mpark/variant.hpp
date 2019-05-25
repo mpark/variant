@@ -1512,8 +1512,8 @@ namespace mpark {
 
     template <std::size_t I, typename T>
     struct overload_leaf {
-      using F = lib::size_constant<I> (*)(T);
-      operator F() const { return nullptr; }
+      using impl = lib::size_constant<I> (*)(T);
+      operator impl() const { return nullptr; }
     };
 
     template <typename... Ts>
