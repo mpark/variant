@@ -1032,10 +1032,10 @@ namespace mpark {
 
     template <typename... Ts>
     using index_t = typename std::conditional<
-            sizeof...(Ts) < std::numeric_limits<unsigned char>::max(),
+            sizeof...(Ts) < (std::numeric_limits<unsigned char>::max)(),
             unsigned char,
             typename std::conditional<
-                sizeof...(Ts) < std::numeric_limits<unsigned short>::max(),
+                sizeof...(Ts) < (std::numeric_limits<unsigned short>::max)(),
                 unsigned short,
                 unsigned int>::type
             >::type;
