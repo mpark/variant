@@ -77,7 +77,6 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
     BUILD_COMMAND     ${CMAKE_COMMAND} --build . --target cxx
           COMMAND     ${CMAKE_COMMAND} --build . --target cxxabi
           COMMAND     ${CMAKE_COMMAND} --build . --target cxx_experimental
-          COMMAND     ${CMAKE_COMMAND} --build . --target cxx_filesystem
     INSTALL_COMMAND   ""  # Disable install step
     STEP_TARGETS      download
   )
