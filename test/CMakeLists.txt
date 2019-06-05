@@ -71,6 +71,7 @@ if(MPARK_VARIANT_INCLUDE_LIBCXX_TESTS)
     GIT_REPOSITORY    https://git.llvm.org/git/llvm.git
     GIT_SHALLOW       1
     CMAKE_ARGS        -DCMAKE_BUILD_TYPE=Release
+                      -DCMAKE_CXX_FLAGS="-w"
                       -DLIBCXX_ENABLE_EXCEPTIONS=${MPARK_VARIANT_EXCEPTIONS}
     SOURCE_DIR        ${MPARK_VARIANT_LLVM_SOURCE_DIR}
     BINARY_DIR        ${MPARK_VARIANT_LLVM_BINARY_DIR}
