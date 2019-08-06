@@ -76,7 +76,7 @@
 #define MPARK_INTEGER_SEQUENCE
 #endif
 
-#if defined(__cpp_return_type_deduction) || defined(_MSC_VER)
+#if (defined(__cpp_decltype_auto) && defined(__cpp_return_type_deduction)) || defined(_MSC_VER)
 #define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
