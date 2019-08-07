@@ -1,5 +1,7 @@
 # MPark.Variant
 
+Just a test: is CI broken?
+
 > __C++17__ `std::variant` for __C++11__/__14__/__17__
 
 [![release][badge.release]][release]
