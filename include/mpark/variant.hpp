@@ -1998,7 +1998,7 @@ namespace mpark {
     return false;
   }
 
-#ifdef MPARK_CPP14_CONSTEXPR
+#if defined(MPARK_CPP14_CONSTEXPR) && !defined(__NVCC__)
   namespace detail {
 
     inline constexpr bool all(std::initializer_list<bool> bs) {
