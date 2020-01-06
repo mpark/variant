@@ -65,6 +65,13 @@ jobs:
       addons: { apt: { packages: ["g++-8", "ninja-build"],
                        sources: ["ubuntu-toolchain-r-test"] } }
 
+    # ubuntu 16.04, gcc-9
+    - env: VER=9 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
+      compiler: gcc
+      os: linux
+      addons: { apt: { packages: ["g++-9", "ninja-build"],
+                       sources: ["ubuntu-toolchain-r-test"] } }
+
     # ubuntu 16.04, clang-3.6
     - env: VER=3.6 STDFLAGS="-std=c++11 -std=c++14" TESTS="mpark"
       compiler: clang
@@ -113,6 +120,13 @@ jobs:
       os: linux
       addons: { apt: { packages: ["clang-7", "ninja-build"],
                        sources: ["llvm-toolchain-xenial-7"] } }
+
+    # ubuntu 16.04, clang-8
+    - env: VER=8 STDFLAGS="-std=c++11 -std=c++14 -std=c++17" TESTS="mpark libc++"
+      compiler: clang
+      os: linux
+      addons: { apt: { packages: ["clang-8", "ninja-build"],
+                       sources: ["llvm-toolchain-xenial-8"] } }
 
     # OS X Sierra 10.12
     - env: STDFLAGS="-std=c++11 -std=c++14 -std=c++1z" TESTS="mpark"

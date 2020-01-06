@@ -115,20 +115,22 @@ The following compilers are continously tested:
 
 | Compiler                               | Operating System                            | Version String                                                                     |
 | -------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------- |
-| GCC 4.8.5                              | Ubuntu 16.04.5 LTS                          | g++-4.8 (Ubuntu 4.8.5-4ubuntu8~16.04.1) 4.8.5                                      |
-| GCC 4.9.4                              | Ubuntu 16.04.5 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~16.04) 4.9.4                                        |
-| GCC 5.5.0                              | Ubuntu 16.04.5 LTS                          | g++-5 (Ubuntu 5.5.0-12ubuntu1~16.04) 5.5.0 20171010                                |
-| GCC 6.5.0                              | Ubuntu 16.04.5 LTS                          | g++-6 (Ubuntu 6.5.0-2ubuntu1~16.04) 6.5.0 20181026                                 |
-| GCC 7.4.0                              | Ubuntu 16.04.5 LTS                          | g++-7 (Ubuntu 7.4.0-1ubuntu1\~16.04\~ppa1) 7.4.0                                   |
-| GCC 8.1.0                              | Ubuntu 16.04.5 LTS                          | g++-8 (Ubuntu 8.1.0-5ubuntu1~16.04) 8.1.0                                          |
-| Clang 3.6.2                            | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.6.2-3ubuntu2 (tags/RELEASE_362/final) (based on LLVM 3.6.2) |
-| Clang 3.7.1                            | Ubuntu 16.04.5 LTS                          | Ubuntu clang version 3.7.1-2ubuntu2 (tags/RELEASE_371/final) (based on LLVM 3.7.1) |
-| Clang 3.8.0                            | Ubuntu 16.04.5 LTS                          | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)                              |
-| Clang 3.9.1                            | Ubuntu 16.04.5 LTS                          | clang version 3.9.1-4ubuntu3~16.04.2 (tags/RELEASE_391/rc2)                        |
-| Clang 4.0.0                            | Ubuntu 16.04.5 LTS                          | clang version 4.0.0-1ubuntu1~16.04.2 (tags/RELEASE_400/rc1)                        |
-| Clang 5.0.0                            | Ubuntu 16.04.5 LTS                          | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)                             |
-| Clang 6.0.0                            | Ubuntu 16.04.5 LTS                          | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)                      |
-| Clang 7.0.1                            | Ubuntu 16.04.5 LTS                          | clang version 7.0.1-svn347285-1\~exp1\~20181124105320.40 (branches/release_70)     |
+| GCC 4.8.5                              | Ubuntu 16.04.6 LTS                          | g++-4.8 (Ubuntu 4.8.5-4ubuntu8~16.04.1) 4.8.5                                      |
+| GCC 4.9.4                              | Ubuntu 16.04.6 LTS                          | g++-4.9 (Ubuntu 4.9.4-2ubuntu1~16.04) 4.9.4                                        |
+| GCC 5.5.0                              | Ubuntu 16.04.6 LTS                          | g++-5 (Ubuntu 5.5.0-12ubuntu1~16.04) 5.5.0 20171010                                |
+| GCC 6.5.0                              | Ubuntu 16.04.6 LTS                          | g++-6 (Ubuntu 6.5.0-2ubuntu1~16.04) 6.5.0 20181026                                 |
+| GCC 7.4.0                              | Ubuntu 16.04.6 LTS                          | g++-7 (Ubuntu 7.4.0-1ubuntu1~16.04~ppa1) 7.4.0                                     |
+| GCC 8.3.0                              | Ubuntu 16.04.6 LTS                          | g++-8 (Ubuntu 8.3.0-16ubuntu3~16.04) 8.3.0                                         |
+| GCC 9.2.1                              | Ubuntu 16.04.6 LTS                          | g++-9 (Ubuntu 9.2.1-17ubuntu1~16.04) 9.2.1 20191102                                |
+| Clang 3.6.2                            | Ubuntu 16.04.6 LTS                          | Ubuntu clang version 3.6.2-3ubuntu2 (tags/RELEASE_362/final) (based on LLVM 3.6.2) |
+| Clang 3.7.1                            | Ubuntu 16.04.6 LTS                          | Ubuntu clang version 3.7.1-2ubuntu2 (tags/RELEASE_371/final) (based on LLVM 3.7.1) |
+| Clang 3.8.0                            | Ubuntu 16.04.6 LTS                          | clang version 3.8.0-2ubuntu4 (tags/RELEASE_380/final)                              |
+| Clang 3.9.1                            | Ubuntu 16.04.6 LTS                          | clang version 3.9.1-4ubuntu3~16.04.2 (tags/RELEASE_391/rc2)                        |
+| Clang 4.0.0                            | Ubuntu 16.04.6 LTS                          | clang version 4.0.0-1ubuntu1~16.04.2 (tags/RELEASE_400/rc1)                        |
+| Clang 5.0.0                            | Ubuntu 16.04.6 LTS                          | clang version 5.0.0-3~16.04.1 (tags/RELEASE_500/final)                             |
+| Clang 6.0.0                            | Ubuntu 16.04.6 LTS                          | clang version 6.0.0-1ubuntu2~16.04.1 (tags/RELEASE_600/final)                      |
+| Clang 7.1.0                            | Ubuntu 16.04.6 LTS                          | clang version 7.1.0-svn353565-1~exp1~20190408084827.60 (branches/release_70)       |
+| Clang 8.0.1                            | Ubuntu 16.04.6 LTS                          | clang version 8.0.1-svn369350-1~exp1~20190820122438.78 (branches/release_80)       |
 | Clang Xcode 8.3                        | Darwin Kernel Version 16.7.0 (OS X 10.12.6) | Apple LLVM version 8.1.0 (clang-802.0.42)                                          |
 | Clang Xcode 9.4                        | Darwin Kernel Version 17.4.0 (OS X 10.13.3) | Apple LLVM version 9.1.0 (clang-902.0.39.2)                                        |
 | Clang Xcode 10.1                       | Darwin Kernel Version 17.7.0 (OS X 10.13.6) | Apple LLVM version 10.0.0 (clang-1000.11.45.5)                                     |
