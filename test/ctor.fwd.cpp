@@ -26,8 +26,8 @@ TEST(Ctor_Fwd, DirectConversion) {
   EXPECT_EQ("42", mpark::get<std::string>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> cv(1.1);
-    static_assert(1 == mpark::get<int>(cv), "");
+    constexpr mpark::variant<int, const char *> cv('A');
+    static_assert(65 == mpark::get<int>(cv), "");
   }
 }
 
@@ -46,7 +46,7 @@ TEST(Ctor_Fwd, CopyInitializationConversion) {
   EXPECT_EQ("42", mpark::get<std::string>(v));
 
   /* constexpr */ {
-    constexpr mpark::variant<int, const char *> cv = 1.1;
-    static_assert(1 == mpark::get<int>(cv), "");
+    constexpr mpark::variant<int, const char *> cv = 'A';
+    static_assert(65 == mpark::get<int>(cv), "");
   }
 }

@@ -22,21 +22,7 @@ TEST(Assign_Fwd, SameType) {
   EXPECT_EQ(202, mpark::get<int>(v));
 }
 
-TEST(Assign_Fwd, SameTypeFwd) {
-  mpark::variant<int, std::string> v(1.1);
-  EXPECT_EQ(1, mpark::get<int>(v));
-  v = 2.2;
-  EXPECT_EQ(2, mpark::get<int>(v));
-}
-
 TEST(Assign_Fwd, DiffType) {
-  mpark::variant<int, std::string> v(42);
-  EXPECT_EQ(42, mpark::get<int>(v));
-  v = "42";
-  EXPECT_EQ("42", mpark::get<std::string>(v));
-}
-
-TEST(Assign_Fwd, DiffTypeFwd) {
   mpark::variant<int, std::string> v(42);
   EXPECT_EQ(42, mpark::get<int>(v));
   v = "42";
@@ -62,9 +48,14 @@ TEST(Assign_Fwd, NoMatch) {
                 "variant<int, std::string> v; v = x;");
 }
 
-TEST(Assign_Fwd, Ambiguous) {
+TEST(Assign_Fwd, WideningOrAmbiguous) {
+#if defined(__clang__) || !defined(__GNUC__) || __GNUC__ >= 5
+  static_assert(std::is_assignable<mpark::variant<short, long>, int>{},
+                "variant<short, long> v; v = 42;");
+#else
   static_assert(!std::is_assignable<mpark::variant<short, long>, int>{},
                 "variant<short, long> v; v = 42;");
+#endif
 }
 
 TEST(Assign_Fwd, SameTypeOptimization) {

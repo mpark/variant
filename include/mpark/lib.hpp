@@ -52,6 +52,10 @@ namespace mpark {
       using remove_reference_t = typename std::remove_reference<T>::type;
 
       template <typename T>
+      using remove_cvref_t =
+          typename std::remove_cv<remove_reference_t<T>>::type;
+
+      template <typename T>
       inline constexpr T &&forward(remove_reference_t<T> &t) noexcept {
         return static_cast<T &&>(t);
       }
