@@ -281,7 +281,7 @@ namespace std {
 #define MPARK_INTEGER_SEQUENCE
 #endif
 
-#if defined(__cpp_return_type_deduction) || defined(_MSC_VER)
+#if (defined(__cpp_decltype_auto) && defined(__cpp_return_type_deduction)) || defined(_MSC_VER)
 #define MPARK_RETURN_TYPE_DEDUCTION
 #endif
 
@@ -386,6 +386,10 @@ namespace mpark {
 
       template <typename T>
       using remove_reference_t = typename std::remove_reference<T>::type;
+
+      template <typename T>
+      using remove_cvref_t =
+          typename std::remove_cv<remove_reference_t<T>>::type;
 
       template <typename T>
       inline constexpr T &&forward(remove_reference_t<T> &t) noexcept {
@@ -2068,6 +2072,12 @@ namespace mpark {
       MPARK_INHERITING_CTOR(impl, super)
       using super::operator=;
 
+      impl(const impl&) = default;
+      impl(impl&&) = default;
+      ~impl() = default;
+      impl &operator=(const impl &) = default;
+      impl &operator=(impl &&) = default;
+
       template <std::size_t I, typename Arg>
       inline void assign(Arg &&arg) {
         this->assign_alt(access::base::get_alt<I>(*this),
@@ -2138,30 +2148,69 @@ namespace mpark {
 
 #undef MPARK_INHERITING_CTOR
 
-    template <std::size_t I, typename T>
-    struct overload_leaf {
-      using impl = lib::size_constant<I> (*)(T);
-      operator impl() const { return nullptr; }
+    template <typename From, typename To>
+    struct is_non_narrowing_convertible {
+      template <typename T>
+      static std::true_type test(T(&&)[1]);
+
+      template <typename T>
+      static auto impl(int) -> decltype(test<T>({std::declval<From>()}));
+
+      template <typename>
+      static auto impl(...) -> std::false_type;
+
+      static constexpr bool value = decltype(impl<To>(0))::value;
     };
 
-    template <typename... Ts>
+    template <typename Arg,
+              std::size_t I,
+              typename T,
+              bool = std::is_arithmetic<T>::value,
+              typename = void>
+    struct overload_leaf {};
+
+    template <typename Arg, std::size_t I, typename T>
+    struct overload_leaf<Arg, I, T, false> {
+      using impl = lib::size_constant<I> (*)(T);
+      operator impl() const { return nullptr; };
+    };
+
+    template <typename Arg, std::size_t I, typename T>
+    struct overload_leaf<
+        Arg,
+        I,
+        T,
+        true
+#if defined(__clang__) || !defined(__GNUC__) || __GNUC__ >= 5
+        ,
+        lib::enable_if_t<
+            std::is_same<lib::remove_cvref_t<T>, bool>::value
+                ? std::is_same<lib::remove_cvref_t<Arg>, bool>::value
+                : is_non_narrowing_convertible<Arg, T>::value>
+#endif
+        > {
+      using impl = lib::size_constant<I> (*)(T);
+      operator impl() const { return nullptr; };
+    };
+
+    template <typename Arg, typename... Ts>
     struct overload_impl {
       private:
       template <typename>
       struct impl;
 
       template <std::size_t... Is>
-      struct impl<lib::index_sequence<Is...>> : overload_leaf<Is, Ts>... {};
+      struct impl<lib::index_sequence<Is...>> : overload_leaf<Arg, Is, Ts>... {};
 
       public:
       using type = impl<lib::index_sequence_for<Ts...>>;
     };
 
-    template <typename... Ts>
-    using overload = typename overload_impl<Ts...>::type;
+    template <typename Arg, typename... Ts>
+    using overload = typename overload_impl<Arg, Ts...>::type;
 
-    template <typename T, typename... Ts>
-    using best_match = lib::invoke_result_t<overload<Ts...>, T &&>;
+    template <typename Arg, typename... Ts>
+    using best_match = lib::invoke_result_t<overload<Arg, Ts...>, Arg>;
 
     template <typename T>
     struct is_in_place_index : std::false_type {};
