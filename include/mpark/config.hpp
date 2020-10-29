@@ -64,7 +64,8 @@
 #endif
 
 #if __has_feature(cxx_exceptions) || defined(__cpp_exceptions) || \
-    (defined(_MSC_VER) && defined(_CPPUNWIND))
+    (defined(_MSC_VER) && defined(_CPPUNWIND)) || \
+    defined(__EXCEPTIONS)
 #define MPARK_EXCEPTIONS
 #endif
 
