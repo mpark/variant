@@ -50,7 +50,7 @@
 #define MPARK_BUILTIN_UNREACHABLE
 #endif
 
-#if __has_builtin(__type_pack_element)
+#if __has_builtin(__type_pack_element) && !(defined(__ICC))
 #define MPARK_TYPE_PACK_ELEMENT
 #endif
 
