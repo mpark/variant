@@ -63,9 +63,9 @@
 #define MPARK_CPP14_CONSTEXPR
 #endif
 
-#if __has_feature(cxx_exceptions) || defined(__cpp_exceptions) || \
+#if (__has_feature(cxx_exceptions) || defined(__cpp_exceptions) || \
     (defined(_MSC_VER) && defined(_CPPUNWIND)) || \
-    defined(__EXCEPTIONS)
+    defined(__EXCEPTIONS)) && !defined(__CUDA_ARCH__)
 #define MPARK_EXCEPTIONS
 #endif
 
