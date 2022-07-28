@@ -244,9 +244,15 @@ namespace mpark {
     virtual const char *what() const noexcept override { return "bad_variant_access"; }
   };
 
-  [[noreturn]] inline void throw_bad_variant_access() {
+  [[noreturn]]
+#ifdef __CUDACC__
+  __host__ __device__
+#endif
+  inline void throw_bad_variant_access() {
 #ifdef MPARK_EXCEPTIONS
     throw bad_variant_access{};
+#elif defined(__CUDA_ARCH__)
+    __trap();
 #else
     std::terminate();
     MPARK_BUILTIN_UNREACHABLE;
