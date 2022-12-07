@@ -1,0 +1,26 @@
+{
+  "name": "MPark-Variant",
+  "version": "1.4.0",
+  "keywords": "C++ std variant",
+  "description": "MPark.Variant is an implementation of C++17 std::variant for C++11/14/17.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mpark/variant"
+  },
+  "authors": [{
+    "name": "Michael Park",
+    "email": "mcypark@gmail.com"
+  }],
+  "frameworks": "*",
+  "platforms": "*",
+  "export": {
+    "include": [
+      "include/mpark/*"
+    ]
+  },
+  "build": {
+    "srcFilter": [
+      "-<*>"
+    ]
+  }
+}
