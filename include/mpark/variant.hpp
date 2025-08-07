@@ -1087,7 +1087,7 @@ namespace mpark {
 #pragma warning(disable : 4100)
 #endif
       template <typename Alt>
-      inline void operator()(Alt &alt) const noexcept { alt.~Alt(); }
+      inline constexpr void operator()(Alt &alt) const noexcept { alt.~Alt(); }
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -1115,11 +1115,11 @@ namespace mpark {
     MPARK_INHERITING_CTOR(destructor, super)                              \
     using super::operator=;                                               \
                                                                           \
-    destructor(const destructor &) = default;                             \
-    destructor(destructor &&) = default;                                  \
+    constexpr destructor(const destructor &) = default;                   \
+    constexpr destructor(destructor &&) = default;                        \
     definition                                                            \
-    destructor &operator=(const destructor &) = default;                  \
-    destructor &operator=(destructor &&) = default;                       \
+    constexpr destructor &operator=(const destructor &) = default;        \
+    constexpr destructor &operator=(destructor &&) = default;             \
                                                                           \
     protected:                                                            \
     destroy                                                               \
@@ -1128,14 +1128,14 @@ namespace mpark {
     MPARK_VARIANT_DESTRUCTOR(
         Trait::TriviallyAvailable,
         ~destructor() = default;,
-        inline void destroy() noexcept {
+        constexpr inline void destroy() noexcept {
           this->index_ = static_cast<index_t<Ts...>>(-1);
         });
 
     MPARK_VARIANT_DESTRUCTOR(
         Trait::Available,
         ~destructor() { destroy(); },
-        inline void destroy() noexcept {
+        constexpr inline void destroy() noexcept {
           if (!this->valueless_by_exception()) {
             visitation::alt::visit_alt(dtor{}, *this);
           }
@@ -1161,7 +1161,7 @@ namespace mpark {
 #ifndef MPARK_GENERIC_LAMBDAS
       struct ctor {
         template <typename LhsAlt, typename RhsAlt>
-        inline void operator()(LhsAlt &lhs_alt, RhsAlt &&rhs_alt) const {
+        inline constexpr void operator()(LhsAlt &lhs_alt, RhsAlt &&rhs_alt) const {
           constructor::construct_alt(lhs_alt,
                                      lib::forward<RhsAlt>(rhs_alt).value);
         }
@@ -1169,14 +1169,14 @@ namespace mpark {
 #endif
 
       template <std::size_t I, typename T, typename... Args>
-      inline static T &construct_alt(alt<I, T> &a, Args &&... args) {
+      constexpr static T &construct_alt(alt<I, T> &a, Args &&... args) {
         auto *result = ::new (static_cast<void *>(lib::addressof(a)))
             alt<I, T>(in_place_t{}, lib::forward<Args>(args)...);
         return result->value;
       }
 
       template <typename Rhs>
-      inline static void generic_construct(constructor &lhs, Rhs &&rhs) {
+      constexpr static void generic_construct(constructor &lhs, Rhs &&rhs) {
         lhs.destroy();
         if (!rhs.valueless_by_exception()) {
           visitation::alt::visit_alt_at(
@@ -1200,30 +1200,30 @@ namespace mpark {
     template <typename Traits, Trait = Traits::move_constructible_trait>
     class move_constructor;
 
-#define MPARK_VARIANT_MOVE_CONSTRUCTOR(move_constructible_trait, definition) \
-  template <typename... Ts>                                                  \
-  class move_constructor<traits<Ts...>, move_constructible_trait>            \
-      : public constructor<traits<Ts...>> {                                  \
-    using super = constructor<traits<Ts...>>;                                \
-                                                                             \
-    public:                                                                  \
-    MPARK_INHERITING_CTOR(move_constructor, super)                           \
-    using super::operator=;                                                  \
-                                                                             \
-    move_constructor(const move_constructor &) = default;                    \
-    definition                                                               \
-    ~move_constructor() = default;                                           \
-    move_constructor &operator=(const move_constructor &) = default;         \
-    move_constructor &operator=(move_constructor &&) = default;              \
+#define MPARK_VARIANT_MOVE_CONSTRUCTOR(move_constructible_trait, definition)   \
+  template <typename... Ts>                                                    \
+  class move_constructor<traits<Ts...>, move_constructible_trait>              \
+      : public constructor<traits<Ts...>> {                                    \
+    using super = constructor<traits<Ts...>>;                                  \
+                                                                               \
+    public:                                                                    \
+    MPARK_INHERITING_CTOR(move_constructor, super)                             \
+    using super::operator=;                                                    \
+                                                                               \
+    constexpr move_constructor(const move_constructor &) = default;            \
+    definition                                                                 \
+    ~move_constructor() = default;                                             \
+    constexpr move_constructor &operator=(const move_constructor &) = default; \
+    constexpr move_constructor &operator=(move_constructor &&) = default;      \
   }
 
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
         Trait::TriviallyAvailable,
-        move_constructor(move_constructor &&that) = default;);
+        constexpr move_constructor(move_constructor &&that) = default;);
 
     MPARK_VARIANT_MOVE_CONSTRUCTOR(
         Trait::Available,
-        move_constructor(move_constructor &&that) noexcept(
+        constexpr move_constructor(move_constructor &&that) noexcept(
             lib::all<std::is_nothrow_move_constructible<Ts>::value...>::value)
             : move_constructor(valueless_t{}) {
           this->generic_construct(*this, lib::move(that));
@@ -1238,30 +1238,30 @@ namespace mpark {
     template <typename Traits, Trait = Traits::copy_constructible_trait>
     class copy_constructor;
 
-#define MPARK_VARIANT_COPY_CONSTRUCTOR(copy_constructible_trait, definition) \
-  template <typename... Ts>                                                  \
-  class copy_constructor<traits<Ts...>, copy_constructible_trait>            \
-      : public move_constructor<traits<Ts...>> {                             \
-    using super = move_constructor<traits<Ts...>>;                           \
-                                                                             \
-    public:                                                                  \
-    MPARK_INHERITING_CTOR(copy_constructor, super)                           \
-    using super::operator=;                                                  \
-                                                                             \
-    definition                                                               \
-    copy_constructor(copy_constructor &&) = default;                         \
-    ~copy_constructor() = default;                                           \
-    copy_constructor &operator=(const copy_constructor &) = default;         \
-    copy_constructor &operator=(copy_constructor &&) = default;              \
+#define MPARK_VARIANT_COPY_CONSTRUCTOR(copy_constructible_trait, definition)   \
+  template <typename... Ts>                                                    \
+  class copy_constructor<traits<Ts...>, copy_constructible_trait>              \
+      : public move_constructor<traits<Ts...>> {                               \
+    using super = move_constructor<traits<Ts...>>;                             \
+                                                                               \
+    public:                                                                    \
+    MPARK_INHERITING_CTOR(copy_constructor, super)                             \
+    using super::operator=;                                                    \
+                                                                               \
+    definition                                                                 \
+    constexpr copy_constructor(copy_constructor &&) = default;                 \
+    ~copy_constructor() = default;                                             \
+    constexpr copy_constructor &operator=(const copy_constructor &) = default; \
+    constexpr copy_constructor &operator=(copy_constructor &&) = default;      \
   }
 
     MPARK_VARIANT_COPY_CONSTRUCTOR(
         Trait::TriviallyAvailable,
-        copy_constructor(const copy_constructor &that) = default;);
+        constexpr copy_constructor(const copy_constructor &that) = default;);
 
     MPARK_VARIANT_COPY_CONSTRUCTOR(
         Trait::Available,
-        copy_constructor(const copy_constructor &that)
+        constexpr copy_constructor(const copy_constructor &that)
             : copy_constructor(valueless_t{}) {
           this->generic_construct(*this, that);
         });
@@ -1281,7 +1281,7 @@ namespace mpark {
       using super::operator=;
 
       template <std::size_t I, typename... Args>
-      inline /* auto & */ auto emplace(Args &&... args)
+      constexpr /* auto & */ auto emplace(Args &&... args)
           -> decltype(this->construct_alt(access::base::get_alt<I>(*this),
                                           lib::forward<Args>(args)...)) {
         this->destroy();
@@ -1296,7 +1296,7 @@ namespace mpark {
       template <typename That>
       struct assigner {
         template <typename ThisAlt, typename ThatAlt>
-        inline void operator()(ThisAlt &this_alt, ThatAlt &&that_alt) const {
+        constexpr void operator()(ThisAlt &this_alt, ThatAlt &&that_alt) const {
           self->assign_alt(this_alt, lib::forward<ThatAlt>(that_alt).value);
         }
         assignment *self;
@@ -1304,7 +1304,7 @@ namespace mpark {
 #endif
 
       template <std::size_t I, typename T, typename Arg>
-      inline void assign_alt(alt<I, T> &a, Arg &&arg) {
+      constexpr void assign_alt(alt<I, T> &a, Arg &&arg) {
         if (this->index() == I) {
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -1332,7 +1332,7 @@ namespace mpark {
       }
 
       template <typename That>
-      inline void generic_assign(That &&that) {
+      inline constexpr void generic_assign(That &&that) {
         if (this->valueless_by_exception() && that.valueless_by_exception()) {
           // do nothing.
         } else if (that.valueless_by_exception()) {
@@ -1447,7 +1447,7 @@ namespace mpark {
       impl &operator=(impl &&) = default;
 
       template <std::size_t I, typename Arg>
-      inline void assign(Arg &&arg) {
+      inline constexpr void assign(Arg &&arg) {
         this->assign_alt(access::base::get_alt<I>(*this),
                          lib::forward<Arg>(arg));
       }
@@ -1499,7 +1499,7 @@ namespace mpark {
 #ifndef MPARK_GENERIC_LAMBDAS
       struct swapper {
         template <typename ThisAlt, typename ThatAlt>
-        inline void operator()(ThisAlt &this_alt, ThatAlt &that_alt) const {
+        inline constexpr void operator()(ThisAlt &this_alt, ThatAlt &that_alt) const {
           using std::swap;
           swap(this_alt.value, that_alt.value);
         }
@@ -1705,7 +1705,7 @@ namespace mpark {
               lib::enable_if_t<(std::is_assignable<T &, Arg>::value &&
                                 std::is_constructible<T, Arg>::value),
                                int> = 0>
-    inline variant &operator=(Arg &&arg) noexcept(
+    inline constexpr variant &operator=(Arg &&arg) noexcept(
         (std::is_nothrow_assignable<T &, Arg>::value &&
          std::is_nothrow_constructible<T, Arg>::value)) {
       impl_.template assign<I>(lib::forward<Arg>(arg));
@@ -1717,7 +1717,7 @@ namespace mpark {
         typename... Args,
         typename T = lib::type_pack_element_t<I, Ts...>,
         lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
-    inline T &emplace(Args &&... args) {
+    inline constexpr T &emplace(Args &&... args) {
       return impl_.template emplace<I>(lib::forward<Args>(args)...);
     }
 
@@ -1730,7 +1730,7 @@ namespace mpark {
                                                std::initializer_list<Up> &,
                                                Args...>::value,
                          int> = 0>
-    inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
+    inline constexpr T &emplace(std::initializer_list<Up> il, Args &&... args) {
       return impl_.template emplace<I>(il, lib::forward<Args>(args)...);
     }
 
@@ -1739,7 +1739,7 @@ namespace mpark {
         typename... Args,
         std::size_t I = detail::find_index_sfinae<T, Ts...>::value,
         lib::enable_if_t<std::is_constructible<T, Args...>::value, int> = 0>
-    inline T &emplace(Args &&... args) {
+    inline constexpr T &emplace(Args &&... args) {
       return impl_.template emplace<I>(lib::forward<Args>(args)...);
     }
 
@@ -1752,7 +1752,7 @@ namespace mpark {
                                                std::initializer_list<Up> &,
                                                Args...>::value,
                          int> = 0>
-    inline T &emplace(std::initializer_list<Up> il, Args &&... args) {
+    inline constexpr T &emplace(std::initializer_list<Up> il, Args &&... args) {
       return impl_.template emplace<I>(il, lib::forward<Args>(args)...);
     }
 
@@ -1772,7 +1772,7 @@ namespace mpark {
                             lib::dependent_type<lib::is_swappable<Ts>,
                                                 Dummy>::value)...>::value,
                   int> = 0>
-    inline void swap(variant &that) noexcept(
+    inline constexpr void swap(variant &that) noexcept(
         lib::all<(std::is_nothrow_move_constructible<Ts>::value &&
                   lib::is_nothrow_swappable<Ts>::value)...>::value) {
       impl_.swap(that.impl_);
@@ -2093,7 +2093,7 @@ namespace mpark {
 #endif
 
   template <typename... Ts>
-  inline auto swap(variant<Ts...> &lhs,
+  inline constexpr auto swap(variant<Ts...> &lhs,
                    variant<Ts...> &rhs) noexcept(noexcept(lhs.swap(rhs)))
       -> decltype(lhs.swap(rhs)) {
     lhs.swap(rhs);
@@ -2147,7 +2147,7 @@ namespace std {
     using argument_type = mpark::variant<Ts...>;
     using result_type = std::size_t;
 
-    inline result_type operator()(const argument_type &v) const {
+    inline constexpr result_type operator()(const argument_type &v) const {
       using mpark::detail::visitation::variant;
       std::size_t result =
           v.valueless_by_exception()
@@ -2172,7 +2172,7 @@ namespace std {
 #ifndef MPARK_GENERIC_LAMBDAS
     struct hasher {
       template <typename Alt>
-      inline std::size_t operator()(const Alt &alt) const {
+      inline constexpr std::size_t operator()(const Alt &alt) const {
         using alt_type = mpark::lib::decay_t<Alt>;
         using value_type =
             mpark::lib::remove_const_t<typename alt_type::value_type>;
@@ -2191,7 +2191,7 @@ namespace std {
     using argument_type = mpark::monostate;
     using result_type = std::size_t;
 
-    inline result_type operator()(const argument_type &) const noexcept {
+    inline constexpr result_type operator()(const argument_type &) const noexcept {
       return 66740831;  // return a fundamentally attractive random value.
     }
   };
